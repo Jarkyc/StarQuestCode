@@ -52,6 +52,8 @@ public class SQSmoothcraft extends JavaPlugin {
 // Create command system - SQCore
 // Ship movement
 // Modules
+// Setup ship block config
+
 
 
 }

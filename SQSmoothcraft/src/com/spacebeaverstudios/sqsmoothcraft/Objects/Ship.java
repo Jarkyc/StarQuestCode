@@ -5,6 +5,8 @@ import com.spacebeaverstudios.sqsmoothcraft.Utils.MathUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
@@ -18,18 +20,22 @@ public class Ship {
     private Player owner;
     private Location shipLocation;
     private ShipBlock core;
+    private ArmorStand seat;
 
     public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core){
         this.blocks = blocks;
         this.owner = owner;
         this.shipLocation = origin;
         this.core = core;
+        this.seat = (ArmorStand) shipLocation.getWorld().spawnEntity(origin, EntityType.ARMOR_STAND);
+        seat.setVisible(false);
+        seat.setInvulnerable(true);
 
         SQSmoothcraft.instance.allShips.add(this);
         for(ShipBlock block : blocks){
             block.buildArmorStand();
         }
-        core.getArmorStand().addPassenger(owner);
+        seat.addPassenger(owner);
     }
 
     public Player getOwner(){
@@ -47,13 +53,13 @@ public class Ship {
         for(ShipBlock block : blocks){
             block.location = block.getArmorStand().getLocation();
 
-
             block.armorStand.setVelocity(block.armorStand.getVelocity().clone().setY(0));
+            seat.setVelocity(block.armorStand.getVelocity().clone().setY(0));
         }
     }
 
     private void updateOrigin(){
-        this.shipLocation = core.getArmorStand().getLocation();
+        this.shipLocation = seat.getLocation();
     }
 
     private void rotateStands(){
@@ -96,15 +102,17 @@ public class Ship {
             block.armorStand.teleport(locationShip);
             block.armorStand.setHeadPose(new EulerAngle(pitch, yaw, 0));
 
+
         }
 
     }
 
     private void handleShiftFly(){
 
-        for(ShipBlock block : blocks){
-            if(getOwner().isSneaking()){
+        if(getOwner().isSneaking()){
+            for(ShipBlock block : blocks){
                 block.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(1));
+                seat.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(1));
             }
         }
 
