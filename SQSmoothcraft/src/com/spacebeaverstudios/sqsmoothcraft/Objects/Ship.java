@@ -2,11 +2,9 @@ package com.spacebeaverstudios.sqsmoothcraft.Objects;
 
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.MathUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
@@ -20,22 +18,20 @@ public class Ship {
     private Player owner;
     private Location shipLocation;
     private ShipBlock core;
-    private ArmorStand seat;
+    public Vector autoPilotDirection;
+    public boolean isAutopilot = false;
 
     public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core){
         this.blocks = blocks;
         this.owner = owner;
         this.shipLocation = origin;
         this.core = core;
-        this.seat = (ArmorStand) shipLocation.getWorld().spawnEntity(origin, EntityType.ARMOR_STAND);
-        seat.setVisible(false);
-        seat.setInvulnerable(true);
 
         SQSmoothcraft.instance.allShips.add(this);
         for(ShipBlock block : blocks){
             block.buildArmorStand();
         }
-        seat.addPassenger(owner);
+        core.armorStand.addPassenger(owner);
     }
 
     public Player getOwner(){
@@ -43,26 +39,32 @@ public class Ship {
     }
 
     public void onTick(){
-        rotateStands();
+        handleShiftFly();
         updateOrigin();
         updateData();
-        handleShiftFly();
+        rotateStands();
+        handleAutoPilot();
+
     }
 
     private void updateData(){
         for(ShipBlock block : blocks){
             block.location = block.getArmorStand().getLocation();
 
-            block.armorStand.setVelocity(block.armorStand.getVelocity().clone().setY(0));
-            seat.setVelocity(block.armorStand.getVelocity().clone().setY(0));
+            if(!getOwner().isSneaking() && block.armorStand.getVelocity().getY() < 0) {
+                block.armorStand.setVelocity(block.armorStand.getVelocity().clone().setY(0));
+            }
         }
     }
 
     private void updateOrigin(){
-        this.shipLocation = seat.getLocation();
+        this.shipLocation = core.armorStand.getLocation();
     }
 
     private void rotateStands(){
+
+        if(isAutopilot)
+            return;
 
         double pitch = this.getOwner().getLocation().getPitch();
         pitch = Math.toRadians(pitch);
@@ -81,9 +83,6 @@ public class Ship {
         double arg3 = yawCos * pitchSin;
         double arg4 = yawCos * pitchCos;
 
-        Vector vec = this.owner.getLocation().getDirection();
-
-
         for(ShipBlock block : this.blocks){
 
             ShipLocation shipLocation = block.shipLoc;
@@ -100,6 +99,7 @@ public class Ship {
 
 
             block.armorStand.teleport(locationShip);
+
             block.armorStand.setHeadPose(new EulerAngle(pitch, yaw, 0));
 
 
@@ -109,13 +109,21 @@ public class Ship {
 
     private void handleShiftFly(){
 
-        if(getOwner().isSneaking()){
+        if(getOwner().isSneaking() && !isAutopilot && getOwner().getInventory().getItemInMainHand().getType() == Material.CLOCK){
             for(ShipBlock block : blocks){
                 block.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(1));
-                seat.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(1));
             }
+            //seat.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(1));
         }
 
+    }
+
+    private void handleAutoPilot(){
+        if(isAutopilot){
+            for(ShipBlock block : blocks){
+                block.armorStand.setVelocity(this.autoPilotDirection.normalize().multiply(1));
+            }
+        }
     }
 
     //Trigger on unpilot
@@ -155,6 +163,8 @@ public class Ship {
                     ((arg3 * shipLocation.y) + (arg4 * shipLocation.z) + (yawSin * shipLocation.x))).add(this.shipLocation.clone());
 
 
+            //Fixes ships building a block below where they are showing
+            locationShip.add(0, 1, 0);
 
             locationShip.getWorld().getBlockAt(locationShip.toBlockLocation()).setType(block.getMaterial());
             block.getArmorStand().remove();

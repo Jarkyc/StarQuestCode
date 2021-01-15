@@ -3,19 +3,17 @@ package com.spacebeaverstudios.sqsmoothcraft.Tasks;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipBlock;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipLocation;
+import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
-import org.bukkit.block.data.type.NoteBlock;
+
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Stack;
 
 public class DetectionTask {
@@ -67,7 +65,7 @@ public class DetectionTask {
                 if(!analyed.contains(checkBlock)){
                     Block b = world.getBlockAt(checkBlock.getBlockX(), checkBlock.getBlockY(), checkBlock.getBlockZ());
 
-                    if(b.getType().toString().endsWith("WOOL") || b.getType() == Material.NOTE_BLOCK){
+                    if(SQSmoothcraft.instance.shipBlocks.contains(b.getType()) || b.getType() == Material.NOTE_BLOCK){
                         ShipLocation shipLoc = new ShipLocation(checkBlock.clone().getX() - location.clone().getX(), checkBlock.clone().getY() - location.clone().getY(), checkBlock.clone().getZ() - location.clone().getZ());
                         ShipBlock shipBlock = new ShipBlock(shipLoc, new Location(b.getWorld(), checkBlock.getX(), checkBlock.getY(), checkBlock.getZ()), b.getType());
                         blocks.add(shipBlock);
