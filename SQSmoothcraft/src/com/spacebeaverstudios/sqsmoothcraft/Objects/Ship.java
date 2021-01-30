@@ -2,6 +2,7 @@ package com.spacebeaverstudios.sqsmoothcraft.Objects;
 
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.MathUtils;
+import io.netty.util.internal.MathUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -20,12 +21,14 @@ public class Ship {
     private ShipBlock core;
     public Vector autoPilotDirection;
     public boolean isAutopilot = false;
+    private Location originVec;
 
-    public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core){
+    public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core, Location originalVector){
         this.blocks = blocks;
         this.owner = owner;
         this.shipLocation = origin;
         this.core = core;
+        this.originVec = originalVector;
 
         SQSmoothcraft.instance.allShips.add(this);
         for(ShipBlock block : blocks){
@@ -51,7 +54,7 @@ public class Ship {
         for(ShipBlock block : blocks){
             block.location = block.getArmorStand().getLocation();
 
-            if(!getOwner().isSneaking() && block.armorStand.getVelocity().getY() < 0) {
+            if(((getOwner().getInventory().getItemInMainHand().getType() != Material.CLOCK && !isAutopilot) || (getOwner().getInventory().getItemInMainHand().getType() == Material.CLOCK && !getOwner().isSneaking())) && block.armorStand.getVelocity().getY() < 0) {
                 block.armorStand.setVelocity(block.armorStand.getVelocity().clone().setY(0));
             }
         }
@@ -66,10 +69,10 @@ public class Ship {
         if(isAutopilot)
             return;
 
-        double pitch = this.getOwner().getLocation().getPitch();
+        double pitch = this.getOwner().getEyeLocation().getPitch();
         pitch = Math.toRadians(pitch);
 
-        double yaw = this.getOwner().getLocation().getYaw();
+        double yaw = this.getOwner().getEyeLocation().getYaw();
         yaw = Math.toRadians(yaw);
 
         double yawCos = Math.cos(yaw);
@@ -92,10 +95,10 @@ public class Ship {
             Location locationShip = new Location(world,
                     ((arg1 * shipLocation.y) - (arg2 * shipLocation.z) + (yawCos * shipLocation.x)),
                     ((shipLocation.y * pitchCos) - (shipLocation.z * pitchSin)),
-                    ((arg3 * shipLocation.y) + (arg4 * shipLocation.z) + (yawSin * shipLocation.x))).add(this.shipLocation.clone());
+                    ((arg3 * shipLocation.y) + (arg4 * shipLocation.z) + (yawSin * shipLocation.x))).add(this.shipLocation);
 
-            locationShip.setYaw(0);
-            locationShip.setPitch(0);
+           locationShip.setYaw(0);
+           locationShip.setPitch(0);
 
 
             block.armorStand.teleport(locationShip);
@@ -113,7 +116,6 @@ public class Ship {
             for(ShipBlock block : blocks){
                 block.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(1));
             }
-            //seat.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(1));
         }
 
     }
@@ -166,7 +168,7 @@ public class Ship {
             //Fixes ships building a block below where they are showing
             locationShip.add(0, 1, 0);
 
-            locationShip.getWorld().getBlockAt(locationShip.toBlockLocation()).setType(block.getMaterial());
+            locationShip.getWorld().getBlockAt(locationShip).setType(block.getMaterial());
             block.getArmorStand().remove();
             SQSmoothcraft.instance.allShips.remove(this);
 

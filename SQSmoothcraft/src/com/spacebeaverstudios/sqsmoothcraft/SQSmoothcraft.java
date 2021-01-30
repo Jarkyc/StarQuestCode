@@ -54,7 +54,7 @@ public class SQSmoothcraft extends JavaPlugin {
 
         ArrayList<Material> mats = new ArrayList<>();
 
-        for(String string : getConfig().getStringList("blocks")){
+        for(String string : getConfig().getStringList("blocks")) {
             Material mat = Material.getMaterial(string.toUpperCase());
             mats.add(mat);
         }

@@ -25,6 +25,8 @@ public class DetectionTask {
 
         Vector vector = new Vector(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
+        Location originalVector = player.getLocation();
+
         World world = location.getWorld();
 
         Stack<Vector> jumpBlocks = new Stack<>();
@@ -82,7 +84,7 @@ public class DetectionTask {
         }
 
         System.out.println(blocks.size() + " blocks detected");
-        new Ship(this.blocks, player, location, this.core);
+        new Ship(this.blocks, player, location, this.core, originalVector);
 
     }
 

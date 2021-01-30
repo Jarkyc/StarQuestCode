@@ -53,7 +53,6 @@ public class PlayerListeners implements Listener {
 
         if(e.getEntity() instanceof Player){
             Player player = (Player) e.getEntity();
-
             if(ShipUtils.isAPilot(player)){
                 e.setCancelled(true);
             }
