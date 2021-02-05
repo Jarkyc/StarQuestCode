@@ -1,6 +1,7 @@
 package com.spacebeaverstudios.sqdiscordbot;
 
 public class MessageToSend {
+	// test commit edit
     private final String message;
     private final Exception e;
 
