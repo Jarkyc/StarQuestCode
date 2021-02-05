@@ -3,6 +3,7 @@ package com.spacebeaverstudios.sqsmoothcraft;
 import com.spacebeaverstudios.sqsmoothcraft.Commands.UnpilotCmd;
 import com.spacebeaverstudios.sqsmoothcraft.Listeners.PlayerListeners;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
+
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -68,20 +69,12 @@ public class SQSmoothcraft extends JavaPlugin {
             public void run() {
                 for(Ship ship : allShips){
                     ship.onTick();
+
+
                 }
             }
-        }, 0L, 1);
+        }, 0L, 0);
     }
-
-
-//TODO
-// Find out why ships spawn facing south
-// Support slabs
-// Check if blocks are in the way of building.
-// Create command system - SQCore
-// Ship movement
-// Modules
-
 
 
 }

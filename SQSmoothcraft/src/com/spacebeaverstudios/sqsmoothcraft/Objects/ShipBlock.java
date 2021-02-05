@@ -31,6 +31,7 @@ public class ShipBlock {
         armorStand.setVisible(false);
         armorStand.setCollidable(false);
 
+
         location.getWorld().getBlockAt(location).setType(Material.AIR);
 
 

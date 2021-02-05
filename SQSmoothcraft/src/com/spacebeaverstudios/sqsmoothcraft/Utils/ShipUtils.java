@@ -3,7 +3,6 @@ package com.spacebeaverstudios.sqsmoothcraft.Utils;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Shulker;
 
 public class ShipUtils {
 

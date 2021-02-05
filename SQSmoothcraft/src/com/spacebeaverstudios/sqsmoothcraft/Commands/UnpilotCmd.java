@@ -13,7 +13,6 @@ public class UnpilotCmd implements CommandExecutor {
         Player player = (Player) commandSender;
 
         if(ShipUtils.isAPilot(player)){
-            player.leaveVehicle();
             ShipUtils.getShipByPlayer(player).buildSolid();
         } else {
             player.sendMessage(ChatColor.RED + "You are not piloting a ship!");

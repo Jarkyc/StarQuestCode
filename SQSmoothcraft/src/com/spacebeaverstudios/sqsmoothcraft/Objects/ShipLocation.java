@@ -2,9 +2,9 @@ package com.spacebeaverstudios.sqsmoothcraft.Objects;
 
 public class ShipLocation {
 
-    public double x = 0;
-    public double y = 0;
-    public double z = 0;
+    public double x;
+    public double y;
+    public double z;
 
 
     public ShipLocation(double x, double y, double z){

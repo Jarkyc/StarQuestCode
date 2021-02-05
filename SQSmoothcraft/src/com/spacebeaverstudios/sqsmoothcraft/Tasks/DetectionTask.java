@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -69,6 +70,21 @@ public class DetectionTask {
 
                     if(SQSmoothcraft.instance.shipBlocks.contains(b.getType()) || b.getType() == Material.NOTE_BLOCK){
                         ShipLocation shipLoc = new ShipLocation(checkBlock.clone().getX() - location.clone().getX(), checkBlock.clone().getY() - location.clone().getY(), checkBlock.clone().getZ() - location.clone().getZ());
+
+
+                        if(player.getFacing() == BlockFace.NORTH){
+                            shipLoc.x *= -1;
+                            shipLoc.z *= -1;
+                        } else if(player.getFacing() == BlockFace.EAST){
+                            double temp = shipLoc.x;
+                            shipLoc.x = shipLoc.z * -1;
+                            shipLoc.z = temp;
+                        } else if(player.getFacing() == BlockFace.WEST){
+                            double temp = shipLoc.x;
+                            shipLoc.x = shipLoc.z;
+                            shipLoc.z = temp * -1;
+                        }
+
                         ShipBlock shipBlock = new ShipBlock(shipLoc, new Location(b.getWorld(), checkBlock.getX(), checkBlock.getY(), checkBlock.getZ()), b.getType());
                         blocks.add(shipBlock);
                         if(b.getType() == Material.NOTE_BLOCK){

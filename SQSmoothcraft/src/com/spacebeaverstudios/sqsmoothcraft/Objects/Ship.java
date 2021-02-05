@@ -2,10 +2,7 @@ package com.spacebeaverstudios.sqsmoothcraft.Objects;
 
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.MathUtils;
-import io.netty.util.internal.MathUtil;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
@@ -34,6 +31,8 @@ public class Ship {
         for(ShipBlock block : blocks){
             block.buildArmorStand();
         }
+        //prevents the player's view from lowering when the crouch
+        owner.setFlying(true);
         core.armorStand.addPassenger(owner);
     }
 
@@ -42,17 +41,30 @@ public class Ship {
     }
 
     public void onTick(){
+        updateData();
         handleShiftFly();
         updateOrigin();
-        updateData();
         rotateStands();
         handleAutoPilot();
+
+    }
+    public ShipBlock getCore(){
+        return this.core;
+    }
+
+    public Location getLocation(){
+        return core.armorStand.getLocation();
+    }
+
+    public void temp(){
+        core.armorStand.addPassenger(owner);
 
     }
 
     private void updateData(){
         for(ShipBlock block : blocks){
             block.location = block.getArmorStand().getLocation();
+
 
             if(((getOwner().getInventory().getItemInMainHand().getType() != Material.CLOCK && !isAutopilot) || (getOwner().getInventory().getItemInMainHand().getType() == Material.CLOCK && !getOwner().isSneaking())) && block.armorStand.getVelocity().getY() < 0) {
                 block.armorStand.setVelocity(block.armorStand.getVelocity().clone().setY(0));
@@ -95,16 +107,14 @@ public class Ship {
             Location locationShip = new Location(world,
                     ((arg1 * shipLocation.y) - (arg2 * shipLocation.z) + (yawCos * shipLocation.x)),
                     ((shipLocation.y * pitchCos) - (shipLocation.z * pitchSin)),
-                    ((arg3 * shipLocation.y) + (arg4 * shipLocation.z) + (yawSin * shipLocation.x))).add(this.shipLocation);
+                    ((arg3 * shipLocation.y) + (arg4 * shipLocation.z) + (yawSin * shipLocation.x))).add(this.shipLocation.clone());
 
            locationShip.setYaw(0);
            locationShip.setPitch(0);
 
 
             block.armorStand.teleport(locationShip);
-
             block.armorStand.setHeadPose(new EulerAngle(pitch, yaw, 0));
-
 
         }
 
@@ -113,9 +123,12 @@ public class Ship {
     private void handleShiftFly(){
 
         if(getOwner().isSneaking() && !isAutopilot && getOwner().getInventory().getItemInMainHand().getType() == Material.CLOCK){
+            //Don't ask me why but this makes chunk loading happy
+            owner.setSneaking(false);
             for(ShipBlock block : blocks){
-                block.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(1));
+                block.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(2));
             }
+            owner.playSound(core.getArmorStand().getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 5, 1);
         }
 
     }
@@ -129,7 +142,7 @@ public class Ship {
     }
 
     //Trigger on unpilot
-    public void buildSolid(){
+    public void buildSolid() {
 
         double pitch = Math.toRadians(0);
 
@@ -138,7 +151,7 @@ public class Ship {
         ShipBlock firstBlock = it.next();
 
         double euToDeg = firstBlock.armorStand.getHeadPose().getY() * 180 / Math.PI;
-        if(euToDeg < 0) euToDeg += 360;
+        if (euToDeg < 0) euToDeg += 360;
 
 
         double closestCard = MathUtils.getClosestCardinal(euToDeg);
@@ -155,8 +168,9 @@ public class Ship {
         double arg3 = yawCos * pitchSin;
         double arg4 = yawCos * pitchCos;
 
-        for(ShipBlock block : this.blocks){
+        boolean canCompile = true;
 
+        for (ShipBlock block : this.blocks) {
             ShipLocation shipLocation = block.shipLoc;
 
             Location locationShip = new Location(this.shipLocation.getWorld(),
@@ -164,17 +178,40 @@ public class Ship {
                     ((shipLocation.y * pitchCos) - (shipLocation.z * pitchSin)),
                     ((arg3 * shipLocation.y) + (arg4 * shipLocation.z) + (yawSin * shipLocation.x))).add(this.shipLocation.clone());
 
-
-            //Fixes ships building a block below where they are showing
             locationShip.add(0, 1, 0);
 
-            locationShip.getWorld().getBlockAt(locationShip).setType(block.getMaterial());
-            block.getArmorStand().remove();
-            SQSmoothcraft.instance.allShips.remove(this);
+            if (locationShip.getBlock().getType() != Material.AIR) {
+                canCompile = false;
+                break;
+            }
 
         }
 
 
+        if (canCompile) {
+            owner.setFlying(false);
+            owner.leaveVehicle();
+            for (ShipBlock block : this.blocks) {
+
+                ShipLocation shipLocation = block.shipLoc;
+
+                Location locationShip = new Location(this.shipLocation.getWorld(),
+                        ((arg1 * shipLocation.y) - (arg2 * shipLocation.z) + (yawCos * shipLocation.x)),
+                        ((shipLocation.y * pitchCos) - (shipLocation.z * pitchSin)),
+                        ((arg3 * shipLocation.y) + (arg4 * shipLocation.z) + (yawSin * shipLocation.x))).add(this.shipLocation.clone());
+
+
+                //Fixes ships building a block below where they are showing
+                locationShip.add(0, 1, 0);
+
+                locationShip.getWorld().getBlockAt(locationShip).setType(block.getMaterial());
+                block.getArmorStand().remove();
+                SQSmoothcraft.instance.allShips.remove(this);
+
+            }
+        } else {
+            owner.sendMessage(ChatColor.RED + "Can not unpilot ship; blocks are in the way!");
+        }
     }
 
 
