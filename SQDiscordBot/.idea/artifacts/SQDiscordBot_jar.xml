@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SQDiscordBot:jar">
+    <output-path>$PROJECT_DIR$/../mc/plugins</output-path>
+    <root id="archive" name="SQDiscordBot.jar">
+      <element id="module-output" name="SQDiscordBot" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/JDA-4.2.0_227.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
