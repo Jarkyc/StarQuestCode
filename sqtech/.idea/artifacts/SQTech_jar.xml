@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SQTech:jar">
+    <output-path>$PROJECT_DIR$/../../server/plugins</output-path>
+    <root id="archive" name="SQTech.jar">
+      <element id="module-output" name="SQTech" />
+    </root>
+  </artifact>
+</component>
