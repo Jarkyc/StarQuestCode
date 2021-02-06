@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -19,13 +20,15 @@ public class Ship {
     public Vector autoPilotDirection;
     public boolean isAutopilot = false;
     private Location originVec;
+    private ArrayList<ShipBlock> pistons;
 
-    public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core, Location originalVector){
+    public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core, Location originalVector, ArrayList<ShipBlock> pistons){
         this.blocks = blocks;
         this.owner = owner;
         this.shipLocation = origin;
         this.core = core;
         this.originVec = originalVector;
+        this.pistons = pistons;
 
         SQSmoothcraft.instance.allShips.add(this);
         for(ShipBlock block : blocks){
@@ -112,9 +115,21 @@ public class Ship {
            locationShip.setYaw(0);
            locationShip.setPitch(0);
 
+           locationShip.add(0, block.getyOffset(), 0);
 
             block.armorStand.teleport(locationShip);
-            block.armorStand.setHeadPose(new EulerAngle(pitch, yaw, 0));
+
+            final double tempPitch = pitch;
+            final double tempYaw = yaw;
+
+            Bukkit.getScheduler().scheduleSyncDelayedTask(SQSmoothcraft.instance, new Runnable() {
+                @Override
+                public void run() {
+                    block.armorStand.setHeadPose(new EulerAngle(tempPitch, tempYaw, 0));
+                }
+            }, 1L);
+
+
 
         }
 
@@ -205,6 +220,7 @@ public class Ship {
                 locationShip.add(0, 1, 0);
 
                 locationShip.getWorld().getBlockAt(locationShip).setType(block.getMaterial());
+                locationShip.getWorld().getBlockAt(locationShip).setBlockData(block.blockData);
                 block.getArmorStand().remove();
                 SQSmoothcraft.instance.allShips.remove(this);
 

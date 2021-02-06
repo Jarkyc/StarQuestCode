@@ -10,9 +10,12 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Slab;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Stack;
@@ -27,11 +30,12 @@ public class DetectionTask {
         Vector vector = new Vector(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
         Location originalVector = player.getLocation();
-
         World world = location.getWorld();
 
         Stack<Vector> jumpBlocks = new Stack<>();
         jumpBlocks.push(vector);
+
+        ArrayList<ShipBlock> pistons = new ArrayList<>();
 
         ArrayList<Vector> analyed = new ArrayList<>();
 
@@ -85,8 +89,23 @@ public class DetectionTask {
                             shipLoc.z = temp * -1;
                         }
 
-                        ShipBlock shipBlock = new ShipBlock(shipLoc, new Location(b.getWorld(), checkBlock.getX(), checkBlock.getY(), checkBlock.getZ()), b.getType());
+
+                        double yOffset = 0;
+                        BlockData data = b.getBlockData();
+                        if(data instanceof Slab){
+                            Slab slab = (Slab) data;
+                            if(slab.getType() == Slab.Type.TOP){
+                                yOffset = 0.5;
+                            }
+                        }
+
+                        ShipBlock shipBlock = new ShipBlock(shipLoc, new Location(b.getWorld(), checkBlock.getX(), checkBlock.getY(), checkBlock.getZ()), b.getType(), yOffset, data);
                         blocks.add(shipBlock);
+
+                        if(b.getType() == Material.PISTON){
+                            pistons.add(shipBlock);
+                        }
+
                         if(b.getType() == Material.NOTE_BLOCK){
                             this.core = shipBlock;
                         }
@@ -99,8 +118,7 @@ public class DetectionTask {
 
         }
 
-        System.out.println(blocks.size() + " blocks detected");
-        new Ship(this.blocks, player, location, this.core, originalVector);
+        new Ship(this.blocks, player, location, this.core, originalVector, pistons);
 
     }
 
