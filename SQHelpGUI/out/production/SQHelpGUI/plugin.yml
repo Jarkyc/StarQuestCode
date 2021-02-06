@@ -1,0 +1,8 @@
+name: SQHelpGUI
+version: 1.0
+api-version: 1.13
+depend: [SQCore]
+main: com.spacebeaverstudios.sqhelpgui.SQHelpGUI
+commands:
+  help:
+    description: Opens up the help GUI
