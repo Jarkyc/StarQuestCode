@@ -1,6 +1,9 @@
 package com.spacebeaverstudios.sqsmoothcraft.Listeners;
 
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
+import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipBlock;
+import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
+import com.spacebeaverstudios.sqsmoothcraft.Tasks.CannonTask;
 import com.spacebeaverstudios.sqsmoothcraft.Tasks.DetectionTask;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.ShipUtils;
 import org.bukkit.ChatColor;
@@ -35,6 +38,12 @@ public class PlayerListeners implements Listener {
             }
         }
 
+        if((e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) && e.getPlayer().getInventory().getItemInMainHand().getType() == Material.CLOCK && ShipUtils.isAPilot(e.getPlayer())){
+            for(ShipBlock block : ShipUtils.getShipByPlayer(e.getPlayer()).pistons){
+                new CannonTask(block.getArmorStand().getLocation(), ShipUtils.getShipByPlayer(e.getPlayer()).getOwner().getLocation().getDirection());
+                System.out.println(true);
+            }
+        }
         if(e.getClickedBlock() == null) return;
 
         if(e.getClickedBlock().getType() == Material.NOTE_BLOCK && e.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -45,6 +54,8 @@ public class PlayerListeners implements Listener {
                 e.getPlayer().sendMessage(ChatColor.RED + "You are already piloting a ship!");
             }
         }
+
+
 
     }
 
