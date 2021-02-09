@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="SQBaseClasses:jar">
-    <output-path>$PROJECT_DIR$/../../server/plugins</output-path>
-    <root id="archive" name="SQBaseClasses.jar">
-      <element id="module-output" name="SQBaseClasses" />
-    </root>
-  </artifact>
-</component>

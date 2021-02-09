@@ -1,6 +1,6 @@
 package com.spacebeaverstudios.sqtech.machines;
 
-import com.spacebeaverstudios.sqbaseclasses.gui.GUI;
+import com.spacebeaverstudios.sqcore.gui.GUI;
 import com.spacebeaverstudios.sqtech.guis.MachineGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

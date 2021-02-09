@@ -1,0 +1,4 @@
+name: SQCore
+main: com.spacebeaverstudios.sqcore.SQCore
+version: 1.0.0
+api-version: "1.15"

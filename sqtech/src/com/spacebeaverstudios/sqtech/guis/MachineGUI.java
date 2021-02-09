@@ -1,7 +1,7 @@
 package com.spacebeaverstudios.sqtech.guis;
 
-import com.spacebeaverstudios.sqbaseclasses.gui.GUI;
-import com.spacebeaverstudios.sqbaseclasses.gui.GUIItem;
+import com.spacebeaverstudios.sqcore.gui.GUI;
+import com.spacebeaverstudios.sqcore.gui.GUIItem;
 import com.spacebeaverstudios.sqtech.guis.guifunctions.OpenMachineGUIFunction;
 import com.spacebeaverstudios.sqtech.machines.Machine;
 import org.bukkit.Bukkit;
