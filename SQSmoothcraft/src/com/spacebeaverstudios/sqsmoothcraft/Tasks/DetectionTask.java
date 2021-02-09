@@ -1,9 +1,11 @@
 package com.spacebeaverstudios.sqsmoothcraft.Tasks;
 
+import com.spacebeaverstudios.sqsmoothcraft.Objects.Data.SolidShipData;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipBlock;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipLocation;
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -118,7 +120,23 @@ public class DetectionTask {
 
         }
 
-        new Ship(this.blocks, player, location, this.core, originalVector, pistons);
+        Ship ship = new Ship(this.blocks, player, location, this.core, originalVector, pistons);
+
+        SolidShipData data = null;
+
+        for(SolidShipData solid : SQSmoothcraft.instance.solidShips){
+            System.out.println(solid.x + " " + solid.y + " " + solid.z);
+            System.out.println(location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ());
+            if(location.getBlockX() == solid.x && location.getBlockY() == solid.y && location.getBlockZ() == solid.z && location.getWorld().getName().equalsIgnoreCase(solid.world)){
+                data = solid;
+                ship.modules = solid.modules;
+            }
+        }
+
+        if(data != null){
+            System.out.println("Ship found. syncing data.");
+            SQSmoothcraft.instance.solidShips.remove(data);
+        }
 
     }
 

@@ -296,18 +296,19 @@ public class Ship {
                 //Fixes ships building a block below where they are showing
                 locationShip.add(0, 1, 0);
 
-                if(block.getMaterial() == Material.NOTE_BLOCK){
+                if (block.getMaterial() == Material.NOTE_BLOCK) {
                     orig = locationShip;
                 }
 
                 locationShip.getWorld().getBlockAt(locationShip).setType(block.getMaterial());
                 locationShip.getWorld().getBlockAt(locationShip).setBlockData(block.blockData);
                 block.getArmorStand().remove();
+            }
+
+                SQSmoothcraft.instance.solidShips.add(new SolidShipData(orig, this.modules, owner.getUniqueId().toString()));
 
                 SQSmoothcraft.instance.allShips.remove(this);
-                SQSmoothcraft.instance.solidShips.add(new SolidShipData(orig, this.modules, owner));
 
-            }
         } else {
             owner.sendMessage(ChatColor.RED + "Can not unpilot ship; blocks are in the way!");
         }

@@ -9,12 +9,18 @@ import java.util.ArrayList;
 
 public class SolidShipData implements Serializable {
 
-    private ArrayList<Module> modules;
-    private Location location;
-    private Player owner;
+    public ArrayList<Module> modules;
+    public int x;
+    public int y;
+    public int z;
+    public String world;
+    public String owner;
 
-    public SolidShipData(Location location, ArrayList<Module> modules, Player owner){
-        this.location = location;
+    public SolidShipData(Location location, ArrayList<Module> modules, String owner){
+        this.x = location.getBlockX();
+        this.y = location.getBlockY();
+        this.z = location.getBlockZ();
+        this.world = location.getWorld().getName();
         this.modules = modules;
         this.owner = owner;
     }
