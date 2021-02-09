@@ -27,12 +27,14 @@ public class GUIItem {
         stack.setItemMeta(stackMeta);
 
         this.item = stack;
+        GUIUtils.setWanted(item, true);
         GUIUtils.getButtons().add(this);
     }
     public GUIItem(ItemStack item, GUIFunction function) {
         this.item = item;
         this.function = function;
         this.hasFunction = function != null;
+        GUIUtils.setWanted(item, true);
     }
 
     public ItemStack getItemStack() {

@@ -27,7 +27,7 @@ public abstract class ListGUI extends GUI {
     }
 
     public Inventory createInventory() {
-        Inventory inventory = Bukkit.createInventory(null, rows, super.getInventoryName() + " Page " + (currentPage+1));
+        Inventory inventory = Bukkit.createInventory(null, rows*9, super.getInventoryName() + " Page " + (currentPage+1));
 
         ArrayList<ItemStack> bottomRow = createBottomRow();
         for (int i = 0; i < 9; i++) {
@@ -100,6 +100,6 @@ public abstract class ListGUI extends GUI {
         Bukkit.getScheduler().runTaskLater(SQBaseClasses.getInstance(), () -> getPlayer().openInventory(inventory), 1);
     }
 
-    abstract List<Object> getObjectList();
-    abstract ItemStack getObjectItem(Object obj);
+    public abstract List<Object> getObjectList();
+    public abstract ItemStack getObjectItem(Object obj);
 }

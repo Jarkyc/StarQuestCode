@@ -1,6 +1,8 @@
 package com.spacebeaverstudios.sqbaseclasses.gui;
 
+import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -58,5 +60,30 @@ public class GUIUtils {
             }
         }
         return stringLines;
+    }
+
+    public static ItemStack setWanted(ItemStack itemStack, boolean isWanted) {
+        if (itemStack == null) return null;
+        else {
+            //return setNBTFlag(itemStack, "isWanted", true);
+            net.minecraft.server.v1_15_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
+
+            NBTTagCompound tag = nmsStack.getOrCreateTag();
+            tag.setBoolean("isWanted", isWanted);
+            nmsStack.setTag(tag);
+
+            return CraftItemStack.asBukkitCopy(nmsStack);
+        }
+    }
+
+    public static boolean isWanted(ItemStack itemStack) {
+        if (itemStack == null) return false;
+        else {
+//            return getNBTFlag(itemStack, "isWanted");
+            net.minecraft.server.v1_15_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
+            NBTTagCompound tag = nmsStack.getOrCreateTag();
+            if (!tag.hasKey("isWanted")) return false;
+            return tag.getBoolean("isWanted");
+        }
     }
 }

@@ -23,7 +23,7 @@ public abstract class GUI {
         this.inventoryName = inventoryName;
     }
 
-    abstract Inventory createInventory();
+    public abstract Inventory createInventory();
 
     public void open(Player player) {
         this.player = player;
