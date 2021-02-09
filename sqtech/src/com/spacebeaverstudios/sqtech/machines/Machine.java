@@ -1,5 +1,9 @@
 package com.spacebeaverstudios.sqtech.machines;
 
+import com.spacebeaverstudios.sqbaseclasses.gui.GUI;
+import com.spacebeaverstudios.sqtech.guis.MachineGUI;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -8,14 +12,15 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public abstract class MachineBase {
+public abstract class Machine {
+    // static
     private static final ArrayList<String> machinesSignText = new ArrayList<>(Arrays.asList("[test machine]"));
-    private static final ArrayList<MachineBase> machines = new ArrayList<>();
+    private static final ArrayList<Machine> machines = new ArrayList<>();
 
     public static ArrayList<String> getMachinesSignText() {
         return machinesSignText;
     }
-    public static ArrayList<MachineBase> getMachines() {
+    public static ArrayList<Machine> getMachines() {
         return machines;
     }
 
@@ -28,27 +33,39 @@ public abstract class MachineBase {
     }
 
     public static void tickMachines() {
-        for (MachineBase machine : machines) machine.tick();
+        for (Machine machine : machines) machine.tick();
     }
 
-    private Block sign;
+    // instance
+    private final Location sign;
     private final ArrayList<ItemStack> inventory = new ArrayList<>();
+    private GUI gui = null;
+    private final String machineName;
 
-    public MachineBase(Block sign) {
+    public Machine(Block sign, String machineName) {
         if (detect(sign)) {
-            this.sign = sign;
+            this.sign = sign.getLocation();
+            this.machineName = machineName;
             init();
+        } else {
+            this.sign = null;
+            this.machineName = null;
         }
     }
 
-    public Block getSign() {
+    public Location getSign() {
         return sign;
     }
+    public String getMachineName() {
+        return machineName;
+    }
 
-    abstract boolean detect(Block sign); // TODO: change to a standardized script with data checking
-    abstract void init(); // MUST include MachineBase.getMachines().add(this);
+    public abstract boolean detect(Block sign); // TODO: change to a standardized script with data checking
+    public abstract void init(); // MUST include MachineBase.getMachines().add(this);
 
-    abstract void tick(); // run all the functions that occur once a second
+    public abstract void tick(); // run all the functions that occur once a second
+
+    public abstract String getMachineInfo();
 
     public ItemStack tryAddItemStack(ItemStack itemStack) {
         // returns whatever items weren't able to be added
@@ -72,6 +89,12 @@ public abstract class MachineBase {
     }
 
     public void openGUI(Player player) {
-        // TODO
+        if (gui == null) {
+            gui = new MachineGUI(this);
+            gui.open(player);
+        } else player.sendMessage(ChatColor.RED + "Someone is already accessing that machine!");
+    }
+    public void setGUI(GUI gui) {
+        this.gui = gui;
     }
 }

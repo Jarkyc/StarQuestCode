@@ -8,9 +8,9 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.Directional;
 
-public class TestMachine extends MachineBase {
+public class TestMachine extends Machine {
     public TestMachine(Block sign) {
-        super(sign);
+        super(sign, "Test Machine");
         SQTech.getInstance().getLogger().info("new TestMachine()");
     }
 
@@ -19,14 +19,23 @@ public class TestMachine extends MachineBase {
         if (sign.getRelative(opposite).getType().equals(Material.SPONGE)) return true;
         else return false;
     }
+
     public void init() {
-        MachineBase.getMachines().add(this);
+        Machine.getMachines().add(this);
         SQTech.getInstance().getLogger().info("TestMachine#init");
-        ((Sign) this.getSign().getState()).setLine(0, "");
-        ((Sign) this.getSign().getState()).setLine(1, ChatColor.BLUE + "Test Machine");
+        Sign sign = (Sign) this.getSign().getWorld().getBlockAt(this.getSign()).getState();
+        sign.setLine(0, "");
+        sign.setLine(1, ChatColor.BLUE + "Test Machine");
+        sign.setLine(2, ChatColor.RED + "Inactive");
+        sign.setLine(3, "");
+        sign.update();
     }
 
     public void tick() {
         // TODO
+    }
+
+    public String getMachineInfo() {
+        return "Test Machine does test things";
     }
 }
