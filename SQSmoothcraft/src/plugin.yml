@@ -6,4 +6,6 @@ commands:
   unpilot:
     description: Unpilots a ship
     usage: /unpilot
+  info:
+    description: shows ship info
 

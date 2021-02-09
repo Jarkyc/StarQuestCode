@@ -44,6 +44,7 @@ public class CannonTask {
                             } else {
                                 ship.damage(damage);
                                 newLoc.getWorld().playSound(newLoc, Sound.ENTITY_GENERIC_EXPLODE,1, 1);
+                                System.out.println(ship.health);
                                 return;
                             }
                         }

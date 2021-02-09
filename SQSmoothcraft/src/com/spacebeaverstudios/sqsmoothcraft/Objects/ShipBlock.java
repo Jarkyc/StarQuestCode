@@ -32,9 +32,11 @@ public class ShipBlock {
 
         armorStand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
 
+        armorStand.setAI(false);
         armorStand.getEquipment().setHelmet(new ItemStack(this.material));
         armorStand.setVisible(false);
         armorStand.setCollidable(false);
+        armorStand.setCanTick(false);
 
 
         location.getWorld().getBlockAt(location).setType(Material.AIR);

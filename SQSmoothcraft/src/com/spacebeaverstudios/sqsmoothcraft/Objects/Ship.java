@@ -1,14 +1,16 @@
 package com.spacebeaverstudios.sqsmoothcraft.Objects;
 
+import com.spacebeaverstudios.sqsmoothcraft.Objects.Data.SolidShipData;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Jammer;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Module;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Shield;
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.MathUtils;
-import net.minecraft.server.v1_15_R1.PacketPlayOutSpawnEntity;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
@@ -33,7 +35,8 @@ public class Ship {
     public int shieldHealth = 100;
     public int maxShieldHealth;
 
-    public Inventory infoWindow = Bukkit.createInventory(null, 9, ChatColor.BLUE + owner.getDisplayName() + "'s Ship Info");
+    public Inventory infoWindow;
+    public Inventory moduleWindow;
 
     public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core, Location originalVector, ArrayList<ShipBlock> pistons) {
         this.blocks = blocks;
@@ -50,6 +53,12 @@ public class Ship {
         //prevents the player's view from lowering when the crouch
         owner.setFlying(true);
         core.armorStand.addPassenger(owner);
+
+        infoWindow = Bukkit.createInventory(null, 9, ChatColor.BLUE + owner.getName() + "'s Ship Info");
+        moduleWindow =  Bukkit.createInventory(null, 54, ChatColor.GREEN + owner.getName() + "'s Ship Modules");
+
+        createGUIs();
+        core.armorStand.setCanTick(true);
     }
 
     public Player getOwner() {
@@ -58,6 +67,19 @@ public class Ship {
 
     public HashSet<ShipBlock> getBlocks(){
         return this.blocks;
+    }
+
+    private void createGUIs(){
+        ItemStack blockCount = new ItemStack(Material.BRICK);
+        ItemMeta countMeta = blockCount.getItemMeta();
+        countMeta.setDisplayName(ChatColor.GOLD + "Block Count");
+        ArrayList<String> sub = new ArrayList<>();
+        sub.add(String.valueOf(blocks.size()));
+
+        countMeta.setLore(sub);
+        blockCount.setItemMeta(countMeta);
+
+        infoWindow.setItem(0, blockCount);
     }
 
     public void onTick() {
@@ -109,9 +131,6 @@ public class Ship {
 
     private void rotateStands() {
 
-        if (isAutopilot)
-            return;
-
         double pitch = this.getOwner().getEyeLocation().getPitch();
         pitch = Math.toRadians(pitch);
 
@@ -128,6 +147,9 @@ public class Ship {
         double arg2 = yawSin * pitchCos;
         double arg3 = yawCos * pitchSin;
         double arg4 = yawCos * pitchCos;
+
+        final double tempPitch = pitch;
+        final double tempYaw = yaw;
 
         for (ShipBlock block : this.blocks) {
 
@@ -147,30 +169,40 @@ public class Ship {
 
             block.armorStand.teleport(locationShip);
 
-            final double tempPitch = pitch;
-            final double tempYaw = yaw;
 
-
-
-           Bukkit.getScheduler().scheduleSyncDelayedTask(SQSmoothcraft.instance, new Runnable() {
-                @Override
-                public void run() {
-                    block.armorStand.setHeadPose(new EulerAngle(tempPitch, tempYaw, 0));
-                }
-            }, 1L);
 
         }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(SQSmoothcraft.instance, new Runnable() {
+            @Override
+            public void run() {
+
+                for(ShipBlock block : blocks) {
+                    block.armorStand.setHeadPose(new EulerAngle(tempPitch, tempYaw, 0));
+                }
+            }
+        }, 1L);
 
     }
 
     private void handleShiftFly() {
 
         if (getOwner().isSneaking() && !isAutopilot && getOwner().getInventory().getItemInMainHand().getType() == Material.CLOCK) {
+
             //Don't ask me why but this makes chunk loading happy
             owner.setSneaking(false);
-            for (ShipBlock block : blocks) {
-                block.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(2));
+            /*for (ShipBlock block : blocks) {
+
+                System.out.println(owner.getLocation().getDirection().normalize().multiply(2));
+                System.out.println(block.armorStand.getLocation());
+                block.armorStand.teleport(block.armorStand.getLocation().clone().add(getOwner().getLocation().getDirection().clone().normalize().multiply(2)));
+                //block.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(.5));
             }
+            owner.playSound(core.getArmorStand().getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 5, 1);
+
+             */
+
+
+            core.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(2));
             owner.playSound(core.getArmorStand().getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 5, 1);
         }
 
@@ -205,7 +237,6 @@ public class Ship {
     public void buildSolid() {
 
         double pitch = Math.toRadians(0);
-
 
         Iterator<ShipBlock> it = blocks.iterator();
         ShipBlock firstBlock = it.next();
@@ -251,6 +282,7 @@ public class Ship {
         if (canCompile) {
             owner.setFlying(false);
             owner.leaveVehicle();
+            Location orig = null;
             for (ShipBlock block : this.blocks) {
 
                 ShipLocation shipLocation = block.shipLoc;
@@ -264,10 +296,16 @@ public class Ship {
                 //Fixes ships building a block below where they are showing
                 locationShip.add(0, 1, 0);
 
+                if(block.getMaterial() == Material.NOTE_BLOCK){
+                    orig = locationShip;
+                }
+
                 locationShip.getWorld().getBlockAt(locationShip).setType(block.getMaterial());
                 locationShip.getWorld().getBlockAt(locationShip).setBlockData(block.blockData);
                 block.getArmorStand().remove();
+
                 SQSmoothcraft.instance.allShips.remove(this);
+                SQSmoothcraft.instance.solidShips.add(new SolidShipData(orig, this.modules, owner));
 
             }
         } else {
