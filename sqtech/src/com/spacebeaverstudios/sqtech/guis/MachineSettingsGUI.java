@@ -1,6 +1,6 @@
 package com.spacebeaverstudios.sqtech.guis;
 
-import com.spacebeaverstudios.sqbaseclasses.gui.GUI;
+import com.spacebeaverstudios.sqcore.gui.GUI;
 import com.spacebeaverstudios.sqtech.machines.Machine;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;

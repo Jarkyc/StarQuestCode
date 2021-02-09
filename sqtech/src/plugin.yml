@@ -2,4 +2,4 @@ name: SQTech
 main: com.spacebeaverstudios.sqtech.SQTech
 version: 1.0.0
 api-version: "1.15"
-depend: [SQBaseClasses]
+depend: [SQCore]

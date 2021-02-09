@@ -1,7 +1,7 @@
 package com.spacebeaverstudios.sqtech.guis.guifunctions;
 
-import com.spacebeaverstudios.sqbaseclasses.gui.GUI;
-import com.spacebeaverstudios.sqbaseclasses.gui.guifunctions.GUIFunction;
+import com.spacebeaverstudios.sqcore.gui.GUI;
+import com.spacebeaverstudios.sqcore.gui.guifunctions.GUIFunction;
 import com.spacebeaverstudios.sqtech.machines.Machine;
 import org.bukkit.entity.Player;
 
