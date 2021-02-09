@@ -8,6 +8,7 @@ import com.spacebeaverstudios.sqsmoothcraft.Utils.MathUtils;
 import net.minecraft.server.v1_15_R1.PacketPlayOutSpawnEntity;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
@@ -27,10 +28,12 @@ public class Ship {
     public ArrayList<ShipBlock> pistons;
     public ArrayList<Module> modules = new ArrayList<>();
     public Shield shieldCore;
-    public int health;
+    public int health = 100;
     public int maxHealth;
-    public int shieldHealth;
+    public int shieldHealth = 100;
     public int maxShieldHealth;
+
+    public Inventory infoWindow = Bukkit.createInventory(null, 9, ChatColor.BLUE + owner.getDisplayName() + "'s Ship Info");
 
     public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core, Location originalVector, ArrayList<ShipBlock> pistons) {
         this.blocks = blocks;
@@ -51,6 +54,10 @@ public class Ship {
 
     public Player getOwner() {
         return this.owner;
+    }
+
+    public HashSet<ShipBlock> getBlocks(){
+        return this.blocks;
     }
 
     public void onTick() {
@@ -143,7 +150,9 @@ public class Ship {
             final double tempPitch = pitch;
             final double tempYaw = yaw;
 
-            Bukkit.getScheduler().scheduleSyncDelayedTask(SQSmoothcraft.instance, new Runnable() {
+
+
+           Bukkit.getScheduler().scheduleSyncDelayedTask(SQSmoothcraft.instance, new Runnable() {
                 @Override
                 public void run() {
                     block.armorStand.setHeadPose(new EulerAngle(tempPitch, tempYaw, 0));
@@ -167,9 +176,14 @@ public class Ship {
 
     }
 
+    public void fireMainWeapons(){
+
+    }
+
     private void handleAutoPilot() {
         if (isAutopilot) {
 
+            //God is dead and we have killed him
             for (Ship other : SQSmoothcraft.instance.allShips) {
                 if (other.getLocation().distance(this.getLocation()) <= 1000) {
                     for (Module module : other.modules) {

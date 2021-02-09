@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 
 public class Shield extends Module {
 
-    public int health = 100;
+    public int addedHealth = 100;
 
     public Shield() {
         super(1, false);

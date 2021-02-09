@@ -40,8 +40,7 @@ public class PlayerListeners implements Listener {
 
         if((e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) && e.getPlayer().getInventory().getItemInMainHand().getType() == Material.CLOCK && ShipUtils.isAPilot(e.getPlayer())){
             for(ShipBlock block : ShipUtils.getShipByPlayer(e.getPlayer()).pistons){
-                new CannonTask(block.getArmorStand().getLocation(), ShipUtils.getShipByPlayer(e.getPlayer()).getOwner().getLocation().getDirection());
-                System.out.println(true);
+                new CannonTask(block.getArmorStand().getLocation(), ShipUtils.getShipByPlayer(e.getPlayer()).getOwner().getLocation().getDirection(), ShipUtils.getShipByPlayer(e.getPlayer()));
             }
         }
         if(e.getClickedBlock() == null) return;
