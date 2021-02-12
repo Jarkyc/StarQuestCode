@@ -2,10 +2,9 @@ name: SQSmootcraft
 main: com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft
 version: 1.0
 api-version: 1.13
+depend:
+  - SQCore
 commands:
-  unpilot:
-    description: Unpilots a ship
-    usage: /unpilot
-  info:
-    description: shows ship info
-
+  ship:
+    usage: /ship
+    description: Commands regarding smoothcraft ships
