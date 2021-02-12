@@ -1,11 +1,16 @@
 package com.spacebeaverstudios.sqsmoothcraft.Objects;
 
+import com.spacebeaverstudios.sqsmoothcraft.Events.ShipDamageEvent;
+import com.spacebeaverstudios.sqsmoothcraft.Events.ShipFireMainGunsEvent;
+import com.spacebeaverstudios.sqsmoothcraft.Events.ShipPilotEvent;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Data.SolidShipData;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Jammer;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Module;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Shield;
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
+import com.spacebeaverstudios.sqsmoothcraft.Tasks.CannonTask;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.MathUtils;
+import com.spacebeaverstudios.sqsmoothcraft.Utils.ShipUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -46,7 +51,16 @@ public class Ship {
         this.originVec = originalVector;
         this.pistons = pistons;
 
+        ShipPilotEvent event = new ShipPilotEvent(owner, this);
+        Bukkit.getPluginManager().callEvent(event);
+
+        //Should theoretically allow data to be initialized for reading during event listening, but if method is returned at this stage, won't allow the ship to be placed into the ship list, so JVM garbage collector commits game end on object.
+        if(event.isCancelled()){
+            return;
+        }
+
         SQSmoothcraft.instance.allShips.add(this);
+
         for (ShipBlock block : blocks) {
             block.buildArmorStand();
         }
@@ -59,6 +73,7 @@ public class Ship {
 
         createGUIs();
         core.armorStand.setCanTick(true);
+
     }
 
     public Player getOwner() {
@@ -89,7 +104,6 @@ public class Ship {
         updateOrigin();
         rotateStands();
         handleAutoPilot();
-
     }
 
     public ShipBlock getCore() {
@@ -111,17 +125,22 @@ public class Ship {
     private void updateData() {
         for (ShipBlock block : blocks) {
             block.location = block.getArmorStand().getLocation();
-            if (((getOwner().getInventory().getItemInMainHand().getType() != Material.CLOCK && !isAutopilot) || (getOwner().getInventory().getItemInMainHand().getType() == Material.CLOCK && !getOwner().isSneaking())) && block.armorStand.getVelocity().getY() < 0) {
-                block.armorStand.setVelocity(block.armorStand.getVelocity().clone().setY(0));
             }
+        if (((getOwner().getInventory().getItemInMainHand().getType() != Material.CLOCK && !isAutopilot) || (getOwner().getInventory().getItemInMainHand().getType() == Material.CLOCK && !getOwner().isSneaking())) && core.armorStand.getVelocity().getY() < 0) {
+            core.armorStand.setVelocity(core.armorStand.getVelocity().clone().setY(0));
         }
     }
 
-    public void damage(int x) {
-        if (shieldCore != null && shieldHealth > 0) {
-            shieldHealth -= x;
-        } else {
-            health -= x;
+    public void damage(int x, DamageReason damageReason) {
+        ShipDamageEvent event = new ShipDamageEvent(owner, this, x, damageReason);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if(!event.isCancelled()) {
+            if (shieldCore != null && shieldHealth > 0) {
+                shieldHealth -= x;
+            } else {
+                health -= x;
+            }
         }
     }
 
@@ -190,26 +209,22 @@ public class Ship {
 
             //Don't ask me why but this makes chunk loading happy
             owner.setSneaking(false);
-            /*for (ShipBlock block : blocks) {
 
-                System.out.println(owner.getLocation().getDirection().normalize().multiply(2));
-                System.out.println(block.armorStand.getLocation());
-                block.armorStand.teleport(block.armorStand.getLocation().clone().add(getOwner().getLocation().getDirection().clone().normalize().multiply(2)));
-                //block.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(.5));
-            }
-            owner.playSound(core.getArmorStand().getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 5, 1);
-
-             */
-
-
-            core.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(2));
+            core.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(1));
             owner.playSound(core.getArmorStand().getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 5, 1);
         }
 
     }
 
     public void fireMainWeapons(){
+        ShipFireMainGunsEvent event = new ShipFireMainGunsEvent(owner, this);
+        Bukkit.getPluginManager().callEvent(event);
+        if(!event.isCancelled()){
+            for(ShipBlock block : pistons){
+                new CannonTask(block.getArmorStand().getLocation(), owner.getLocation().getDirection(), this);
+            }
 
+        }
     }
 
     private void handleAutoPilot() {
@@ -226,10 +241,7 @@ public class Ship {
                     }
                 }
             }
-
-            for (ShipBlock block : blocks) {
-                block.armorStand.setVelocity(this.autoPilotDirection.normalize().multiply(1));
-            }
+                core.armorStand.setVelocity(this.autoPilotDirection.normalize().multiply(1));
         }
     }
 

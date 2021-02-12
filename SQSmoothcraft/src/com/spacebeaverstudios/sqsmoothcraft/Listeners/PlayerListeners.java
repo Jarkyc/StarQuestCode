@@ -1,11 +1,13 @@
 package com.spacebeaverstudios.sqsmoothcraft.Listeners;
 
+import com.spacebeaverstudios.sqsmoothcraft.Events.ShipAutopilotEvent;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipBlock;
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
 import com.spacebeaverstudios.sqsmoothcraft.Tasks.CannonTask;
 import com.spacebeaverstudios.sqsmoothcraft.Tasks.DetectionTask;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.ShipUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -17,6 +19,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
+
+import javax.swing.*;
 
 public class PlayerListeners implements Listener {
 
@@ -32,16 +36,18 @@ public class PlayerListeners implements Listener {
                 ship.autoPilotDirection = null;
                 e.getPlayer().sendMessage(ChatColor.GREEN + "Stopping auto-pilot");
             } else {
-                ship.isAutopilot = true;
-                ship.autoPilotDirection = e.getPlayer().getLocation().getDirection();
-                e.getPlayer().sendMessage(ChatColor.GREEN + "Initiating auto-pilot");
+                ShipAutopilotEvent event = new ShipAutopilotEvent(e.getPlayer(), ship, e.getPlayer().getLocation().getDirection().normalize());
+                Bukkit.getPluginManager().callEvent(event);
+                if(!event.isCancelled()){
+                    ship.isAutopilot = true;
+                    ship.autoPilotDirection = e.getPlayer().getLocation().getDirection();
+                    e.getPlayer().sendMessage(ChatColor.GREEN + "Initiating auto-pilot");
+                }
             }
         }
 
         if((e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) && e.getPlayer().getInventory().getItemInMainHand().getType() == Material.CLOCK && ShipUtils.isAPilot(e.getPlayer())){
-            for(ShipBlock block : ShipUtils.getShipByPlayer(e.getPlayer()).pistons){
-                new CannonTask(block.getArmorStand().getLocation(), ShipUtils.getShipByPlayer(e.getPlayer()).getOwner().getLocation().getDirection(), ShipUtils.getShipByPlayer(e.getPlayer()));
-            }
+            ShipUtils.getShipByPlayer(e.getPlayer()).fireMainWeapons();
         }
         if(e.getClickedBlock() == null) return;
 

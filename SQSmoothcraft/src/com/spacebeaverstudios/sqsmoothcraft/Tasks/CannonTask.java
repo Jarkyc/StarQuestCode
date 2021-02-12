@@ -1,5 +1,6 @@
 package com.spacebeaverstudios.sqsmoothcraft.Tasks;
 
+import com.spacebeaverstudios.sqsmoothcraft.Objects.DamageReason;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.ShipUtils;
 import org.bukkit.*;
@@ -42,7 +43,7 @@ public class CannonTask {
                             if(ship == gunner){
                                 break;
                             } else {
-                                ship.damage(damage);
+                                ship.damage(damage, DamageReason.WEAPON_FIRE);
                                 newLoc.getWorld().playSound(newLoc, Sound.ENTITY_GENERIC_EXPLODE,1, 1);
                                 System.out.println(ship.health);
                                 return;
