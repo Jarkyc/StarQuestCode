@@ -1,5 +1,6 @@
-package com.spacebeaverstudios.sqcore.gui;
+package com.spacebeaverstudios.sqcore.utils;
 
+import com.spacebeaverstudios.sqcore.gui.GUIItem;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;

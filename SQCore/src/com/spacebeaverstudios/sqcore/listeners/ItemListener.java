@@ -1,6 +1,6 @@
 package com.spacebeaverstudios.sqcore.listeners;
 
-import com.spacebeaverstudios.sqcore.gui.GUIUtils;
+import com.spacebeaverstudios.sqcore.utils.GUIUtils;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ItemSpawnEvent;

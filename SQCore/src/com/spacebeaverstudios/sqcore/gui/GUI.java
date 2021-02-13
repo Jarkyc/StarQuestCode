@@ -11,6 +11,10 @@ import java.util.HashMap;
 public abstract class GUI {
     private static final HashMap<Player, GUI> guis = new HashMap<>();
 
+    public static HashMap<Player, GUI> getGuis() {
+        return guis;
+    }
+
     public static void closePlayer(Player player) {
         if (guis.containsKey(player)) guis.get(player).onClose();
     }

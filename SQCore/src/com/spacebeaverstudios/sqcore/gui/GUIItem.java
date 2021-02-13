@@ -1,6 +1,7 @@
 package com.spacebeaverstudios.sqcore.gui;
 
 import com.spacebeaverstudios.sqcore.gui.guifunctions.GUIFunction;
+import com.spacebeaverstudios.sqcore.utils.GUIUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

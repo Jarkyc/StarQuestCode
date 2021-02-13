@@ -1,7 +1,7 @@
 package com.spacebeaverstudios.sqcore.listeners;
 
 import com.spacebeaverstudios.sqcore.gui.GUI;
-import com.spacebeaverstudios.sqcore.gui.GUIUtils;
+import com.spacebeaverstudios.sqcore.utils.GUIUtils;
 import com.spacebeaverstudios.sqcore.gui.GUIItem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
