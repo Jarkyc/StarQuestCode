@@ -134,7 +134,6 @@ public class DetectionTask {
         }
 
         if(data != null){
-            System.out.println("Ship found. syncing data.");
             SQSmoothcraft.instance.solidShips.remove(data);
         }
 

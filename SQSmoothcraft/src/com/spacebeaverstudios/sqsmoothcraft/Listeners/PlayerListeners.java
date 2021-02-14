@@ -2,25 +2,26 @@ package com.spacebeaverstudios.sqsmoothcraft.Listeners;
 
 import com.spacebeaverstudios.sqsmoothcraft.Events.ShipAutopilotEvent;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
-import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipBlock;
-import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
-import com.spacebeaverstudios.sqsmoothcraft.Tasks.CannonTask;
 import com.spacebeaverstudios.sqsmoothcraft.Tasks.DetectionTask;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.ShipUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
-import javax.swing.*;
 
 public class PlayerListeners implements Listener {
 
@@ -97,6 +98,37 @@ public class PlayerListeners implements Listener {
                     e.getPlayer().sendMessage(ChatColor.GREEN + "Initiating auto-pilot");
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public static void onClick(InventoryClickEvent e){
+        Inventory inv = e.getInventory();
+
+        if(e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR) return;
+
+        //Ship info window
+        if(e.getView().getTitle().equals(ChatColor.BLUE + e.getWhoClicked().getName() + "'s Ship Info")){
+            if(e.getCurrentItem().getType() == Material.PISTON && e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.BLUE + "Modules")){
+                e.getWhoClicked().openInventory(ShipUtils.getShipByPlayer((Player) e.getWhoClicked()).moduleWindow);
+            }
+            e.setCancelled(true);
+
+        // Module inv
+        } else if(e.getView().getTitle().equals(ChatColor.GREEN + e.getWhoClicked().getName() + "'s Ship Modules")){
+            if(e.getClick() == ClickType.SHIFT_LEFT){
+                e.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public static void armorStandManipulate(PlayerArmorStandManipulateEvent e){
+        ArmorStand stand = e.getRightClicked();
+        Player player = e.getPlayer();
+
+        if(ShipUtils.getShipByStand(stand) != null){
+            e.setCancelled(true);
         }
     }
 

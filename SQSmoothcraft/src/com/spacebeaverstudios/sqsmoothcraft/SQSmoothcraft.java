@@ -1,8 +1,7 @@
 package com.spacebeaverstudios.sqsmoothcraft;
 
-import com.spacebeaverstudios.sqsmoothcraft.Commands.InfoCmd;
 import com.spacebeaverstudios.sqsmoothcraft.Commands.ShipCmd;
-import com.spacebeaverstudios.sqsmoothcraft.Commands.UnpilotCmd;
+import com.spacebeaverstudios.sqsmoothcraft.Commands.TestCmd;
 import com.spacebeaverstudios.sqsmoothcraft.Listeners.PlayerListeners;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 
@@ -32,6 +31,8 @@ public class SQSmoothcraft extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
         getCommand("ship").setExecutor(new ShipCmd());
+
+        getCommand("test").setExecutor(new TestCmd());
 
         loadData();
 
@@ -108,7 +109,7 @@ public class SQSmoothcraft extends JavaPlugin {
 
                 }
             }
-        }, 1L, 0);
+        }, 0L, 0);
     }
 
 

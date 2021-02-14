@@ -3,8 +3,6 @@ package com.spacebeaverstudios.sqsmoothcraft.Commands;
 import com.spacebeaverstudios.sqcore.commands.SQCmd;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.ShipUtils;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

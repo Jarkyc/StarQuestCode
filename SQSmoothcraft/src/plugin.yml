@@ -8,3 +8,5 @@ commands:
   ship:
     usage: /ship
     description: Commands regarding smoothcraft ships
+  test:
+    usage: /test

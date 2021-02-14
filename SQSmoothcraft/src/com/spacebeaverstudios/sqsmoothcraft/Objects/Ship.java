@@ -10,12 +10,12 @@ import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Shield;
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
 import com.spacebeaverstudios.sqsmoothcraft.Tasks.CannonTask;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.MathUtils;
-import com.spacebeaverstudios.sqsmoothcraft.Utils.ShipUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
@@ -73,6 +73,7 @@ public class Ship {
 
         createGUIs();
         core.armorStand.setCanTick(true);
+        core.armorStand.getEquipment().setHelmet(new ItemStack(Material.AIR));
 
     }
 
@@ -90,11 +91,29 @@ public class Ship {
         countMeta.setDisplayName(ChatColor.GOLD + "Block Count");
         ArrayList<String> sub = new ArrayList<>();
         sub.add(String.valueOf(blocks.size()));
-
         countMeta.setLore(sub);
         blockCount.setItemMeta(countMeta);
 
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta skull = (SkullMeta) head.getItemMeta();
+        skull.setOwningPlayer(owner);
+        skull.setDisplayName(ChatColor.GOLD + "Owner");
+        ArrayList<String> nm = new ArrayList<>();
+        nm.add(owner.getName());
+        skull.setLore(nm);
+        head.setItemMeta(skull);
+
+        ItemStack modules = new ItemStack(Material.PISTON);
+        ItemMeta meta = modules.getItemMeta();
+        meta.setDisplayName(ChatColor.BLUE + "Modules");
+        ArrayList<String> click = new ArrayList<>();
+        click.add("Click here to open up the modules inventory");
+        meta.setLore(click);
+        modules.setItemMeta(meta);
+
         infoWindow.setItem(0, blockCount);
+        infoWindow.setItem(4, head);
+        infoWindow.setItem(8, modules);
     }
 
     public void onTick() {
