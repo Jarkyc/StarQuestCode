@@ -2,6 +2,7 @@ package com.spacebeaverstudios.sqtech.machines;
 
 import com.spacebeaverstudios.sqcore.gui.GUI;
 import com.spacebeaverstudios.sqtech.guis.MachineGUI;
+import com.spacebeaverstudios.sqtech.guis.MachineInventoryGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -34,11 +35,12 @@ public abstract class Machine {
 
     public static void tickMachines() {
         for (Machine machine : machines) machine.tick();
+        MachineInventoryGUI.refreshAll();
     }
 
     // instance
     private final Location sign;
-    private final ArrayList<ItemStack> inventory = new ArrayList<>();
+    private final ArrayList<ItemStack> inventory = new ArrayList<>(); // TODO: drop inventory when machine broken
     private GUI gui = null;
     private final String machineName;
 
@@ -59,6 +61,9 @@ public abstract class Machine {
     public String getMachineName() {
         return machineName;
     }
+    public ArrayList<ItemStack> getInventory() {
+        return inventory;
+    }
 
     public abstract boolean detect(Block sign); // TODO: change to a standardized script with data checking
     public abstract void init(); // MUST include MachineBase.getMachines().add(this);
@@ -69,22 +74,31 @@ public abstract class Machine {
 
     public ItemStack tryAddItemStack(ItemStack itemStack) {
         // returns whatever items weren't able to be added
-        if (inventory.size() < 9) {
-            inventory.add(itemStack);
-            return new ItemStack(itemStack.getType(), 0);
-        } else {
-            for (ItemStack stack : inventory) {
-                if (stack.getType().equals(itemStack.getType()) && stack.getAmount() < stack.getMaxStackSize()) {
-                    if (stack.getMaxStackSize()-stack.getAmount() >= itemStack.getAmount()) {
-                        stack.setAmount(stack.getAmount() + itemStack.getAmount());
-                        return new ItemStack(itemStack.getType(), 0);
-                    } else {
-                        itemStack.setAmount(itemStack.getAmount()-(stack.getMaxStackSize()-stack.getAmount()));
-                        stack.setAmount(stack.getMaxStackSize());
-                    }
+        for (ItemStack stack : inventory) {
+            if (stack.getType().equals(itemStack.getType()) && stack.getAmount() < stack.getMaxStackSize()) {
+                if (stack.getMaxStackSize()-stack.getAmount() >= itemStack.getAmount()) {
+                    stack.setAmount(stack.getAmount() + itemStack.getAmount());
+                    return new ItemStack(itemStack.getType(), 0);
+                } else {
+                    itemStack.setAmount(itemStack.getAmount()-(stack.getMaxStackSize()-stack.getAmount()));
+                    stack.setAmount(stack.getMaxStackSize());
                 }
             }
+        }
+        if (itemStack.getAmount() > 0 && inventory.size() < 9) {
+            inventory.add(itemStack);
+            return new ItemStack(itemStack.getType(), 0);
+        } else return itemStack;
+    }
+    public ItemStack takeItem(int slot, int amount) {
+        if (inventory.size() <= slot) return null;
+        else if (inventory.get(slot).getAmount() <= amount) {
+            ItemStack itemStack = inventory.get(slot);
+            inventory.remove(slot);
             return itemStack;
+        } else {
+            inventory.get(slot).setAmount(inventory.get(slot).getAmount() - amount);
+            return new ItemStack(inventory.get(slot).getType(), amount);
         }
     }
 

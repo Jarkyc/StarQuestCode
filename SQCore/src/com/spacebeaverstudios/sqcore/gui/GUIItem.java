@@ -36,6 +36,7 @@ public class GUIItem {
         this.function = function;
         this.hasFunction = function != null;
         GUIUtils.setWanted(item, true);
+        GUIUtils.getButtons().add(this);
     }
 
     public ItemStack getItemStack() {

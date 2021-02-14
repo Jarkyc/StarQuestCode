@@ -21,6 +21,8 @@ public class MachineSettingsGUI extends GUI {
     @Override
     public void onClose() {
         super.onClose();
-        machine.setGUI(null);
+        MachineGUI machineGUI = new MachineGUI(machine);
+        machine.setGUI(machineGUI);
+        machineGUI.open(this.getPlayer());
     }
 }

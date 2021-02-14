@@ -16,8 +16,7 @@ public class TestMachine extends Machine {
 
     public boolean detect(Block sign) {
         BlockFace opposite = ((Directional) sign.getBlockData()).getFacing().getOppositeFace();
-        if (sign.getRelative(opposite).getType().equals(Material.SPONGE)) return true;
-        else return false;
+        return sign.getRelative(opposite).getType().equals(Material.SPONGE);
     }
 
     public void init() {

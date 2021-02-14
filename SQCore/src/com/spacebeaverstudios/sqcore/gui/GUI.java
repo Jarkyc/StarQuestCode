@@ -1,6 +1,7 @@
 package com.spacebeaverstudios.sqcore.gui;
 
 import com.spacebeaverstudios.sqcore.SQCore;
+import com.spacebeaverstudios.sqcore.utils.GUIUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -22,6 +23,7 @@ public abstract class GUI {
     private Player player;
     private final String inventoryName;
     private final ArrayList<GUIItem> guiItems = new ArrayList<>(); // make sure to add things here so they're saved
+    private Inventory inventory;
 
     public GUI(String inventoryName) {
         this.inventoryName = inventoryName;
@@ -31,7 +33,7 @@ public abstract class GUI {
 
     public void open(Player player) {
         this.player = player;
-        Inventory inventory = createInventory();
+        inventory = createInventory();
         GUI gui = this;
         Bukkit.getScheduler().runTaskLater(SQCore.getInstance(), () -> {
             player.openInventory(inventory);
@@ -48,8 +50,12 @@ public abstract class GUI {
     public Player getPlayer() {
         return player;
     }
+    public Inventory getInventory() {
+        return inventory;
+    }
 
     public void onClose() {
         guis.remove(player);
+        for (GUIItem guiItem : guiItems) GUIUtils.getButtons().remove(guiItem);
     }
 }
