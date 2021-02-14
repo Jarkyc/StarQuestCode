@@ -5,24 +5,16 @@ import com.spacebeaverstudios.sqtech.machines.Machine;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 
-public class MachineSettingsGUI extends GUI {
+public class ChooseInputColorsGUI extends GUI {
     private final Machine machine;
 
-    public MachineSettingsGUI(Machine machine) {
-        super(machine.getMachineName());
+    public ChooseInputColorsGUI(Machine machine) {
+        super("Choose " + machine.getMachineName() + " Input Pipe Colors");
         this.machine = machine;
     }
 
     public Inventory createInventory() {
-        // TODO
         return Bukkit.createInventory(null, 27);
-    }
-
-    @Override
-    public void onClose() {
-        super.onClose();
-        MachineGUI machineGUI = new MachineGUI(machine);
-        machine.setGUI(machineGUI);
-        machineGUI.open(this.getPlayer());
+        // TODO
     }
 }

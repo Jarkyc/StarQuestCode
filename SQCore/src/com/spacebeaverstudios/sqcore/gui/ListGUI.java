@@ -30,13 +30,13 @@ public abstract class ListGUI extends GUI {
         Inventory inventory = Bukkit.createInventory(null, rows*9, super.getInventoryName() + " Page " + (currentPage+1));
 
         ArrayList<ItemStack> bottomRow = createBottomRow();
-        for (int i = 0; i < 9; i++) {
-            inventory.setItem(inventory.getSize()-2-i, bottomRow.get(i));
-        }
+        for (int i = 0; i < bottomRow.size(); i++) inventory.setItem(inventory.getSize()-(9-i), bottomRow.get(i));
 
         for (int i = 0; i < inventory.getSize() - 9; i ++) {
             int objectIndex = i + (currentPage * (inventory.getSize() - 9));
-            if (objectIndex < getObjectList().size()) inventory.setItem(i, getObjectItem(getObjectList().get(objectIndex)));
+            List<Object> objectList = getObjectList();
+
+            if (objectIndex < objectList.size()) inventory.setItem(i, getObjectItem(objectList.get(objectIndex)));
             else break;
         }
 
@@ -44,7 +44,7 @@ public abstract class ListGUI extends GUI {
     }
 
     // this is separate so it can be overridden
-    private ArrayList<ItemStack> createBottomRow() {
+    public ArrayList<ItemStack> createBottomRow() {
         ArrayList<GUIItem> guiItems = new ArrayList<>();
 
         // previous page item
@@ -67,7 +67,7 @@ public abstract class ListGUI extends GUI {
         return itemStacks;
     }
     // these are separate as well to reduce code when overriding
-    private GUIItem getPrevPageItem() {
+    public GUIItem getPrevPageItem() {
         ItemStack banner = new ItemStack(Material.WHITE_BANNER);
         BannerMeta bannerMeta = (BannerMeta) banner.getItemMeta();
         bannerMeta.setDisplayName(ChatColor.BLUE + "Previous Page");
@@ -80,7 +80,7 @@ public abstract class ListGUI extends GUI {
 
         return new GUIItem(banner, new ChangePageFunction(this, currentPage-1));
     }
-    private GUIItem getNextPageItem() {
+    public GUIItem getNextPageItem() {
         ItemStack banner = new ItemStack(Material.WHITE_BANNER);
         BannerMeta bannerMeta = (BannerMeta) banner.getItemMeta();
         bannerMeta.setDisplayName(ChatColor.BLUE + "Next Page");

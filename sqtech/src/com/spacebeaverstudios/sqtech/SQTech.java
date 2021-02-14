@@ -1,5 +1,6 @@
 package com.spacebeaverstudios.sqtech;
 
+import com.spacebeaverstudios.sqtech.guis.MachineInventoryGUI;
 import com.spacebeaverstudios.sqtech.listeners.*;
 import com.spacebeaverstudios.sqtech.machines.Machine;
 import org.bukkit.Bukkit;
@@ -20,6 +21,9 @@ public class SQTech extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
         getServer().getPluginManager().registerEvents(new SignListener(), this);
 
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, Machine::tickMachines, 1, 1);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
+            for (Machine machine : Machine.getMachines()) machine.tick();
+            MachineInventoryGUI.refreshAll();
+        }, 20, 20);
     }
 }

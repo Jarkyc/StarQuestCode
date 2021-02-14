@@ -4,10 +4,11 @@ import com.spacebeaverstudios.sqcore.commands.World.WorldCmd;
 import com.spacebeaverstudios.sqcore.generator.VoidGenerator;
 import com.spacebeaverstudios.sqcore.utils.GUIUtils;
 import com.spacebeaverstudios.sqcore.listeners.*;
-import com.spacebeaverstudios.sqcore.utils.discord.DiscordUtils;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,25 +47,21 @@ public class SQCore extends JavaPlugin {
                 }
             }
         }, 1, 1);
-
-        // test
-        DiscordUtils.reportError(DiscordUtils.tag("blankman") + " test");
     }
 
-    private void loadWorlds(){
-
+    private void loadWorlds() {
         File file = new File(getDataFolder().getAbsolutePath() + "/worlds.yml");
 
-        if(!file.exists()) this.saveResource("worlds.yml", false);
+        if (!file.exists()) this.saveResource("worlds.yml", false);
 
         FileConfiguration config = new YamlConfiguration();
 
-        try{
+        try {
             config.load(file);
 
-            System.out.println(config.getConfigurationSection("worlds.").getKeys(false));
+            getLogger().info(config.getConfigurationSection("worlds.").getKeys(false).toString());
 
-            for(String key : config.getConfigurationSection("worlds.").getKeys(false)){
+            for (String key : config.getConfigurationSection("worlds.").getKeys(false)) {
                 WorldCreator world = new WorldCreator(key.toLowerCase());
                 world.environment(World.Environment.NORMAL);
                 world.generator(new VoidGenerator());
@@ -75,11 +72,8 @@ public class SQCore extends JavaPlugin {
                 w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
                 w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
             }
-
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 }
