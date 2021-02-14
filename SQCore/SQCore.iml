@@ -10,11 +10,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../server/cache/patched_1.15.2.jar!/" />
+          <root url="jar://$USER_HOME$/Desktop/Server/paperclip.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../server/cache/patched_1.15.2.jar!/" />
+          <root url="jar://$USER_HOME$/Desktop/Server/paperclip.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
