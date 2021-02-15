@@ -27,6 +27,7 @@ public class SQCore extends JavaPlugin {
         instance = this;
         getServer().getPluginManager().registerEvents(new InventoryListener(), this);
         getServer().getPluginManager().registerEvents(new ItemListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
 
         getCommand("world").setExecutor(new WorldCmd());
 
