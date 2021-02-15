@@ -116,9 +116,14 @@ public class PlayerListeners implements Listener {
 
         // Module inv
         } else if(e.getView().getTitle().equals(ChatColor.GREEN + e.getWhoClicked().getName() + "'s Ship Modules")){
-            if(e.getClick() == ClickType.SHIFT_LEFT){
-                e.setCancelled(true);
+            if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.RED + "Weapons")){
+                e.getWhoClicked().openInventory(ShipUtils.getShipByPlayer((Player) e.getWhoClicked()).weaponModulesWind);
+            } else if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.BLUE + "Defense")){
+                e.getWhoClicked().openInventory(ShipUtils.getShipByPlayer((Player) e.getWhoClicked()).defenseModulesWind);
+            } else if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GOLD + "Utility")){
+                e.getWhoClicked().openInventory(ShipUtils.getShipByPlayer((Player) e.getWhoClicked()).utilModulesWind);
             }
+            e.setCancelled(true);
         }
     }
 

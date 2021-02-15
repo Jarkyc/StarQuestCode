@@ -5,10 +5,7 @@ import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipBlock;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipLocation;
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 
 import org.bukkit.block.BlockFace;
@@ -120,13 +117,17 @@ public class DetectionTask {
 
         }
 
+        // 25 blocks counting the core
+        if(blocks.size() < 26){
+            player.sendMessage(ChatColor.RED + "This ship does not meet the minimum size requirements!");
+            return;
+        }
+
         Ship ship = new Ship(this.blocks, player, location, this.core, originalVector, pistons);
 
         SolidShipData data = null;
 
         for(SolidShipData solid : SQSmoothcraft.instance.solidShips){
-            System.out.println(solid.x + " " + solid.y + " " + solid.z);
-            System.out.println(location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ());
             if(location.getBlockX() == solid.x && location.getBlockY() == solid.y && location.getBlockZ() == solid.z && location.getWorld().getName().equalsIgnoreCase(solid.world)){
                 data = solid;
                 ship.modules = solid.modules;

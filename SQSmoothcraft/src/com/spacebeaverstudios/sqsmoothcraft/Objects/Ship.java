@@ -12,6 +12,7 @@ import com.spacebeaverstudios.sqsmoothcraft.Tasks.CannonTask;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.MathUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -43,6 +44,10 @@ public class Ship {
     public Inventory infoWindow;
     public Inventory moduleWindow;
 
+    public Inventory utilModulesWind;
+    public Inventory defenseModulesWind;
+    public Inventory weaponModulesWind;
+
     public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core, Location originalVector, ArrayList<ShipBlock> pistons) {
         this.blocks = blocks;
         this.owner = owner;
@@ -65,11 +70,17 @@ public class Ship {
             block.buildArmorStand();
         }
         //prevents the player's view from lowering when the crouch
+        //Future self here, I am just kidding, it only works sometimes
         owner.setFlying(true);
         core.armorStand.addPassenger(owner);
 
         infoWindow = Bukkit.createInventory(null, 9, ChatColor.BLUE + owner.getName() + "'s Ship Info");
-        moduleWindow =  Bukkit.createInventory(null, 54, ChatColor.GREEN + owner.getName() + "'s Ship Modules");
+        moduleWindow =  Bukkit.createInventory(null, InventoryType.DROPPER, ChatColor.GREEN + owner.getName() + "'s Ship Modules");
+
+        defenseModulesWind = Bukkit.createInventory(null, 27, ChatColor.BLUE + "Defense Modules");
+        weaponModulesWind = Bukkit.createInventory(null, 27, ChatColor.RED + "Weapon Modules");
+        utilModulesWind = Bukkit.createInventory(null, 27, ChatColor.GOLD + "Utility Modules");
+
 
         createGUIs();
         core.armorStand.setCanTick(true);
@@ -86,6 +97,8 @@ public class Ship {
     }
 
     private void createGUIs(){
+        
+        //god help me making GUIs with spigot is so ugly
         ItemStack blockCount = new ItemStack(Material.BRICK);
         ItemMeta countMeta = blockCount.getItemMeta();
         countMeta.setDisplayName(ChatColor.GOLD + "Block Count");
@@ -110,6 +123,46 @@ public class Ship {
         click.add("Click here to open up the modules inventory");
         meta.setLore(click);
         modules.setItemMeta(meta);
+
+        ItemStack filler = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        ItemMeta fm = filler.getItemMeta();
+        fm.setDisplayName("");
+        filler.setItemMeta(fm);
+
+        ItemStack weapons = new ItemStack(Material.PISTON);
+        ItemMeta wm = weapons.getItemMeta();
+        wm.setDisplayName(ChatColor.RED + "Weapons");
+        ArrayList<String> wml = new ArrayList<>();
+        wml.add("Put capacity here");
+        wm.setLore(wml);
+        weapons.setItemMeta(wm);
+
+        ItemStack defense = new ItemStack(Material.SHIELD);
+        ItemMeta dm = defense.getItemMeta();
+        dm.setDisplayName(ChatColor.BLUE + "Defense");
+        ArrayList<String> dml = new ArrayList<>();
+        dml.add("Put capacity here");
+        dm.setLore(dml);
+        defense.setItemMeta(dm);
+
+        ItemStack util = new ItemStack(Material.HOPPER);
+        ItemMeta um = util.getItemMeta();
+        um.setDisplayName(ChatColor.GOLD + "Utility");
+        ArrayList<String> uml = new ArrayList<>();
+        uml.add("Put capacity here");
+        um.setLore(uml);
+        util.setItemMeta(um);
+
+
+        moduleWindow.setItem(0, filler);
+        moduleWindow.setItem(1, filler);
+        moduleWindow.setItem(2, filler);
+        moduleWindow.setItem(3, weapons);
+        moduleWindow.setItem(4, defense);
+        moduleWindow.setItem(5, util);
+        moduleWindow.setItem(6, filler);
+        moduleWindow.setItem(7, filler);
+        moduleWindow.setItem(8, filler);
 
         infoWindow.setItem(0, blockCount);
         infoWindow.setItem(4, head);

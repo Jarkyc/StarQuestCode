@@ -27,18 +27,12 @@ public class SQSmoothcraft extends JavaPlugin {
         instance = this;
         loadConfig();
 
-        System.out.println();
-
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
         getCommand("ship").setExecutor(new ShipCmd());
 
         getCommand("test").setExecutor(new TestCmd());
 
         loadData();
-
-        for(Material material : shipBlocks){
-            System.out.println(material);
-        }
 
         tick();
 
