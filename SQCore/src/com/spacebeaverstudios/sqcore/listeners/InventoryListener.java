@@ -14,10 +14,13 @@ public class InventoryListener implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        if (event.getCurrentItem() != null && GUIUtils.isButton(event.getCurrentItem())) {
-            GUIItem item = GUIUtils.getGUIItem(event.getCurrentItem());
+        if (GUI.getGuis().containsKey((Player) event.getWhoClicked())) {
             event.setCancelled(true);
-            if (item.hasFunction()) item.runFunction((Player) event.getWhoClicked());
+            if (event.getCurrentItem() != null && GUIUtils.isButton(event.getCurrentItem())
+                    && GUI.getGuis().get((Player) event.getWhoClicked()).getInventory().equals(event.getClickedInventory())) {
+                GUIItem item = GUIUtils.getGUIItem(event.getCurrentItem());
+                if (item.hasFunction()) item.runFunction((Player) event.getWhoClicked());
+            }
         }
     }
 
