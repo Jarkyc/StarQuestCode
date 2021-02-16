@@ -1,0 +1,4 @@
+name: SQTPS
+main: com.spacebeaverstudios.sqtps.SQTPS
+version: 1.0.0
+api-version: "1.15"
