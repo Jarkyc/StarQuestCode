@@ -9,7 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.UUID;
 
-public class SQChat extends JavaPlugin { // TODO: implement social spy
+public class SQChat extends JavaPlugin {
     private static SQChat instance;
 
     public static SQChat getInstance() {
@@ -24,7 +24,7 @@ public class SQChat extends JavaPlugin { // TODO: implement social spy
         ChatUtils.loadMutedPlayers();
 
         getServer().getPluginManager().registerEvents(new ChatListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerLogInOutListener(), this);
         getServer().getPluginManager().registerEvents(new WorldSaveListener(), this);
 
         // register commands
@@ -36,12 +36,12 @@ public class SQChat extends JavaPlugin { // TODO: implement social spy
         getCommand("tc").setExecutor(new TownChatCmd());
 
         MessageCmd messageCmd = new MessageCmd();
-        getCommand("message").setExecutor(messageCmd);
-        getCommand("message").setTabCompleter(messageCmd);
+        getCommand("msg").setExecutor(messageCmd);
+        getCommand("msg").setTabCompleter(messageCmd);
 
         ReplyCmd replyCmd = new ReplyCmd();
-        getCommand("reply").setExecutor(replyCmd);
-        getCommand("reply").setTabCompleter(replyCmd);
+        getCommand("r").setExecutor(replyCmd);
+        getCommand("r").setTabCompleter(replyCmd);
 
         MuteCmd muteCmd = new MuteCmd();
         getCommand("mute").setExecutor(muteCmd);
@@ -50,6 +50,9 @@ public class SQChat extends JavaPlugin { // TODO: implement social spy
         UnmuteCmd unmuteCmd = new UnmuteCmd();
         getCommand("unmute").setExecutor(unmuteCmd);
         getCommand("unmute").setTabCompleter(unmuteCmd);
+
+        getCommand("socialspy").setExecutor(new SocialSpyCmd());
+        getCommand("supersocialspy").setExecutor(new SuperSocialSpyCmd());
 
         // script to unmute people
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {

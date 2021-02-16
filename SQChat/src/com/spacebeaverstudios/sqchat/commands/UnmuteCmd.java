@@ -1,8 +1,8 @@
 package com.spacebeaverstudios.sqchat.commands;
 
-import com.spacebeaverstudios.sqchat.commands.arguments.MutedPlayerArgument;
 import com.spacebeaverstudios.sqchat.utils.ChatUtils;
 import com.spacebeaverstudios.sqcore.commands.SQCmd;
+import com.spacebeaverstudios.sqcore.commands.arguments.OnlinePlayerArgument;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 public class UnmuteCmd extends SQCmd {
     public UnmuteCmd() {
         super("unmute", "Unmutes a player.", false);
-        addArgument(new MutedPlayerArgument("player"));
+        addArgument(new OnlinePlayerArgument("player"));
     }
 
     public void onExecute(CommandSender sender, String previousLabels, Object[] args) {

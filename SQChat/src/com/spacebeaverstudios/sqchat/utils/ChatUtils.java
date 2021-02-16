@@ -11,6 +11,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.UUID;
@@ -28,6 +29,8 @@ public class ChatUtils {
     private static final HashMap<Player, ChatUtils.Channel> playerChannels = new HashMap<>();
     private static final HashMap<UUID, Integer> mutedPlayers = new HashMap<>();
     private static final HashMap<Player, Player> replies = new HashMap<>();
+    private static final ArrayList<Player> spies = new ArrayList<>();
+    private static final ArrayList<Player> superSpies = new ArrayList<>();
     private static Chat chat = null;
 
     public static HashMap<Player, Channel> getPlayerChannels() {
@@ -39,11 +42,17 @@ public class ChatUtils {
     public static HashMap<Player, Player> getReplies() {
         return replies;
     }
+    public static ArrayList<Player> getSpies() {
+        return spies;
+    }
+    public static ArrayList<Player> getSuperSpies() {
+        return superSpies;
+    }
 
     public static String getRankString(Player player) {
         if (chat.getGroupPrefix("world", chat.getPrimaryGroup(player)).equals("")) return "";
-        else return ChatColor.GRAY + "[" + ChatColor.translateAlternateColorCodes('&',
-                chat.getGroupPrefix("world", chat.getPrimaryGroup(player))) + ChatColor.GRAY + "] ";
+        else return ChatColor.translateAlternateColorCodes('&',
+                chat.getGroupPrefix("world", chat.getPrimaryGroup(player)));
     }
 
     public static void loadMutedPlayers() {

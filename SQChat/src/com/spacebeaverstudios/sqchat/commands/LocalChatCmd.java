@@ -9,8 +9,6 @@ import org.bukkit.entity.Player;
 public class LocalChatCmd extends SQCmd {
     public LocalChatCmd() {
         super("l", "Sets player's chat channel to local.", true);
-
-        this.addAliase("l");
     }
 
     public void onExecute(CommandSender sender, String previousLabels, Object[] args) {

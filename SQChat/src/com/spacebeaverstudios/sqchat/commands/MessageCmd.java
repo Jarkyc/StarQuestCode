@@ -10,10 +10,8 @@ import org.bukkit.entity.Player;
 
 public class MessageCmd extends SQCmd {
     public MessageCmd() {
-        super("message", "Message a player", true);
+        super("msg", "Message a player", true);
         this.addArgument(new OnlinePlayerArgument("player"));
-
-        this.addAliase("msg");
     }
 
     public void onExecute(CommandSender sender, String previousLabels, Object[] args) {
@@ -37,9 +35,11 @@ public class MessageCmd extends SQCmd {
             player.sendMessage(ChatColor.RED + "The person you are messaging is muted, and won't be able to respond.");
 
         ChatUtils.getReplies().put(player, target);
+        ChatUtils.getReplies().put(target, player);
 
         StringBuilder message = new StringBuilder();
-        for (int i = 1; i < args.length; i++) message.append(args[i]);
+        message.append(args[1]);
+        for (int i = 2; i < args.length; i++) message.append(" ").append(args[i]);
 
         player.sendMessage(ChatColor.BLUE + "[" + ChatColor.AQUA + "You -> " + target.getDisplayName()
                 + ChatColor.BLUE + "] " + ChatColor.WHITE + message);
@@ -47,5 +47,12 @@ public class MessageCmd extends SQCmd {
                 + ChatColor.BLUE + "] " + ChatColor.WHITE + message);
 
         target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+
+        for (Player spy : ChatUtils.getSpies()) {
+            if (!spy.equals(player) && !spy.equals(target))
+                spy.sendMessage(ChatColor.DARK_BLUE + "[" + ChatColor.BLUE + "SocialSpy" + ChatColor.DARK_BLUE + "] "
+                    + ChatColor.BLUE + "[" + ChatColor.AQUA + player.getDisplayName() + " -> " + target.getDisplayName()
+                    + ChatColor.BLUE + "] " + ChatColor.WHITE + message);
+        }
     }
 }

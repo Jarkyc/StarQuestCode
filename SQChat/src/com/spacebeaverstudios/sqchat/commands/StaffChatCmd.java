@@ -9,8 +9,6 @@ import org.bukkit.entity.Player;
 public class StaffChatCmd extends SQCmd {
     public StaffChatCmd() {
         super("s", "Sets player's chat channel to staff.", true);
-
-        this.addAliase("staff");
     }
 
     public void onExecute(CommandSender sender, String previousLabels, Object[] args) {

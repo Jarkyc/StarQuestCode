@@ -2,32 +2,27 @@ name: SQChat
 main: com.spacebeaverstudios.sqchat.SQChat
 version: 1.0.0
 api-version: "1.15"
+loadbefore: [Essentials]
 depend: [SQCore, Vault]
 commands:
   g:
     description: Puts you into global chat.
-    aliases: [global]
   l:
     description: Puts you into local chat.
-    aliases: [local]
   p:
     description: Puts you into planet chat.
-    aliases: [planet]
   tc:
     description: Puts you into town chat.
   nc:
     description: Puts you into nation chat.
   s:
     description: Puts you into staff chat.
-    aliases: [staff]
     permission: SQChat.staff
     permission-message: You are not staff!
-  message:
+  msg:
     description: Message a player.
-    aliases: [msg]
-  reply:
+  r:
     description: Reply to the last person who messaged you.
-    aliases: [r]
   mute:
     description: Mutes a player.
     permission: SQChat.mute
@@ -36,8 +31,20 @@ commands:
     description: Unmutes a player.
     permission: SQChat.mute
     permission-message: You do not have permission to use this command!
+  socialspy:
+    description: Sets a player in or out of social spy mode.
+    permission: SQChat.socialspy
+    permission-message: You do not have permission to use this command!
+  supersocialspy:
+    description: Sets a player in or out of super social spy mode.
+    permission: SQChat.supersocialspy
+    permission-message: You do not have permission to use this command!
 permissions:
   SQChat.staff:
     default: op
   SQChat.mute:
+    default: op
+  SQChat.socialspy:
+    default: op
+  SQChat.supersocialspy:
     default: op

@@ -9,8 +9,6 @@ import org.bukkit.entity.Player;
 public class GlobalChatCmd extends SQCmd {
     public GlobalChatCmd() {
         super("g", "Sets player's chat channel to global.", true);
-
-        this.addAliase("global");
     }
 
     public void onExecute(CommandSender sender, String previousLabels, Object[] args) {

@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 
 public class NationChatCmd extends SQCmd {
     public NationChatCmd() {
-        super("tc", "Sets player's chat channel to nation.", true);
+        super("nc", "Sets player's chat channel to nation.", true);
     }
 
     public void onExecute(CommandSender sender, String previousLabels, Object[] args) {

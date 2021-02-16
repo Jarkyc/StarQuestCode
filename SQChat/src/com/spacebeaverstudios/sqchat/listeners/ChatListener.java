@@ -9,6 +9,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
+import java.util.ArrayList;
+
 public class ChatListener implements Listener {
     @SuppressWarnings("unused")
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -21,6 +23,7 @@ public class ChatListener implements Listener {
             return;
         }
 
+        ArrayList<Player> inMessage = new ArrayList<>();
         switch (ChatUtils.getPlayerChannels().get(player)) {
             case GLOBAL:
                 // edit the chat message instead of sending a new one so it can be picked up by DiscordSRV
@@ -30,7 +33,14 @@ public class ChatListener implements Listener {
                 break;
             case PLANET:
                 for (Player p : player.getLocation().getWorld().getPlayers()) {
+                    inMessage.add(player);
                     p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "P" + ChatColor.GRAY + "] "
+                            + ChatUtils.getRankString(player) + ChatColor.WHITE + player.getDisplayName() + ": " + event.getMessage());
+                }
+                for (Player spy : ChatUtils.getSuperSpies()) {
+                    if (!inMessage.contains(spy))
+                        spy.sendMessage(ChatColor.DARK_BLUE + "[" + ChatColor.BLUE + "SocialSpy" + ChatColor.DARK_BLUE + "] "
+                            + ChatColor.GRAY + "[" + ChatColor.BLUE + "P" + ChatColor.GRAY + "] "
                             + ChatUtils.getRankString(player) + ChatColor.WHITE + player.getDisplayName() + ": " + event.getMessage());
                 }
                 break;
@@ -38,10 +48,16 @@ public class ChatListener implements Listener {
                 for (Player p : player.getLocation().getWorld().getPlayers()) {
                     if (Math.sqrt(Math.pow(player.getLocation().getBlockX()-p.getLocation().getBlockX(), 2)
                             + Math.pow(player.getLocation().getBlockZ()-p.getLocation().getBlockZ(), 2)) <= 250) {
+                        inMessage.add(p);
                         p.sendMessage(ChatColor.GRAY + "[" + ChatColor.YELLOW + "L" + ChatColor.GRAY + "] "
-                                + ChatUtils.getRankString(player) + ChatColor.WHITE + player.getDisplayName()
-                                + ": " + event.getMessage());
+                                + ChatUtils.getRankString(player) + ChatColor.WHITE + player.getDisplayName() + ": " + event.getMessage());
                     }
+                }
+                for (Player spy : ChatUtils.getSuperSpies()) {
+                    if (!inMessage.contains(spy))
+                        spy.sendMessage(ChatColor.DARK_BLUE + "[" + ChatColor.BLUE + "SocialSpy" + ChatColor.DARK_BLUE + "] "
+                                + ChatColor.GRAY + "[" + ChatColor.YELLOW + "L" + ChatColor.GRAY + "] "
+                                + ChatUtils.getRankString(player) + ChatColor.WHITE + player.getDisplayName() + ": " + event.getMessage());
                 }
                 break;
             case TOWN:

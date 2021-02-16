@@ -8,9 +8,7 @@ import org.bukkit.entity.Player;
 
 public class PlanetChatCmd extends SQCmd {
     public PlanetChatCmd() {
-        super("g", "Sets player's chat channel to planet.", true);
-
-        this.addAliase("planet");
+        super("p", "Sets player's chat channel to planet.", true);
     }
 
     public void onExecute(CommandSender sender, String previousLabels, Object[] args) {
