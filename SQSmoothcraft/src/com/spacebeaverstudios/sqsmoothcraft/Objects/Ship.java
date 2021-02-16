@@ -67,7 +67,10 @@ public class Ship {
         SQSmoothcraft.instance.allShips.add(this);
 
         for (ShipBlock block : blocks) {
-            block.buildArmorStand();
+            block.location.getWorld().getBlockAt(block.location).setType(Material.AIR);
+            if(block.visible){
+                block.buildArmorStand();
+            }
         }
         //prevents the player's view from lowering when the crouch
         //Future self here, I am just kidding, it only works sometimes
@@ -196,6 +199,7 @@ public class Ship {
 
     private void updateData() {
         for (ShipBlock block : blocks) {
+            if(!block.visible) continue;
             block.location = block.getArmorStand().getLocation();
             }
         if (((getOwner().getInventory().getItemInMainHand().getType() != Material.CLOCK && !isAutopilot) || (getOwner().getInventory().getItemInMainHand().getType() == Material.CLOCK && !getOwner().isSneaking())) && core.armorStand.getVelocity().getY() < 0) {
@@ -244,6 +248,8 @@ public class Ship {
 
         for (ShipBlock block : this.blocks) {
 
+            if(!block.visible) continue;
+
             ShipLocation shipLocation = block.shipLoc;
 
             World world = this.shipLocation.getWorld();
@@ -268,6 +274,7 @@ public class Ship {
             public void run() {
 
                 for(ShipBlock block : blocks) {
+                    if(!block.visible) continue;
                     block.armorStand.setHeadPose(new EulerAngle(tempPitch, tempYaw, 0));
                 }
             }
@@ -322,10 +329,7 @@ public class Ship {
 
         double pitch = Math.toRadians(0);
 
-        Iterator<ShipBlock> it = blocks.iterator();
-        ShipBlock firstBlock = it.next();
-
-        double euToDeg = firstBlock.armorStand.getHeadPose().getY() * 180 / Math.PI;
+        double euToDeg = core.armorStand.getHeadPose().getY() * 180 / Math.PI;
         if (euToDeg < 0) euToDeg += 360;
 
 
@@ -386,7 +390,8 @@ public class Ship {
 
                 locationShip.getWorld().getBlockAt(locationShip).setType(block.getMaterial());
                 locationShip.getWorld().getBlockAt(locationShip).setBlockData(block.blockData);
-                block.getArmorStand().remove();
+
+                if(block.visible) block.getArmorStand().remove();
             }
 
                 SQSmoothcraft.instance.solidShips.add(new SolidShipData(orig, this.modules, owner.getUniqueId().toString()));

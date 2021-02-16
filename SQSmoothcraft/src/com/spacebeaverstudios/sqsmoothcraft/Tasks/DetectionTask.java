@@ -98,7 +98,18 @@ public class DetectionTask {
                             }
                         }
 
-                        ShipBlock shipBlock = new ShipBlock(shipLoc, new Location(b.getWorld(), checkBlock.getX(), checkBlock.getY(), checkBlock.getZ()), b.getType(), yOffset, data);
+                        Location checkLoc = new Location(world, checkBlock.getX(), checkBlock.getY(), checkBlock.getZ());
+
+                        Block neighbor1 = checkLoc.clone().add(1, 0 ,0).getBlock();
+                        Block neighbor2 = checkLoc.clone().add(0, 1, 0).getBlock();
+                        Block neighbor3 = checkLoc.clone().add(0, 0, 1).getBlock();
+                        Block neighbor4 = checkLoc.clone().subtract(1, 0, 0).getBlock();
+                        Block neighbor5 = checkLoc.clone().subtract(0, 1, 0).getBlock();
+                        Block neighbor6 = checkLoc.clone().subtract(0, 0, 1).getBlock();
+
+                        Boolean visible = (neighbor1.getType() == Material.AIR || neighbor2.getType() == Material.AIR || neighbor3.getType() == Material.AIR || neighbor4.getType() == Material.AIR || neighbor5.getType() == Material.AIR || neighbor6.getType() == Material.AIR);
+
+                        ShipBlock shipBlock = new ShipBlock(shipLoc, new Location(b.getWorld(), b.getX(), b.getY(), b.getZ()), b.getType(), yOffset, data, visible);
                         blocks.add(shipBlock);
 
                         if(b.getType() == Material.PISTON){

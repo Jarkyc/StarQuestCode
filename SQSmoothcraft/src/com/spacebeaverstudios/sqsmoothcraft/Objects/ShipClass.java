@@ -40,4 +40,8 @@ public enum ShipClass {
     public int getSpeed(){
         return speed;
     }
+
+    public int getHealth(){
+        return health;
+    }
 }

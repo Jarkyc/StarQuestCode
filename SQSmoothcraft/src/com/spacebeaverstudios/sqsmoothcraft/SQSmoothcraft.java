@@ -103,7 +103,7 @@ public class SQSmoothcraft extends JavaPlugin {
 
                 }
             }
-        }, 0L, 0);
+        }, 1L, 0);
     }
 
 

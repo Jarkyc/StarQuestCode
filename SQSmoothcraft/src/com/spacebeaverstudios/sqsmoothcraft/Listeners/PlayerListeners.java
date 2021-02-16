@@ -29,7 +29,10 @@ public class PlayerListeners implements Listener {
     @EventHandler
     public static void onInteract(PlayerInteractEvent e){
 
-        if((e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) && e.getPlayer().getInventory().getItemInMainHand().getType() == Material.CLOCK && ShipUtils.isAPilot(e.getPlayer())){
+        if(e.getPlayer().getInventory().getItemInMainHand().getType() != Material.CLOCK)
+            return;
+
+        if((e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) && ShipUtils.isAPilot(e.getPlayer())){
             Ship ship = ShipUtils.getShipByPlayer(e.getPlayer());
 
             if(ship.isAutopilot){
@@ -47,7 +50,7 @@ public class PlayerListeners implements Listener {
             }
         }
 
-        if((e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) && e.getPlayer().getInventory().getItemInMainHand().getType() == Material.CLOCK && ShipUtils.isAPilot(e.getPlayer())){
+        if((e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) && ShipUtils.isAPilot(e.getPlayer())){
             ShipUtils.getShipByPlayer(e.getPlayer()).fireMainWeapons();
         }
         if(e.getClickedBlock() == null) return;

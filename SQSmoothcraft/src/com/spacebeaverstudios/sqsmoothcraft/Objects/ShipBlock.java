@@ -15,13 +15,15 @@ public class ShipBlock {
     private Material material;
     private double yOffset;
     public BlockData blockData;
+    public boolean visible;
 
-    public ShipBlock(ShipLocation shipLocation, Location location, Material material, double yOffset, BlockData data){
+    public ShipBlock(ShipLocation shipLocation, Location location, Material material, double yOffset, BlockData data, boolean visible){
         this.shipLoc = shipLocation;
         this.location = location;
         this.material = material;
         this.yOffset = yOffset;
         this.blockData = data;
+        this.visible = visible;
     }
 
     public Material getMaterial(){
@@ -37,9 +39,7 @@ public class ShipBlock {
         armorStand.setVisible(false);
         armorStand.setCollidable(false);
         armorStand.setCanTick(false);
-
-
-        location.getWorld().getBlockAt(location).setType(Material.AIR);
+        armorStand.setBasePlate(false);
 
 
 
