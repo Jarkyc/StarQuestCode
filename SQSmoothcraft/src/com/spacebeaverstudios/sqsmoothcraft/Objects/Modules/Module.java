@@ -4,7 +4,9 @@ import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public abstract class Module {
+import java.io.Serializable;
+
+public abstract class Module implements Serializable {
 
     public int slotCost;
     public boolean active = false;

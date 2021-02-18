@@ -1,11 +1,15 @@
 package com.spacebeaverstudios.sqsmoothcraft;
 
 import com.spacebeaverstudios.sqsmoothcraft.Commands.ShipCmd;
-import com.spacebeaverstudios.sqsmoothcraft.Commands.TestCmd;
+import com.spacebeaverstudios.sqsmoothcraft.Commands.UnpilotCmd;
 import com.spacebeaverstudios.sqsmoothcraft.Listeners.PlayerListeners;
+import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Jammer;
+import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Module;
+import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Shield;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Data.SolidShipData;
+import com.spacebeaverstudios.sqsmoothcraft.Utils.ModuleUtils;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -30,11 +34,15 @@ public class SQSmoothcraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
         getCommand("ship").setExecutor(new ShipCmd());
 
-        getCommand("test").setExecutor(new TestCmd());
+        getCommand("release").setExecutor(new UnpilotCmd());
 
         loadData();
 
         tick();
+
+        ModuleUtils.modulesByName.put("jammer", new Jammer());
+        ModuleUtils.modulesByName.put("shield", new Shield());
+
 
     }
 

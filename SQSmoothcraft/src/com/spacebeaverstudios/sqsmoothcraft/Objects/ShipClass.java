@@ -2,11 +2,12 @@ package com.spacebeaverstudios.sqsmoothcraft.Objects;
 
 public enum ShipClass {
 
-    FIGHTER(30 , 100, 1, 1, 1, 1),
-    GUNSHIP(31, 101, 1, 1, 1, 1);
+    FIGHTER(26, 30 , 100, 1, 1, 1, 1),
+    GUNSHIP(31, 39, 101, 1, 1, 1, 1);
 
-    private ShipClass(int size, int maxHeath, int wepCount, int defCount, int utilCount, int speed){
-        this.size = size;
+    private ShipClass(int minSize, int maxSize, int maxHeath, int wepCount, int defCount, int utilCount, int speed){
+        this.minSize = minSize;
+        this.maxSize = maxSize;
         this.health = maxHeath;
         this.wepCount = wepCount;
         this.defCount = defCount;
@@ -14,15 +15,21 @@ public enum ShipClass {
         this.speed = speed;
     }
 
-    private int size;
+    private int minSize;
+    private int maxSize;
     private int health;
     private int wepCount;
     private int defCount;
     private int utilCount;
     private int speed;
 
-    public int getSize(){
-        return size;
+
+    public int getMinSize(){
+        return minSize;
+    }
+
+    public int getMaxSize(){
+        return maxSize;
     }
 
     public int getWepCount(){

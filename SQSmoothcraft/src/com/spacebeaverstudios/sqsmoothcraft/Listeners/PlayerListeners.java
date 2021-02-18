@@ -1,6 +1,7 @@
 package com.spacebeaverstudios.sqsmoothcraft.Listeners;
 
 import com.spacebeaverstudios.sqsmoothcraft.Events.ShipAutopilotEvent;
+import com.spacebeaverstudios.sqsmoothcraft.GUIs.ClassSelectionGUI;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 import com.spacebeaverstudios.sqsmoothcraft.Tasks.DetectionTask;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.ShipUtils;
@@ -58,7 +59,8 @@ public class PlayerListeners implements Listener {
         if(e.getClickedBlock().getType() == Material.NOTE_BLOCK && e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (!ShipUtils.isAPilot(e.getPlayer())) {
                     e.setCancelled(true);
-                    new DetectionTask(e.getClickedBlock().getLocation(), e.getPlayer());
+                ClassSelectionGUI gui = new ClassSelectionGUI(e.getClickedBlock().getLocation());
+                gui.open(e.getPlayer());
             } else {
                 e.getPlayer().sendMessage(ChatColor.RED + "You are already piloting a ship!");
             }

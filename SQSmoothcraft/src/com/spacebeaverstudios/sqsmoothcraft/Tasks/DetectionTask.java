@@ -1,10 +1,14 @@
 package com.spacebeaverstudios.sqsmoothcraft.Tasks;
 
+import com.spacebeaverstudios.sqsmoothcraft.GUIs.ClassSelectionGUI;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Data.SolidShipData;
+import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Module;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipBlock;
+import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipClass;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipLocation;
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
+import com.spacebeaverstudios.sqsmoothcraft.Utils.ModuleUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 
@@ -24,7 +28,7 @@ public class DetectionTask {
     HashSet<ShipBlock> blocks = new HashSet<>();
     ShipBlock core;
 
-    public DetectionTask(Location location, Player player){
+    public DetectionTask(Location location, Player player, ShipClass clazz){
 
         Vector vector = new Vector(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
@@ -126,21 +130,34 @@ public class DetectionTask {
                 }
             }
 
+            if(blocks.size() > clazz.getMaxSize()){
+                player.sendMessage(ChatColor.RED + "The ship exceeds maximum block size for this class!");
+                return;
+            }
+
         }
 
-        // 25 blocks counting the core
-        if(blocks.size() < 26){
-            player.sendMessage(ChatColor.RED + "This ship does not meet the minimum size requirements!");
-            return;
-        }
+        // 25 blocks + the core
+       if(blocks.size() < clazz.getMinSize()){
+           player.sendMessage(ChatColor.RED + "Ship does not meet minimum size requirements for this class!");
+           return;
+       }
 
-        Ship ship = new Ship(this.blocks, player, location, this.core, originalVector, pistons);
+
+        Ship ship = new Ship(this.blocks, player, location, this.core, originalVector, pistons, clazz);
 
         SolidShipData data = null;
 
         for(SolidShipData solid : SQSmoothcraft.instance.solidShips){
             if(location.getBlockX() == solid.x && location.getBlockY() == solid.y && location.getBlockZ() == solid.z && location.getWorld().getName().equalsIgnoreCase(solid.world)){
                 data = solid;
+                ArrayList<Module> modules = new ArrayList<>();
+
+                /*for(String name : solid.modules){
+                    Module mod = ModuleUtils.getModuleByName(name);
+                    modules.add(mod);
+                } */
+
                 ship.modules = solid.modules;
             }
         }

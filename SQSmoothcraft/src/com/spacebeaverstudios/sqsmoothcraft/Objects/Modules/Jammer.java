@@ -1,11 +1,15 @@
 package com.spacebeaverstudios.sqsmoothcraft.Objects.Modules;
 
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 public class Jammer extends Module {
-    public Jammer(int slotCost, boolean passive) {
+
+
+    public Jammer() {
         super(1, false);
     }
 

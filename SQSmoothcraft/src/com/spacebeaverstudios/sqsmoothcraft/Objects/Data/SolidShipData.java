@@ -2,7 +2,6 @@ package com.spacebeaverstudios.sqsmoothcraft.Objects.Data;
 
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Module;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -10,6 +10,7 @@ import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Shield;
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
 import com.spacebeaverstudios.sqsmoothcraft.Tasks.CannonTask;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.MathUtils;
+import com.spacebeaverstudios.sqsmoothcraft.Utils.ModuleUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -25,6 +26,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 public class Ship {
+
+    private ShipClass shipClass;
 
     private HashSet<ShipBlock> blocks;
     private Player owner;
@@ -48,7 +51,7 @@ public class Ship {
     public Inventory defenseModulesWind;
     public Inventory weaponModulesWind;
 
-    public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core, Location originalVector, ArrayList<ShipBlock> pistons) {
+    public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core, Location originalVector, ArrayList<ShipBlock> pistons, ShipClass clazz) {
         this.blocks = blocks;
         this.owner = owner;
         this.shipLocation = origin;
@@ -56,11 +59,15 @@ public class Ship {
         this.originVec = originalVector;
         this.pistons = pistons;
 
+        this.shipClass = clazz;
+
+        this.maxHealth = clazz.getHealth();
+
         ShipPilotEvent event = new ShipPilotEvent(owner, this);
         Bukkit.getPluginManager().callEvent(event);
 
         //Should theoretically allow data to be initialized for reading during event listening, but if method is returned at this stage, won't allow the ship to be placed into the ship list, so JVM garbage collector commits game end on object.
-        if(event.isCancelled()){
+        if (event.isCancelled()) {
             return;
         }
 
@@ -68,7 +75,7 @@ public class Ship {
 
         for (ShipBlock block : blocks) {
             block.location.getWorld().getBlockAt(block.location).setType(Material.AIR);
-            if(block.visible){
+            if (block.visible) {
                 block.buildArmorStand();
             }
         }
@@ -78,7 +85,7 @@ public class Ship {
         core.armorStand.addPassenger(owner);
 
         infoWindow = Bukkit.createInventory(null, 9, ChatColor.BLUE + owner.getName() + "'s Ship Info");
-        moduleWindow =  Bukkit.createInventory(null, InventoryType.DROPPER, ChatColor.GREEN + owner.getName() + "'s Ship Modules");
+        moduleWindow = Bukkit.createInventory(null, InventoryType.DROPPER, ChatColor.GREEN + owner.getName() + "'s Ship Modules");
 
         defenseModulesWind = Bukkit.createInventory(null, 27, ChatColor.BLUE + "Defense Modules");
         weaponModulesWind = Bukkit.createInventory(null, 27, ChatColor.RED + "Weapon Modules");
@@ -89,18 +96,23 @@ public class Ship {
         core.armorStand.setCanTick(true);
         core.armorStand.getEquipment().setHelmet(new ItemStack(Material.AIR));
 
+        modules.add(new Jammer());
     }
 
     public Player getOwner() {
         return this.owner;
     }
 
-    public HashSet<ShipBlock> getBlocks(){
+    public HashSet<ShipBlock> getBlocks() {
         return this.blocks;
     }
 
-    private void createGUIs(){
-        
+    public ShipClass getShipClass(){
+        return this.shipClass;
+    }
+
+    private void createGUIs() {
+
         //god help me making GUIs with spigot is so ugly
         ItemStack blockCount = new ItemStack(Material.BRICK);
         ItemMeta countMeta = blockCount.getItemMeta();
@@ -199,9 +211,9 @@ public class Ship {
 
     private void updateData() {
         for (ShipBlock block : blocks) {
-            if(!block.visible) continue;
+            if (!block.visible) continue;
             block.location = block.getArmorStand().getLocation();
-            }
+        }
         if (((getOwner().getInventory().getItemInMainHand().getType() != Material.CLOCK && !isAutopilot) || (getOwner().getInventory().getItemInMainHand().getType() == Material.CLOCK && !getOwner().isSneaking())) && core.armorStand.getVelocity().getY() < 0) {
             core.armorStand.setVelocity(core.armorStand.getVelocity().clone().setY(0));
         }
@@ -211,7 +223,7 @@ public class Ship {
         ShipDamageEvent event = new ShipDamageEvent(owner, this, x, damageReason);
         Bukkit.getPluginManager().callEvent(event);
 
-        if(!event.isCancelled()) {
+        if (!event.isCancelled()) {
             if (shieldCore != null && shieldHealth > 0) {
                 shieldHealth -= x;
             } else {
@@ -248,7 +260,7 @@ public class Ship {
 
         for (ShipBlock block : this.blocks) {
 
-            if(!block.visible) continue;
+            if (!block.visible) continue;
 
             ShipLocation shipLocation = block.shipLoc;
 
@@ -267,14 +279,13 @@ public class Ship {
             block.armorStand.teleport(locationShip);
 
 
-
         }
         Bukkit.getScheduler().scheduleSyncDelayedTask(SQSmoothcraft.instance, new Runnable() {
             @Override
             public void run() {
 
-                for(ShipBlock block : blocks) {
-                    if(!block.visible) continue;
+                for (ShipBlock block : blocks) {
+                    if (!block.visible) continue;
                     block.armorStand.setHeadPose(new EulerAngle(tempPitch, tempYaw, 0));
                 }
             }
@@ -295,11 +306,11 @@ public class Ship {
 
     }
 
-    public void fireMainWeapons(){
+    public void fireMainWeapons() {
         ShipFireMainGunsEvent event = new ShipFireMainGunsEvent(owner, this);
         Bukkit.getPluginManager().callEvent(event);
-        if(!event.isCancelled()){
-            for(ShipBlock block : pistons){
+        if (!event.isCancelled()) {
+            for (ShipBlock block : pistons) {
                 new CannonTask(block.getArmorStand().getLocation(), owner.getLocation().getDirection(), this);
             }
 
@@ -320,7 +331,7 @@ public class Ship {
                     }
                 }
             }
-                core.armorStand.setVelocity(this.autoPilotDirection.normalize().multiply(1));
+            core.armorStand.setVelocity(this.autoPilotDirection.normalize().multiply(1));
         }
     }
 
@@ -391,12 +402,17 @@ public class Ship {
                 locationShip.getWorld().getBlockAt(locationShip).setType(block.getMaterial());
                 locationShip.getWorld().getBlockAt(locationShip).setBlockData(block.blockData);
 
-                if(block.visible) block.getArmorStand().remove();
+                if (block.visible) block.getArmorStand().remove();
             }
 
-                SQSmoothcraft.instance.solidShips.add(new SolidShipData(orig, this.modules, owner.getUniqueId().toString()));
+           /* ArrayList<String> moduleNames = new ArrayList<>();
+            for(Module module : modules){
+                moduleNames.add(ModuleUtils.getModuleName(module));
+            } */
 
-                SQSmoothcraft.instance.allShips.remove(this);
+            SQSmoothcraft.instance.solidShips.add(new SolidShipData(orig, modules, owner.getUniqueId().toString()));
+
+            SQSmoothcraft.instance.allShips.remove(this);
 
         } else {
             owner.sendMessage(ChatColor.RED + "Can not unpilot ship; blocks are in the way!");
