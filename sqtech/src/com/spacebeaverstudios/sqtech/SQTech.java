@@ -18,6 +18,7 @@ public class SQTech extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        getServer().getPluginManager().registerEvents(new BlockPlaceListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
         getServer().getPluginManager().registerEvents(new SignListener(), this);
 

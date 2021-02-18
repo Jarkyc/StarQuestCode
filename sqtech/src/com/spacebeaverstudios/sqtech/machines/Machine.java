@@ -129,6 +129,10 @@ public abstract class Machine {
         outputPipeMaterial = material;
         // TODO: detect nearby pipes of that color
     }
+    public void setInputPipeMaterials(ArrayList<Material> enabledColors) {
+        inputPipeMaterials.clear();
+        inputPipeMaterials.addAll(enabledColors);
+    }
 
     // schema is oriented so that positive x points to behind the sign, and positive z to the right
     // schemas MUST include a node block (Material.LAPIS_BLOCK)
