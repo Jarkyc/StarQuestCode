@@ -36,7 +36,11 @@ public abstract class ListGUI extends GUI {
             int objectIndex = i + (currentPage * (inventory.getSize() - 9));
             List<Object> objectList = getObjectList();
 
-            if (objectIndex < objectList.size()) inventory.setItem(i, getObjectItem(objectList.get(objectIndex)));
+            if (objectIndex < objectList.size()) {
+                GUIItem guiItem = getObjectItem(objectList.get(objectIndex));
+                getGuiItems().add(guiItem);
+                inventory.setItem(i, guiItem.getItemStack());
+            }
             else break;
         }
 
@@ -101,5 +105,5 @@ public abstract class ListGUI extends GUI {
     }
 
     public abstract List<Object> getObjectList();
-    public abstract ItemStack getObjectItem(Object obj);
+    public abstract GUIItem getObjectItem(Object obj);
 }
