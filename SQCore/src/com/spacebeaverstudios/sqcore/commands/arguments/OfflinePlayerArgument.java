@@ -27,7 +27,7 @@ public class OfflinePlayerArgument extends Argument<OfflinePlayer>{
     }
 
     @Override
-    public OfflinePlayer parse (String arg) {
+    public OfflinePlayer parse(String arg) {
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(arg);
 
         if (offlinePlayer == null || offlinePlayer.getName() == null)

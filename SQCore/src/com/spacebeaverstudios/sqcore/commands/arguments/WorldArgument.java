@@ -14,7 +14,7 @@ public class WorldArgument extends Argument<World>{
 
     @Override
     public List<String> getSuggestions() {
-        List<String> suggestions = new ArrayList<String>();
+        List<String> suggestions = new ArrayList<>();
         for (World world : Bukkit.getWorlds()) {
             suggestions.add(world.getName());
         }
@@ -22,7 +22,7 @@ public class WorldArgument extends Argument<World>{
     }
 
     @Override
-    public World parse (String arg) {
+    public World parse(String arg) {
         return Bukkit.getWorld(arg.toLowerCase());
     }
 }

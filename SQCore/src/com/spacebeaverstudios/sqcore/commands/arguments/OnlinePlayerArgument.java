@@ -14,7 +14,7 @@ public class OnlinePlayerArgument extends Argument<Player>{
 
     @Override
     public List<String> getSuggestions() {
-        List<String> suggestions = new ArrayList<String>();
+        List<String> suggestions = new ArrayList<>();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             // TODO: uncomment this line when VanishAPI is a thing again
@@ -26,7 +26,7 @@ public class OnlinePlayerArgument extends Argument<Player>{
     }
 
     @Override
-    public Player parse (String arg) {
+    public Player parse(String arg) {
         return Bukkit.getPlayer(arg);
     }
 }

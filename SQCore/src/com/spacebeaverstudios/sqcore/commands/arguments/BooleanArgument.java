@@ -1,6 +1,6 @@
 package com.spacebeaverstudios.sqcore.commands.arguments;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -11,16 +11,11 @@ public class BooleanArgument extends Argument<Boolean>{
 
     @Override
     public List<String> getSuggestions() {
-        List<String> suggestions = new ArrayList<String>();
-
-        suggestions.add("true");
-        suggestions.add("false");
-
-        return suggestions;
+        return Arrays.asList("true", "false");
     }
 
     @Override
-    public Boolean parse (String arg) {
+    public Boolean parse(String arg) {
         if (arg.equalsIgnoreCase("true")) {
             return true;
         } else if (arg.equalsIgnoreCase("false")) {

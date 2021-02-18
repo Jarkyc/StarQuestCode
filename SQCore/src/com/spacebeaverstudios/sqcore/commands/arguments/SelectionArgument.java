@@ -17,7 +17,7 @@ public class SelectionArgument extends Argument<String>{
     }
 
     @Override
-    public String parse (String arg) {
+    public String parse(String arg) {
         for (String item : list) {
             if (item.equalsIgnoreCase(arg)) {
                 return item;

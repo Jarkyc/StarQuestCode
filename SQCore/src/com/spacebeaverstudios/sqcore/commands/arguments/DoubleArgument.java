@@ -11,11 +11,11 @@ public class DoubleArgument extends Argument<Double>{
 
     @Override
     public List<String> getSuggestions() {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
-    public Double parse (String arg) {
+    public Double parse(String arg) {
         try {
             return Double.parseDouble(arg);
         } catch (Exception e) {

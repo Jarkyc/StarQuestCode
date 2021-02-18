@@ -11,11 +11,11 @@ public class StringArgument extends Argument<String>{
 
     @Override
     public List<String> getSuggestions() {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
-    public String parse (String arg) {
+    public String parse(String arg) {
         return arg;
     }
 }

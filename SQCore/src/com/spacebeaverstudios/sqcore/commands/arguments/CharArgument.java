@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class IntegerArgument extends Argument<Integer> {
-    public IntegerArgument(String name) {
+public class CharArgument extends Argument<Character> {
+    public CharArgument(String name) {
         super(name);
     }
 
@@ -15,11 +15,8 @@ public class IntegerArgument extends Argument<Integer> {
     }
 
     @Override
-    public Integer parse(String arg) {
-        try {
-            return Integer.parseInt(arg);
-        } catch (Exception e) {
-            return null;
-        }
+    public Character parse(String arg) {
+        if (arg.length() > 1) return null;
+        else return arg.charAt(0);
     }
 }
