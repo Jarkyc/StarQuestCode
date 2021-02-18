@@ -26,4 +26,8 @@ public class SQTPS extends JavaPlugin {
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         }, 20, 20);
     }
+
+    public void onDisable() {
+        scoreboard.resetScores(oldTPS);
+    }
 }
