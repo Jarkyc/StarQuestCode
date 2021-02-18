@@ -1,0 +1,8 @@
+commonmarkers:
+  zerozero:
+    world: world
+    x: 0
+    z: 0
+    marker: T
+    color: GREEN
+    importance: 3
