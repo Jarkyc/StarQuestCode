@@ -36,7 +36,7 @@ public class CompassMarkersCmd extends SQCmd {
                             + marker.getWorld().getName());
                 }
             }
-            if (commonMarkers.size() != 0) {
+            if (theirCommonMarkers.size() != 0) {
                 player.sendMessage(ChatColor.GOLD + "Here are your enabled common markers:");
                 for (String name : theirCommonMarkers.keySet()) {
                     StaticLocationMarker marker = commonMarkers.get(name);
