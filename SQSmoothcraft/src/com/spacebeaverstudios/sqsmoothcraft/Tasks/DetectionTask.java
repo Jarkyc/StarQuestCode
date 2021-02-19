@@ -1,24 +1,22 @@
 package com.spacebeaverstudios.sqsmoothcraft.Tasks;
 
-import com.spacebeaverstudios.sqsmoothcraft.GUIs.ClassSelectionGUI;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Data.SolidShipData;
-import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Module;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipBlock;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipClass;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipLocation;
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
-import com.spacebeaverstudios.sqsmoothcraft.Utils.ModuleUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Container;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Slab;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.util.Vector;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Stack;
@@ -28,7 +26,7 @@ public class DetectionTask {
     HashSet<ShipBlock> blocks = new HashSet<>();
     ShipBlock core;
 
-    public DetectionTask(Location location, Player player, ShipClass clazz){
+    public DetectionTask(Location location, Player player, ShipClass clazz) {
 
         Vector vector = new Vector(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
@@ -39,10 +37,12 @@ public class DetectionTask {
         jumpBlocks.push(vector);
 
         ArrayList<ShipBlock> pistons = new ArrayList<>();
+        ArrayList<ShipBlock> droppers = new ArrayList<>();
 
         ArrayList<Vector> analyed = new ArrayList<>();
 
-        while(!jumpBlocks.empty()){
+
+        while (!jumpBlocks.empty()) {
 
             Vector block = jumpBlocks.pop();
 
@@ -71,22 +71,22 @@ public class DetectionTask {
             checkBlocks.add(new Vector(block.getX(), block.getY(), block.getZ() + 1));
             checkBlocks.add(new Vector(block.getX(), block.getY(), block.getZ() - 1));
 
-            for(Vector checkBlock : checkBlocks){
-                if(!analyed.contains(checkBlock)){
+            for (Vector checkBlock : checkBlocks) {
+                if (!analyed.contains(checkBlock)) {
                     Block b = world.getBlockAt(checkBlock.getBlockX(), checkBlock.getBlockY(), checkBlock.getBlockZ());
 
-                    if(SQSmoothcraft.instance.shipBlocks.contains(b.getType()) || b.getType() == Material.NOTE_BLOCK){
+                    if (SQSmoothcraft.instance.shipBlocks.contains(b.getType()) || b.getType() == Material.NOTE_BLOCK) {
                         ShipLocation shipLoc = new ShipLocation(checkBlock.clone().getX() - location.clone().getX(), checkBlock.clone().getY() - location.clone().getY(), checkBlock.clone().getZ() - location.clone().getZ());
 
 
-                        if(player.getFacing() == BlockFace.NORTH){
+                        if (player.getFacing() == BlockFace.NORTH) {
                             shipLoc.x *= -1;
                             shipLoc.z *= -1;
-                        } else if(player.getFacing() == BlockFace.EAST){
+                        } else if (player.getFacing() == BlockFace.EAST) {
                             double temp = shipLoc.x;
                             shipLoc.x = shipLoc.z * -1;
                             shipLoc.z = temp;
-                        } else if(player.getFacing() == BlockFace.WEST){
+                        } else if (player.getFacing() == BlockFace.WEST) {
                             double temp = shipLoc.x;
                             shipLoc.x = shipLoc.z;
                             shipLoc.z = temp * -1;
@@ -95,16 +95,16 @@ public class DetectionTask {
 
                         double yOffset = 0;
                         BlockData data = b.getBlockData();
-                        if(data instanceof Slab){
+                        if (data instanceof Slab) {
                             Slab slab = (Slab) data;
-                            if(slab.getType() == Slab.Type.TOP){
+                            if (slab.getType() == Slab.Type.TOP) {
                                 yOffset = 0.5;
                             }
                         }
 
                         Location checkLoc = new Location(world, checkBlock.getX(), checkBlock.getY(), checkBlock.getZ());
 
-                        Block neighbor1 = checkLoc.clone().add(1, 0 ,0).getBlock();
+                        Block neighbor1 = checkLoc.clone().add(1, 0, 0).getBlock();
                         Block neighbor2 = checkLoc.clone().add(0, 1, 0).getBlock();
                         Block neighbor3 = checkLoc.clone().add(0, 0, 1).getBlock();
                         Block neighbor4 = checkLoc.clone().subtract(1, 0, 0).getBlock();
@@ -113,14 +113,24 @@ public class DetectionTask {
 
                         Boolean visible = (neighbor1.getType() == Material.AIR || neighbor2.getType() == Material.AIR || neighbor3.getType() == Material.AIR || neighbor4.getType() == Material.AIR || neighbor5.getType() == Material.AIR || neighbor6.getType() == Material.AIR);
 
-                        ShipBlock shipBlock = new ShipBlock(shipLoc, new Location(b.getWorld(), b.getX(), b.getY(), b.getZ()), b.getType(), yOffset, data, visible);
+
+                        Inventory inv = null;
+                        if (b.getState() instanceof Container) {
+                            inv = ((Container) b.getState()).getSnapshotInventory();
+                        }
+
+                        ShipBlock shipBlock = new ShipBlock(shipLoc, new Location(b.getWorld(), b.getX(), b.getY(), b.getZ()), b.getType(), yOffset, data, inv, visible);
                         blocks.add(shipBlock);
 
-                        if(b.getType() == Material.PISTON){
+                        if (b.getType() == Material.PISTON) {
                             pistons.add(shipBlock);
                         }
 
-                        if(b.getType() == Material.NOTE_BLOCK){
+                        if (b.getType() == Material.DROPPER) {
+                            droppers.add(shipBlock);
+                        }
+
+                        if (b.getType() == Material.NOTE_BLOCK) {
                             this.core = shipBlock;
                         }
                         analyed.add(checkBlock);
@@ -130,39 +140,37 @@ public class DetectionTask {
                 }
             }
 
-            if(blocks.size() > clazz.getMaxSize()){
+            if (blocks.size() > clazz.getMaxSize()) {
                 player.sendMessage(ChatColor.RED + "The ship exceeds maximum block size for this class!");
+                return;
+            }
+
+            if (droppers.size() > clazz.getDropperCount()) {
+                player.sendMessage(ChatColor.RED + "Dropper count exceeds the maximum for this class!");
                 return;
             }
 
         }
 
-        // 25 blocks + the core
-       if(blocks.size() < clazz.getMinSize()){
-           player.sendMessage(ChatColor.RED + "Ship does not meet minimum size requirements for this class!");
-           return;
-       }
+        if (blocks.size() < clazz.getMinSize()) {
+            player.sendMessage(ChatColor.RED + "Ship does not meet minimum size requirements for this class!");
+            return;
+        }
 
 
-        Ship ship = new Ship(this.blocks, player, location, this.core, originalVector, pistons, clazz);
+        Ship ship = new Ship(this.blocks, player, location, this.core, originalVector, pistons, droppers, clazz);
 
         SolidShipData data = null;
 
-        for(SolidShipData solid : SQSmoothcraft.instance.solidShips){
-            if(location.getBlockX() == solid.x && location.getBlockY() == solid.y && location.getBlockZ() == solid.z && location.getWorld().getName().equalsIgnoreCase(solid.world)){
+        for (SolidShipData solid : SQSmoothcraft.instance.solidShips) {
+            if (location.getBlockX() == solid.x && location.getBlockY() == solid.y && location.getBlockZ() == solid.z && location.getWorld().getName().equalsIgnoreCase(solid.world)) {
                 data = solid;
-                ArrayList<Module> modules = new ArrayList<>();
-
-                /*for(String name : solid.modules){
-                    Module mod = ModuleUtils.getModuleByName(name);
-                    modules.add(mod);
-                } */
 
                 ship.modules = solid.modules;
             }
         }
 
-        if(data != null){
+        if (data != null) {
             SQSmoothcraft.instance.solidShips.remove(data);
         }
 

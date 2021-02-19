@@ -10,8 +10,10 @@ import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Shield;
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
 import com.spacebeaverstudios.sqsmoothcraft.Tasks.CannonTask;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.MathUtils;
-import com.spacebeaverstudios.sqsmoothcraft.Utils.ModuleUtils;
+
 import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -23,7 +25,6 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 
 public class Ship {
 
@@ -38,11 +39,13 @@ public class Ship {
     private Location originVec;
     public ArrayList<ShipBlock> pistons;
     public ArrayList<Module> modules = new ArrayList<>();
+    public ArrayList<ShipBlock> droppers;
     public Shield shieldCore;
-    public int health = 100;
+    public int health;
     public int maxHealth;
     public int shieldHealth = 100;
     public int maxShieldHealth;
+    public int speed;
 
     public Inventory infoWindow;
     public Inventory moduleWindow;
@@ -51,17 +54,20 @@ public class Ship {
     public Inventory defenseModulesWind;
     public Inventory weaponModulesWind;
 
-    public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core, Location originalVector, ArrayList<ShipBlock> pistons, ShipClass clazz) {
+    public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core, Location originalVector, ArrayList<ShipBlock> pistons, ArrayList<ShipBlock> droppers, ShipClass clazz) {
         this.blocks = blocks;
         this.owner = owner;
         this.shipLocation = origin;
         this.core = core;
         this.originVec = originalVector;
         this.pistons = pistons;
+        this.droppers = droppers;
 
         this.shipClass = clazz;
 
         this.maxHealth = clazz.getHealth();
+        this.speed = clazz.getSpeed();
+        this.health = maxHealth;
 
         ShipPilotEvent event = new ShipPilotEvent(owner, this);
         Bukkit.getPluginManager().callEvent(event);
@@ -74,6 +80,10 @@ public class Ship {
         SQSmoothcraft.instance.allShips.add(this);
 
         for (ShipBlock block : blocks) {
+            if(block.location.getWorld().getBlockAt(block.location).getState() instanceof Container){
+                ((Container) block.location.getWorld().getBlockAt(block.location).getState()).getInventory().clear();
+                block.location.getWorld().getBlockAt(block.location).getState().update();
+            }
             block.location.getWorld().getBlockAt(block.location).setType(Material.AIR);
             if (block.visible) {
                 block.buildArmorStand();
@@ -107,7 +117,7 @@ public class Ship {
         return this.blocks;
     }
 
-    public ShipClass getShipClass(){
+    public ShipClass getShipClass() {
         return this.shipClass;
     }
 
@@ -300,7 +310,7 @@ public class Ship {
             //Don't ask me why but this makes chunk loading happy
             owner.setSneaking(false);
 
-            core.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(1));
+            core.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(speed));
             owner.playSound(core.getArmorStand().getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 5, 1);
         }
 
@@ -331,7 +341,7 @@ public class Ship {
                     }
                 }
             }
-            core.armorStand.setVelocity(this.autoPilotDirection.normalize().multiply(1));
+            core.armorStand.setVelocity(this.autoPilotDirection.normalize().multiply(speed));
         }
     }
 
@@ -400,15 +410,21 @@ public class Ship {
                 }
 
                 locationShip.getWorld().getBlockAt(locationShip).setType(block.getMaterial());
-                locationShip.getWorld().getBlockAt(locationShip).setBlockData(block.blockData);
+                locationShip.getWorld().getBlockAt(locationShip).getState().setBlockData(block.blockData);
+
+                if (block.inv != null) {
+                    Block b = locationShip.getWorld().getBlockAt(locationShip);
+                    Inventory inv = ((Container) b.getState()).getInventory();
+                    for(int i = 0; i < block.inv.getSize(); i++) {
+                        ItemStack item = block.inv.getItem(i);
+                        inv.setItem(i, item);
+                    }
+                    b.getState().update();
+                }
 
                 if (block.visible) block.getArmorStand().remove();
             }
 
-           /* ArrayList<String> moduleNames = new ArrayList<>();
-            for(Module module : modules){
-                moduleNames.add(ModuleUtils.getModuleName(module));
-            } */
 
             SQSmoothcraft.instance.solidShips.add(new SolidShipData(orig, modules, owner.getUniqueId().toString()));
 

@@ -1,7 +1,6 @@
 package com.spacebeaverstudios.sqsmoothcraft.Commands;
 
 import com.spacebeaverstudios.sqcore.commands.SQCmd;
-import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Module;
 import com.spacebeaverstudios.sqsmoothcraft.Utils.ShipUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;

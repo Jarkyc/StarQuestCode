@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class ShipBlock {
@@ -16,14 +17,16 @@ public class ShipBlock {
     private double yOffset;
     public BlockData blockData;
     public boolean visible;
+    public Inventory inv;
 
-    public ShipBlock(ShipLocation shipLocation, Location location, Material material, double yOffset, BlockData data, boolean visible){
+    public ShipBlock(ShipLocation shipLocation, Location location, Material material, double yOffset, BlockData data, Inventory inv, boolean visible){
         this.shipLoc = shipLocation;
         this.location = location;
         this.material = material;
         this.yOffset = yOffset;
         this.blockData = data;
         this.visible = visible;
+        this.inv = inv;
     }
 
     public Material getMaterial(){

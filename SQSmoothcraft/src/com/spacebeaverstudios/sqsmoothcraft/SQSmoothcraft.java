@@ -4,7 +4,6 @@ import com.spacebeaverstudios.sqsmoothcraft.Commands.ShipCmd;
 import com.spacebeaverstudios.sqsmoothcraft.Commands.UnpilotCmd;
 import com.spacebeaverstudios.sqsmoothcraft.Listeners.PlayerListeners;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Jammer;
-import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Module;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Modules.Shield;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 

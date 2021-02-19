@@ -19,5 +19,6 @@ public class DetectFunction extends GUIFunction {
     @Override
     public void run(Player player){
         new DetectionTask(location, player, clazz);
+        player.closeInventory();
     }
 }
