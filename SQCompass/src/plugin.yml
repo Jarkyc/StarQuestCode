@@ -2,6 +2,7 @@ name: SQCompass
 main: com.spacebeaverstudios.sqcompass.SQCompass
 version: 1.0.0
 api-version: "1.15"
+depend: [SQCore]
 commands:
   compass:
     description: Commands for using the compass display

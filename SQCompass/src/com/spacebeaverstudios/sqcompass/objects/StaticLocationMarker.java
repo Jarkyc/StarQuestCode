@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-
 public class StaticLocationMarker implements CompassMarker {
     private final Location location;
     private final char marker;
@@ -24,10 +23,8 @@ public class StaticLocationMarker implements CompassMarker {
     }
 
     public int getYaw(Player player) {
-        // TODO: math is bad here
-        return (int) Math.round(Math.toDegrees(Math.atan(
-                (((double) location.getBlockX()-player.getLocation().getBlockX())
-                        / (player.getLocation().getBlockZ()-location.getBlockZ())))));
+        return (int) Math.round(Math.toDegrees(
+                Math.atan2(player.getLocation().getX()-location.getX(), location.getZ()-player.getLocation().getZ())));
     }
 
     public char getMarker() {

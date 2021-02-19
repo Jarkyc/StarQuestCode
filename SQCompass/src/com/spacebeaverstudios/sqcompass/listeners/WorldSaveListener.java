@@ -12,6 +12,7 @@ public class WorldSaveListener implements Listener {
         if (event.getWorld().getName().equalsIgnoreCase("world")) {
             CompassUtils.saveShowCompassHashMap();
             CompassUtils.saveCustomMarkers();
+            CompassUtils.saveCommonMarkersEnabled();
         }
     }
 }

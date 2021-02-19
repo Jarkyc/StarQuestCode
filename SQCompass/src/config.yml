@@ -3,6 +3,6 @@ commonmarkers:
     world: world
     x: 0
     z: 0
-    marker: T
-    color: GREEN
+    marker: 0
+    color: DARK_PURPLE
     importance: 3

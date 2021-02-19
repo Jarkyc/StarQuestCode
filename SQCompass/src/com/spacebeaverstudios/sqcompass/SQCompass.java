@@ -21,6 +21,7 @@ public class SQCompass extends JavaPlugin {
         CompassUtils.loadCommonMarkers();
         CompassUtils.loadShowCompassHashMap();
         CompassUtils.loadCustomMarkers();
+        CompassUtils.loadCommonMarkersEnabled();
         this.reloadConfig();
 
         getServer().getPluginManager().registerEvents(new PlayerJoinQuitListener(), this);
@@ -35,5 +36,6 @@ public class SQCompass extends JavaPlugin {
     public void onDisable() {
         CompassUtils.saveShowCompassHashMap();
         CompassUtils.saveCustomMarkers();
+        CompassUtils.saveCommonMarkersEnabled();
     }
 }

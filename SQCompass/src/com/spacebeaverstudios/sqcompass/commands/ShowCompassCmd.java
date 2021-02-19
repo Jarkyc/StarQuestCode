@@ -14,10 +14,11 @@ public class ShowCompassCmd extends SQCmd {
     @Override
     public void onExecute(CommandSender sender, String previousLabels, Object[] args) {
         Player player = (Player) sender;
-        if (CompassUtils.getShowCompassHashMap().get(player)) player.sendMessage(ChatColor.RED + "The compass is already shown to you!");
-        else {
-            // TODO: doesn't work
-            CompassUtils.getShowCompassHashMap().put(player, true);
+        if (CompassUtils.getShowCompassHashMap().get(player.getUniqueId())) {
+            player.sendMessage(ChatColor.RED + "The compass is already shown to you!");
+        } else {
+            CompassUtils.getShowCompassHashMap().put(player.getUniqueId(), true);
+            CompassUtils.getBossBars().get(player).addPlayer(player);
             CompassUtils.render(player);
             player.sendMessage(ChatColor.GREEN + "The compass has been shown to you.");
         }

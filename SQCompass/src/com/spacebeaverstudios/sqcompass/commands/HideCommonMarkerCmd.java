@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class HideCommonMarkerCmd extends SQCmd {
     public HideCommonMarkerCmd() {
-        super("hidecommonmarker", "Hides one of the preset markers created by the server", true);
+        super("hidecommonmarker", "Hides one of the common markers created by the server", true);
 
         this.addArgument(new SelectionArgument("marker", new ArrayList<>(CompassUtils.getCommonMarkers().keySet())));
     }
@@ -22,12 +22,13 @@ public class HideCommonMarkerCmd extends SQCmd {
         CompassMarker marker = CompassUtils.getCommonMarkers().get(args[0].toString());
         Player player = (Player) sender;
 
-        if (CompassUtils.getCompassMarkers().get(player).contains(marker)) {
-            CompassUtils.getCompassMarkers().get(player).remove(marker);
+        if (CompassUtils.getMarkers().get(player).contains(marker)) {
+            CompassUtils.getMarkers().get(player).remove(marker);
+            CompassUtils.getCommonMarkersEnabled().get(player.getUniqueId()).remove(args[0].toString());
             CompassUtils.render(player);
-            player.sendMessage(ChatColor.GREEN + "Marker disabled!");
+            player.sendMessage(ChatColor.GREEN + "Common marker disabled!");
         } else {
-            player.sendMessage(ChatColor.RED + "You already have this marker disabled!");
+            player.sendMessage(ChatColor.RED + "You already have this common marker disabled!");
         }
     }
 }

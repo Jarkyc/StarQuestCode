@@ -39,11 +39,23 @@ public class AddMarkerCmd extends SQCmd {
             return;
         }
 
+        for (String name : CompassUtils.getCommonMarkers().keySet()) {
+            if (name.equalsIgnoreCase(args[0].toString())) {
+                player.sendMessage(ChatColor.RED + "There is aleady a common marker of that name!");
+                return;
+            }
+        }
+
+        if (args[0].toString().contains(",")) {
+            player.sendMessage(ChatColor.RED + "Marker names can't include a comma!");
+            return;
+        }
+
         if (args.length == 6) marker = new StaticLocationMarker(new Location((World) args[3], (int) args[4], 0, (int) args[5]),
                     (char) args[1], (ChatColor) args[2], 10);
         else marker = new StaticLocationMarker(player.getLocation(), (char) args[1], (ChatColor) args[2], 10);
 
-        CompassUtils.getCompassMarkers().get(player).add(marker);
+        CompassUtils.getMarkers().get(player).add(marker);
         CompassUtils.getCustomMarkers().get(player.getUniqueId()).put(args[0].toString(), marker);
         CompassUtils.render(player);
 

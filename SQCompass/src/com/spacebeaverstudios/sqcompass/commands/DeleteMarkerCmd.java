@@ -19,7 +19,7 @@ public class DeleteMarkerCmd extends SQCmd {
     public void onExecute(CommandSender sender, String previousLabels, Object[] args) {
         Player player = (Player) sender;
         if (CompassUtils.getCustomMarkers().get(player.getUniqueId()).containsKey(args[0].toString())) {
-            CompassUtils.getCompassMarkers().get(player).remove(
+            CompassUtils.getMarkers().get(player).remove(
                     CompassUtils.getCustomMarkers().get(player.getUniqueId()).get(args[0].toString()));
             CompassUtils.getCustomMarkers().get(player.getUniqueId()).remove(args[0].toString());
             CompassUtils.render(player);
