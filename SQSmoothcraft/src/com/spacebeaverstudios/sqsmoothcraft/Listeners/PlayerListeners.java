@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
@@ -137,6 +138,16 @@ public class PlayerListeners implements Listener {
 
         if(ShipUtils.getShipByStand(stand) != null){
             e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public static void itemDrop(PlayerDropItemEvent e){
+        Player player = e.getPlayer();
+
+        if(e.getItemDrop().getItemStack().getType() == Material.CLOCK && ShipUtils.getShipByPlayer(player) != null){
+            e.setCancelled(true);
+            //Open other inv. switch between the 2 invs
         }
     }
 

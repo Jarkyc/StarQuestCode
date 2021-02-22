@@ -25,6 +25,7 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 public class Ship {
 
@@ -80,7 +81,7 @@ public class Ship {
         SQSmoothcraft.instance.allShips.add(this);
 
         for (ShipBlock block : blocks) {
-            if(block.location.getWorld().getBlockAt(block.location).getState() instanceof Container){
+            if (block.location.getWorld().getBlockAt(block.location).getState() instanceof Container) {
                 ((Container) block.location.getWorld().getBlockAt(block.location).getState()).getInventory().clear();
                 block.location.getWorld().getBlockAt(block.location).getState().update();
             }
@@ -201,6 +202,32 @@ public class Ship {
         updateOrigin();
         rotateStands();
         handleAutoPilot();
+
+        /*
+        double maxX = core.location.getX();
+        double minX = core.location.getX();
+        double maxY = core.location.getY();
+        double minY = core.location.getY();
+        double maxZ = core.location.getZ();
+        double minZ = core.location.getZ();
+
+
+        for(ShipBlock block : blocks){
+            if(block.armorStand.getLocation().getX() > maxX) maxX = block.armorStand.getLocation().getX();
+            if(block.armorStand.getLocation().getX() < minX) minX = block.armorStand.getLocation().getX();
+
+            if(block.armorStand.getLocation().getY() > maxY) maxY = block.armorStand.getLocation().getY();
+            if(block.armorStand.getLocation().getY() < minY) minY = block.armorStand.getLocation().getY();
+
+            if(block.armorStand.getLocation().getZ() > maxZ) maxZ = block.armorStand.getLocation().getZ();
+            if(block.armorStand.getLocation().getZ() < minZ) minZ = block.armorStand.getLocation().getZ();
+        }
+
+        System.out.println("Max: " + maxX + " " + maxY + " " + maxZ);
+        System.out.println("Min: " + minX + " " + minY + " " + minZ);
+        */
+
+
     }
 
     public ShipBlock getCore() {
@@ -227,6 +254,7 @@ public class Ship {
         if (((getOwner().getInventory().getItemInMainHand().getType() != Material.CLOCK && !isAutopilot) || (getOwner().getInventory().getItemInMainHand().getType() == Material.CLOCK && !getOwner().isSneaking())) && core.armorStand.getVelocity().getY() < 0) {
             core.armorStand.setVelocity(core.armorStand.getVelocity().clone().setY(0));
         }
+
     }
 
     public void damage(int x, DamageReason damageReason) {
@@ -244,6 +272,42 @@ public class Ship {
 
     private void updateOrigin() {
         this.shipLocation = core.armorStand.getLocation();
+    }
+
+    private boolean canRotate(double pitch, double yaw) {
+
+        double yawCos = Math.cos(yaw);
+        double yawSin = Math.sin(yaw);
+
+        double pitchCos = Math.cos(pitch);
+        double pitchSin = Math.sin(pitch);
+
+        double arg1 = yawSin * pitchSin * -1;
+        double arg2 = yawSin * pitchCos;
+        double arg3 = yawCos * pitchSin;
+        double arg4 = yawCos * pitchCos;
+
+        for (ShipBlock block : this.blocks) {
+
+            if (!block.visible) continue;
+
+            ShipLocation shipLocation = block.shipLoc;
+
+            World world = this.shipLocation.getWorld();
+
+            Location locationShip = new Location(world,
+                    ((arg1 * shipLocation.y) - (arg2 * shipLocation.z) + (yawCos * shipLocation.x)),
+                    ((shipLocation.y * pitchCos) - (shipLocation.z * pitchSin)),
+                    ((arg3 * shipLocation.y) + (arg4 * shipLocation.z) + (yawSin * shipLocation.x))).add(this.shipLocation.clone());
+
+            locationShip.setYaw(0);
+            locationShip.setPitch(0);
+
+            locationShip.add(0, block.getyOffset(), 0);
+
+            if(locationShip.getBlock().getType() != Material.AIR) return false;
+        }
+        return true;
     }
 
     private void rotateStands() {
@@ -267,6 +331,8 @@ public class Ship {
 
         final double tempPitch = pitch;
         final double tempYaw = yaw;
+
+        if(!canRotate(pitch, yaw)) return;;
 
         for (ShipBlock block : this.blocks) {
 
@@ -303,12 +369,27 @@ public class Ship {
 
     }
 
+    public boolean canMove(Vector vec){
+        for(ShipBlock block : this.blocks){
+            if(block.visible){
+                if(block.armorStand.getLocation().clone().add(vec).getBlock().getType() != Material.AIR) return false;
+            }
+        }
+        return true;
+    }
+
     private void handleShiftFly() {
+
+        if(!canMove(owner.getLocation().getDirection())){
+            core.armorStand.setVelocity(new Vector(0, 0, 0));
+            return;
+        }
 
         if (getOwner().isSneaking() && !isAutopilot && getOwner().getInventory().getItemInMainHand().getType() == Material.CLOCK) {
 
             //Don't ask me why but this makes chunk loading happy
             owner.setSneaking(false);
+
 
             core.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(speed));
             owner.playSound(core.getArmorStand().getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 5, 1);
@@ -330,6 +411,12 @@ public class Ship {
     private void handleAutoPilot() {
         if (isAutopilot) {
 
+            if(!canMove(this.autoPilotDirection.normalize())){
+                owner.sendMessage(ChatColor.RED + "Stopping autopilot. Structure in the way.");
+                this.isAutopilot = false;
+                return;
+            }
+
             //God is dead and we have killed him
             for (Ship other : SQSmoothcraft.instance.allShips) {
                 if (other.getLocation().distance(this.getLocation()) <= 1000) {
@@ -344,6 +431,7 @@ public class Ship {
             core.armorStand.setVelocity(this.autoPilotDirection.normalize().multiply(speed));
         }
     }
+
 
     //Trigger on unpilot
     public void buildSolid() {
@@ -415,7 +503,7 @@ public class Ship {
                 if (block.inv != null) {
                     Block b = locationShip.getWorld().getBlockAt(locationShip);
                     Inventory inv = ((Container) b.getState()).getInventory();
-                    for(int i = 0; i < block.inv.getSize(); i++) {
+                    for (int i = 0; i < block.inv.getSize(); i++) {
                         ItemStack item = block.inv.getItem(i);
                         inv.setItem(i, item);
                     }

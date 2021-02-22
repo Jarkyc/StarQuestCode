@@ -18,7 +18,6 @@ public class InfoCmd extends SQCmd {
         Player player = (Player) commandSender;
         if (ShipUtils.getShipByPlayer(player) != null) {
             player.openInventory(ShipUtils.getShipByPlayer(player).infoWindow);
-            System.out.println(ShipUtils.getShipByPlayer(player).getShipClass());
         } else {
             player.sendMessage(ChatColor.RED + "You must be flying a ship to use this command!");
         }
