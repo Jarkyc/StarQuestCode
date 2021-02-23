@@ -134,7 +134,6 @@ public class PlayerListeners implements Listener {
     @EventHandler
     public static void armorStandManipulate(PlayerArmorStandManipulateEvent e){
         ArmorStand stand = e.getRightClicked();
-        Player player = e.getPlayer();
 
         if(ShipUtils.getShipByStand(stand) != null){
             e.setCancelled(true);

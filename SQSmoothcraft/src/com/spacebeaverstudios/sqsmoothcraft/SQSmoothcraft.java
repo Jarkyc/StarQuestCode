@@ -32,7 +32,6 @@ public class SQSmoothcraft extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
         getCommand("ship").setExecutor(new ShipCmd());
-
         getCommand("release").setExecutor(new UnpilotCmd());
 
         loadData();

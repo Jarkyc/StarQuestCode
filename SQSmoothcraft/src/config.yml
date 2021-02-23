@@ -48,3 +48,5 @@ blocks:
   - diorite_slab
   - red_nether_brick_slab
   - dropper
+  - piston
+  - glass

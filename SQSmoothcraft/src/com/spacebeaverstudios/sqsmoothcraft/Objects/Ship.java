@@ -25,7 +25,6 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
 
 public class Ship {
 
@@ -105,7 +104,7 @@ public class Ship {
 
         createGUIs();
         core.armorStand.setCanTick(true);
-        core.armorStand.getEquipment().setHelmet(new ItemStack(Material.AIR));
+        // core.armorStand.getEquipment().setHelmet(new ItemStack(Material.AIR));
 
         modules.add(new Jammer());
     }
@@ -196,10 +195,10 @@ public class Ship {
     }
 
     public void onTick() {
+        updateOrigin();
         updateData();
         handleModules();
         handleShiftFly();
-        updateOrigin();
         rotateStands();
         handleAutoPilot();
 
@@ -270,6 +269,12 @@ public class Ship {
         }
     }
 
+    public void teleport(Location loc){
+        core.getArmorStand().eject();
+        core.getArmorStand().teleport(loc);
+        core.getArmorStand().addPassenger(owner);
+    }
+
     private void updateOrigin() {
         this.shipLocation = core.armorStand.getLocation();
     }
@@ -305,7 +310,7 @@ public class Ship {
 
             locationShip.add(0, block.getyOffset(), 0);
 
-            if(locationShip.getBlock().getType() != Material.AIR) return false;
+            if(!(locationShip.getBlock().isPassable())) return false;
         }
         return true;
     }
@@ -372,7 +377,7 @@ public class Ship {
     public boolean canMove(Vector vec){
         for(ShipBlock block : this.blocks){
             if(block.visible){
-                if(block.armorStand.getLocation().clone().add(vec).getBlock().getType() != Material.AIR) return false;
+                if(!(block.armorStand.getLocation().clone().add(vec).getBlock().isPassable())) return false;
             }
         }
         return true;
