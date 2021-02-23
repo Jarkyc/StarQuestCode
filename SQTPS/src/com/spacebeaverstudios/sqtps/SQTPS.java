@@ -10,7 +10,6 @@ import org.bukkit.scoreboard.Scoreboard;
 public class SQTPS extends JavaPlugin {
     private Scoreboard scoreboard;
     private Objective objective;
-    private String oldTPS = null;
 
     public void onEnable() {
         scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
@@ -20,14 +19,13 @@ public class SQTPS extends JavaPlugin {
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             scoreboard.clearSlot(DisplaySlot.SIDEBAR);
-            if (oldTPS != null) scoreboard.resetScores(oldTPS);
-            oldTPS = ("tps: " + getServer().getTPS()[0]).substring(0, 9);
-            objective.getScore(oldTPS).setScore(0);
+            for (String score : scoreboard.getEntries()) scoreboard.resetScores(score);
+            objective.getScore(("tps: " + getServer().getTPS()[0]).substring(0, 9)).setScore(0);
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         }, 20, 20);
     }
 
     public void onDisable() {
-        scoreboard.resetScores(oldTPS);
+        for (String score : scoreboard.getEntries()) scoreboard.resetScores(score);
     }
 }
