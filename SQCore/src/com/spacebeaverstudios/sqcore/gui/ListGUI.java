@@ -59,7 +59,7 @@ public abstract class ListGUI extends GUI {
         for (int i = 0; i < 7; i++) guiItems.add(new GUIItem(" ", null, Material.IRON_BARS, null));
 
         // next page item
-        if (currentPage < (Math.ceil(getObjectList().size()/9d))/(rows-1)) guiItems.add(getNextPageItem());
+        if (currentPage < (Math.ceil(getObjectList().size()/9d))/(rows-1)-1) guiItems.add(getNextPageItem());
         else guiItems.add(new GUIItem(" ", null, Material.IRON_BARS, null));
 
         // convert to ArrayList<ItemStack>
@@ -81,6 +81,7 @@ public abstract class ListGUI extends GUI {
         bannerMeta.addPattern(new Pattern(DyeColor.WHITE, PatternType.SQUARE_BOTTOM_RIGHT));
         bannerMeta.addPattern(new Pattern(DyeColor.WHITE, PatternType.SQUARE_TOP_RIGHT));
         bannerMeta.addPattern(new Pattern(DyeColor.WHITE, PatternType.BORDER));
+        banner.setItemMeta(bannerMeta);
 
         return new GUIItem(banner, new ChangePageFunction(this, currentPage-1));
     }
@@ -94,8 +95,9 @@ public abstract class ListGUI extends GUI {
         bannerMeta.addPattern(new Pattern(DyeColor.WHITE, PatternType.SQUARE_BOTTOM_LEFT));
         bannerMeta.addPattern(new Pattern(DyeColor.WHITE, PatternType.SQUARE_TOP_LEFT));
         bannerMeta.addPattern(new Pattern(DyeColor.WHITE, PatternType.BORDER));
+        banner.setItemMeta(bannerMeta);
 
-        return new GUIItem(banner, new ChangePageFunction(this, currentPage-1));
+        return new GUIItem(banner, new ChangePageFunction(this, currentPage+1));
     }
 
     public void goToPage(int page) {
