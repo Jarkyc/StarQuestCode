@@ -15,7 +15,7 @@ public class ChooseOutputColorFunction extends GUIFunction {
     }
 
     public void run(Player player) {
-        machine.setOutputPipeMaterial(material);
+        machine.setOutputPipeMaterial(material, player);
         player.closeInventory();
     }
 }

@@ -9,15 +9,6 @@ import org.bukkit.block.BlockFace;
 import java.util.*;
 
 public class ItemPipe {
-    /*
-    TODO
-    Also, doing it once a second just causes a once a second small lagspike
-    The list of ways to change blocks is pretty much just placing/breaking, pistons, explosions, and ship packing/unpacking.
-    And then you could do a physical check much more irregularly
-    If you do want to do it every second, spread out the different networks onto different ticks
-
-    - Ginger
-     */
     private static final ArrayList<ItemPipe> allPipes = new ArrayList<>();
 
     public static ArrayList<ItemPipe> getAllPipes() {
@@ -28,24 +19,25 @@ public class ItemPipe {
     private final Material pipeMaterial;
     private final Location starterBlock; // must always be connected to outputMachine
     private final ArrayList<Location> blocks = new ArrayList<>();
-    private final Machine outputMachine;
+    private Machine outputMachine;
 
-    public ItemPipe(Material pipeMaterial, Location starterBlock, Machine outputMachine) {
-        this.pipeMaterial = pipeMaterial;
+    public ItemPipe(Location starterBlock) {
+        this.pipeMaterial = starterBlock.getBlock().getType();
         this.starterBlock = starterBlock;
-        this.outputMachine = outputMachine;
         blocks.add(starterBlock);
 
         calculate();
+        allPipes.add(this);
     }
 
     public void calculate() {
-        List<BlockFace> facesToCheck = Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);
-        ArrayList<Location> blocksToCheck = (ArrayList<Location>) Arrays.asList(starterBlock);
+        // TODO: calculate output machines
+        ArrayList<Location> blocksToCheck = new ArrayList<>();
+        blocksToCheck.add(starterBlock);
         while (blocksToCheck.size() != 0) {
-            for (BlockFace face : facesToCheck) {
+            for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST)) {
                 Block block = blocksToCheck.get(0).getBlock().getRelative(face);
-                if (block.getType().equals(pipeMaterial)) {
+                if (block.getType().equals(pipeMaterial) && !blocks.contains(block.getLocation())) {
                     blocks.add(block.getLocation());
                     blocksToCheck.add(block.getLocation());
                 }
@@ -59,6 +51,27 @@ public class ItemPipe {
             if (!loc.getBlock().getType().equals(pipeMaterial))
                 return false;
         return true;
+    }
+
+    public void breakBlock(Location broken) { // TODO: test this
+        outputMachine.getInputPipes().remove(this);
+        outputMachine = null;
+        for (Machine machine : inputMachines) machine.setOutputPipe(null);
+        inputMachines.clear();
+
+        if (broken.equals(starterBlock)) {
+            allPipes.remove(this);
+            return;
+        }
+
+        ArrayList<Location> oldBlocks = new ArrayList<>(blocks);
+        calculate();
+        for (Location loc : oldBlocks) {
+            if (!blocks.contains(loc) && !loc.equals(broken)) {
+                ItemPipe newPipe = new ItemPipe(loc);
+                if (newPipe.getOutputMachine() == null && newPipe.getInputMachines().size() == 0) allPipes.remove(newPipe);
+            }
+        }
     }
 
     public boolean connects(Location loc) {
@@ -79,5 +92,10 @@ public class ItemPipe {
     }
     public Material getPipeMaterial() {
         return pipeMaterial;
+    }
+
+    public void setOutputMachine(Machine outputMachine) {
+        this.outputMachine = outputMachine;
+        if (outputMachine == null && inputMachines.size() == 0) allPipes.remove(this);
     }
 }

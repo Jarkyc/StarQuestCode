@@ -4,7 +4,6 @@ import com.spacebeaverstudios.sqcore.gui.GUI;
 import com.spacebeaverstudios.sqcore.utils.discord.DiscordUtils;
 import com.spacebeaverstudios.sqtech.SQTech;
 import com.spacebeaverstudios.sqtech.guis.MachineGUI;
-import com.spacebeaverstudios.sqtech.guis.MachineInventoryGUI;
 import com.spacebeaverstudios.sqtech.pipes.ItemPipe;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -23,7 +22,7 @@ import java.util.HashMap;
 
 public abstract class Machine {
     // static
-    private static final ArrayList<String> machinesSignText = new ArrayList<>(Arrays.asList("[smelter]"));
+    private static final ArrayList<String> machinesSignText = new ArrayList<>(Arrays.asList("[smelter]", "[chest]"));
     private static final ArrayList<Machine> machines = new ArrayList<>();
 
     public static ArrayList<String> getMachinesSignText() {
@@ -38,20 +37,26 @@ public abstract class Machine {
             case "[smelter]":
                 new SmelterMachine(sign);
                 break;
+            case "[chest]":
+                new ChestMachine(sign);
+                break;
         }
     }
 
     // instance
     private final Location sign;
-    private final ArrayList<ItemStack> inventory = new ArrayList<>(); // TODO: drop inventory when machine broken
+    private final ArrayList<ItemStack> inventory = new ArrayList<>();
     private GUI gui = null;
     private final String machineName;
     private final ArrayList<Material> inputPipeMaterials = new ArrayList<>();
+    private final ArrayList<ItemPipe> inputPipes = new ArrayList<>();
     private Material outputPipeMaterial;
-    private Location node = null;
     private ItemPipe outputPipe;
+    private Location node = null;
+    private final ArrayList<Location> blocks = new ArrayList<>();
 
     public Machine(Block sign, String machineName) {
+        blocks.add(sign.getLocation());
         if (detect(sign)) {
             this.sign = sign.getLocation();
             this.machineName = machineName;
@@ -91,7 +96,8 @@ public abstract class Machine {
                 SQTech.getInstance().getLogger().warning(DiscordUtils.tag("blankman")
                         + " Machine has no node block! Sign text: " + ((Sign) sign.getState()).getLine(0));
                 for (Player player : sign.getLocation().getNearbyPlayers(5))
-                    player.sendMessage(ChatColor.RED + "An error occurred when attempting to create the machine. Staff have been notified!");
+                    player.sendMessage(ChatColor.RED + "An error occurred when attempting to create the machine. " +
+                            "Staff have been notified!");
                 return;
             }
 
@@ -115,6 +121,9 @@ public abstract class Machine {
     public ArrayList<Material> getInputPipeMaterials() {
         return inputPipeMaterials;
     }
+    public ArrayList<ItemPipe> getInputPipes() {
+        return inputPipes;
+    }
     public Location getNode() {
         return node;
     }
@@ -124,14 +133,67 @@ public abstract class Machine {
     public Material getOutputPipeMaterial() {
         return outputPipeMaterial;
     }
-
-    public void setOutputPipeMaterial(Material material) {
-        outputPipeMaterial = material;
-        // TODO: detect nearby pipes of that color
+    public ArrayList<Location> getBlocks() {
+        return blocks;
     }
-    public void setInputPipeMaterials(ArrayList<Material> enabledColors) {
+
+    public void setOutputPipe(ItemPipe outputPipe) {
+        this.outputPipe = outputPipe;
+    }
+
+    public void setOutputPipeMaterial(Material material, Player player) {
+        if (inputPipeMaterials.contains(material)) {
+            player.sendMessage(ChatColor.RED + material.toString() + " is already one of the input colors for this machine!");
+            return;
+        }
+
+        if (material.equals(outputPipeMaterial)) return;
+        outputPipeMaterial = material;
+        if (outputPipe != null) {
+            outputPipe.getInputMachines().remove(this);
+            outputPipe = null;
+        }
+
+        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
+                BlockFace.NORTH, BlockFace.SOUTH)) {
+            Block glass = node.getBlock().getRelative(face);
+            if (glass.getType().equals(material)) {
+                for (ItemPipe pipe : ItemPipe.getAllPipes()) {
+                    if (pipe.getBlocks().contains(glass.getLocation())) {
+                        pipe.getInputMachines().add(this);
+                        outputPipe = pipe;
+                        return;
+                    }
+                }
+                outputPipe = new ItemPipe(glass.getLocation()); // no pipes found matching it, so create a new one
+                return;
+            }
+        }
+    }
+    public void setInputPipeMaterials(ArrayList<Material> enabledColors, Player player) {
+        if (enabledColors.contains(outputPipeMaterial)) {
+            player.sendMessage(ChatColor.RED + outputPipeMaterial.toString() + " is already the output color for this machine!");
+            return;
+        }
+
         inputPipeMaterials.clear();
         inputPipeMaterials.addAll(enabledColors);
+        for (ItemPipe pipe : inputPipes) pipe.setOutputMachine(null);
+        inputPipes.clear();
+
+        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
+                BlockFace.NORTH, BlockFace.SOUTH)) {
+            Block glass = node.getBlock().getRelative(face);
+            if (enabledColors.contains(glass.getType())) {
+                for (ItemPipe pipe : ItemPipe.getAllPipes()) {
+                    if (pipe.getBlocks().contains(glass.getLocation())) {
+                        inputPipes.add(pipe);
+                        pipe.setOutputMachine(this);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     // schema is oriented so that positive x points to behind the sign, and positive z to the right
@@ -140,10 +202,10 @@ public abstract class Machine {
 
     public boolean detect(Block sign) {
         HashMap<Vector, Material> schema = getSchema();
+        Directional dir = (Directional) sign.getBlockData();
         for (Vector vec : schema.keySet()) {
             if (schema.get(vec).equals(Material.LAPIS_BLOCK)) {
                 Block block = sign;
-                Directional dir = (Directional) sign.getBlockData();
                 block = block.getRelative(dir.getFacing().getOppositeFace(), vec.getBlockX());
                 block = block.getRelative(BlockFace.UP, vec.getBlockY());
 
@@ -164,6 +226,7 @@ public abstract class Machine {
                 }
 
                 if (!block.getType().equals(schema.get(vec))) return false;
+                blocks.add(block.getLocation());
             }
         }
         return true;
@@ -173,7 +236,7 @@ public abstract class Machine {
 
     public abstract void tick(); // run all the functions that occur once a second
 
-    public abstract String getMachineInfo();
+    public abstract String getMachineInfo(); // TODO: make it config based
 
     public ItemStack tryAddItemStack(ItemStack itemStack) {
         // returns whatever items weren't able to be added
@@ -206,14 +269,14 @@ public abstract class Machine {
     }
 
     public void tryOutput(ItemStack stack) {
-        if (outputPipe == null) {
+        if (outputPipe == null || outputPipe.getOutputMachine() == null) {
             ItemStack left = tryAddItemStack(stack);
             if (left.getAmount() != 0) sign.getWorld().dropItem(sign, left);
         } else {
             ItemStack left = outputPipe.getOutputMachine().tryAddItemStack(stack);
             if (left.getAmount() != 0) {
                 left = tryAddItemStack(stack);
-                if (left.getAmount() != 0) sign.getWorld().dropItem(sign, left);
+                if (left.getAmount() != 0) sign.getWorld().dropItemNaturally(sign, left);
             }
         }
     }
@@ -226,5 +289,21 @@ public abstract class Machine {
     }
     public void setGUI(GUI gui) {
         this.gui = gui;
+    }
+
+    public void destroy() {
+        if (outputPipe != null) outputPipe.getInputMachines().remove(this);
+        for (ItemPipe pipe : inputPipes) pipe.setOutputMachine(null);
+        if (gui != null) {
+            gui.getPlayer().sendMessage(ChatColor.RED + "The machine which you were accessing has been broken!");
+            gui.getPlayer().closeInventory();
+        }
+        if (sign.getBlock().getType().toString().endsWith("_SIGN")) {
+            Sign signBlock = (Sign) sign.getWorld().getBlockAt(this.getSign()).getState();
+            signBlock.setLine(2, ChatColor.RED + "Broken");
+            signBlock.update();
+        }
+        for (ItemStack itemStack : inventory) sign.getWorld().dropItemNaturally(sign, itemStack);
+        machines.remove(this);
     }
 }

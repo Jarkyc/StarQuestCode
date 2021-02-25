@@ -4,10 +4,12 @@ import com.spacebeaverstudios.sqcore.gui.GUI;
 import com.spacebeaverstudios.sqcore.gui.GUIItem;
 import com.spacebeaverstudios.sqcore.gui.guifunctions.CloseInventoryFunction;
 import com.spacebeaverstudios.sqcore.utils.GUIUtils;
+import com.spacebeaverstudios.sqtech.SQTech;
 import com.spacebeaverstudios.sqtech.guis.guifunctions.TakeFromMachineInventoryGUIFunction;
 import com.spacebeaverstudios.sqtech.machines.Machine;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
@@ -27,6 +29,11 @@ public class MachineInventoryGUI extends GUI {
     public MachineInventoryGUI(Machine machine) {
         super(machine.getMachineName() + " Inventory");
         this.machine = machine;
+    }
+
+    @Override
+    public void open(Player player) {
+        super.open(player);
         allMachineInventoryGUIs.add(this);
     }
 

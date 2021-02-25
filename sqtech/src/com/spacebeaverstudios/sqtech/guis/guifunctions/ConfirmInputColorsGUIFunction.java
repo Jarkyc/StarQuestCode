@@ -17,7 +17,7 @@ public class ConfirmInputColorsGUIFunction extends GUIFunction {
     }
 
     public void run(Player player) {
-        machine.setInputPipeMaterials(enabledColors);
+        machine.setInputPipeMaterials(enabledColors, player);
         player.closeInventory();
     }
 }

@@ -5,6 +5,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class SignListener implements Listener {
@@ -13,7 +14,7 @@ public class SignListener implements Listener {
     public void onSignClick(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
         if (block == null) return;
-        if (block.getType().toString().endsWith("_WALL_SIGN")) {
+        if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && block.getType().toString().endsWith("_WALL_SIGN")) {
             if (Machine.getMachinesSignText().contains(((Sign) block.getState()).getLine(0))) Machine.createFromSign(block);
             else {
                 for (Machine machine : Machine.getMachines()) {

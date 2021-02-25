@@ -7,12 +7,13 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class BlockPlaceListener implements Listener {
+public class BlockListener implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
@@ -37,6 +38,29 @@ public class BlockPlaceListener implements Listener {
                 }
             } else if (pipes.size() != 0) {
                 // TODO: try to "merge" pipes
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        // TODO: all other ways of getting rid of blocks
+        //  placing/breaking, pistons, explosions, and ship packing/unpacking
+        Block block = event.getBlock();
+        if (block.getType().toString().endsWith("_STAINED_GLASS")) {
+            for (ItemPipe pipe : ItemPipe.getAllPipes()) {
+                if (pipe.getBlocks().contains(block.getLocation())) {
+                    pipe.breakBlock(block.getLocation());
+                    return;
+                }
+            }
+        } else {
+            for (Machine machine : Machine.getMachines()) {
+                if (machine.getBlocks().contains(block.getLocation())) {
+                    machine.destroy();
+                    return;
+                }
             }
         }
     }
