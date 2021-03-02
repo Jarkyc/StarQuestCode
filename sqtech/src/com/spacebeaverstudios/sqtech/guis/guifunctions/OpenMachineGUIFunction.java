@@ -2,7 +2,7 @@ package com.spacebeaverstudios.sqtech.guis.guifunctions;
 
 import com.spacebeaverstudios.sqcore.gui.GUI;
 import com.spacebeaverstudios.sqcore.gui.guifunctions.GUIFunction;
-import com.spacebeaverstudios.sqtech.machines.Machine;
+import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import org.bukkit.entity.Player;
 
 public class OpenMachineGUIFunction extends GUIFunction {

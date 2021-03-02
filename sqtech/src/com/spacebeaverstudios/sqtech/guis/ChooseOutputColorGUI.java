@@ -4,7 +4,7 @@ import com.spacebeaverstudios.sqcore.gui.GUI;
 import com.spacebeaverstudios.sqcore.gui.GUIItem;
 import com.spacebeaverstudios.sqcore.gui.guifunctions.CloseInventoryFunction;
 import com.spacebeaverstudios.sqtech.guis.guifunctions.ChooseOutputColorFunction;
-import com.spacebeaverstudios.sqtech.machines.Machine;
+import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;

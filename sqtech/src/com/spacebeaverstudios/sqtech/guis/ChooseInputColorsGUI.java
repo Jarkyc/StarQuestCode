@@ -5,7 +5,7 @@ import com.spacebeaverstudios.sqcore.gui.GUIItem;
 import com.spacebeaverstudios.sqcore.gui.guifunctions.CloseInventoryFunction;
 import com.spacebeaverstudios.sqtech.guis.guifunctions.ConfirmInputColorsGUIFunction;
 import com.spacebeaverstudios.sqtech.guis.guifunctions.ToggleInputColorGUIFunction;
-import com.spacebeaverstudios.sqtech.machines.Machine;
+import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

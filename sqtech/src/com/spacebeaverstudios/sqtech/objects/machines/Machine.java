@@ -1,10 +1,11 @@
-package com.spacebeaverstudios.sqtech.machines;
+package com.spacebeaverstudios.sqtech.objects.machines;
 
 import com.spacebeaverstudios.sqcore.gui.GUI;
 import com.spacebeaverstudios.sqcore.utils.discord.DiscordUtils;
 import com.spacebeaverstudios.sqtech.SQTech;
 import com.spacebeaverstudios.sqtech.guis.MachineGUI;
-import com.spacebeaverstudios.sqtech.pipes.ItemPipe;
+import com.spacebeaverstudios.sqtech.objects.CanCheckIntact;
+import com.spacebeaverstudios.sqtech.objects.pipes.ItemPipe;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,26 +21,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public abstract class Machine {
+public abstract class Machine implements CanCheckIntact {
     // static
-    private static final ArrayList<String> machinesSignText = new ArrayList<>(Arrays.asList("[smelter]", "[chest]"));
     private static final ArrayList<Machine> machines = new ArrayList<>();
 
-    public static ArrayList<String> getMachinesSignText() {
-        return machinesSignText;
-    }
     public static ArrayList<Machine> getMachines() {
         return machines;
     }
 
-    public static void createFromSign(Block sign) {
+    public static boolean createFromSign(Block sign) {
         switch(((Sign) sign.getState()).getLine(0)) {
             case "[smelter]":
                 new SmelterMachine(sign);
-                break;
-            case "[chest]":
-                new ChestMachine(sign);
-                break;
+                return true;
+            case "[hopper]":
+                new HopperMachine(sign);
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -53,53 +52,13 @@ public abstract class Machine {
     private Material outputPipeMaterial;
     private ItemPipe outputPipe;
     private Location node = null;
-    private final ArrayList<Location> blocks = new ArrayList<>();
+    private final HashMap<Location, Material> blocks = new HashMap<>();
 
     public Machine(Block sign, String machineName) {
-        blocks.add(sign.getLocation());
+        blocks.put(sign.getLocation(), sign.getType());
         if (detect(sign)) {
             this.sign = sign.getLocation();
             this.machineName = machineName;
-
-            // get node from schema
-            HashMap<Vector, Material> schema = getSchema();
-            for (Vector vec : schema.keySet()) {
-                if (schema.get(vec).equals(Material.LAPIS_BLOCK)) {
-                    Block block = sign;
-                    Directional dir = (Directional) sign.getBlockData();
-                    block = block.getRelative(dir.getFacing().getOppositeFace(), vec.getBlockX());
-                    block = block.getRelative(BlockFace.UP, vec.getBlockY());
-
-                    // have to do it like this cause there's no 90 degree rotate
-                    switch (dir.getFacing().getOppositeFace()) {
-                        case NORTH:
-                            block = block.getRelative(BlockFace.EAST, vec.getBlockZ());
-                            break;
-                        case EAST:
-                            block = block.getRelative(BlockFace.SOUTH, vec.getBlockZ());
-                            break;
-                        case SOUTH:
-                            block = block.getRelative(BlockFace.WEST, vec.getBlockZ());
-                            break;
-                        case WEST:
-                            block = block.getRelative(BlockFace.NORTH, vec.getBlockZ());
-                            break;
-                    }
-
-                    this.node = block.getLocation();
-                    break;
-                }
-            }
-
-            if (node == null) {
-                // This SHOULDN'T happen. DON'T let it.
-                SQTech.getInstance().getLogger().warning(DiscordUtils.tag("blankman")
-                        + " Machine has no node block! Sign text: " + ((Sign) sign.getState()).getLine(0));
-                for (Player player : sign.getLocation().getNearbyPlayers(5))
-                    player.sendMessage(ChatColor.RED + "An error occurred when attempting to create the machine. " +
-                            "Staff have been notified!");
-                return;
-            }
 
             init();
         } else {
@@ -133,7 +92,7 @@ public abstract class Machine {
     public Material getOutputPipeMaterial() {
         return outputPipeMaterial;
     }
-    public ArrayList<Location> getBlocks() {
+    public HashMap<Location, Material> getBlocks() {
         return blocks;
     }
 
@@ -226,9 +185,21 @@ public abstract class Machine {
                 }
 
                 if (!block.getType().equals(schema.get(vec))) return false;
-                blocks.add(block.getLocation());
+                blocks.put(block.getLocation(), block.getType());
+                if (block.getType().equals(Material.LAPIS_BLOCK)) node = block.getLocation();
             }
         }
+
+        if (node == null) {
+            // This SHOULDN'T happen. DON'T let it.
+            SQTech.getInstance().getLogger().warning(DiscordUtils.tag("blankman")
+                    + " Machine has no node block! Sign text: " + ((Sign) sign.getState()).getLine(0));
+            for (Player player : sign.getLocation().getNearbyPlayers(5))
+                player.sendMessage(ChatColor.RED + "An error occurred when attempting to create the machine. " +
+                        "Staff have been notified!");
+            return false;
+        }
+
         return true;
     }
 
@@ -236,7 +207,7 @@ public abstract class Machine {
 
     public abstract void tick(); // run all the functions that occur once a second
 
-    public abstract String getMachineInfo(); // TODO: make it config based
+    public abstract String getMachineInfo();
 
     public ItemStack tryAddItemStack(ItemStack itemStack) {
         // returns whatever items weren't able to be added
@@ -305,5 +276,11 @@ public abstract class Machine {
         }
         for (ItemStack itemStack : inventory) sign.getWorld().dropItemNaturally(sign, itemStack);
         machines.remove(this);
+    }
+
+    public void checkIntact() {
+        for (Location loc : blocks.keySet())
+            if (!loc.getBlock().getType().equals(blocks.get(loc)))
+                destroy();
     }
 }

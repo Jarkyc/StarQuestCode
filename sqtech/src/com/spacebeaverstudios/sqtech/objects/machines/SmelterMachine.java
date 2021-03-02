@@ -1,4 +1,4 @@
-package com.spacebeaverstudios.sqtech.machines;
+package com.spacebeaverstudios.sqtech.objects.machines;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -82,6 +82,6 @@ public class SmelterMachine extends Machine {
     }
 
     public String getMachineInfo() {
-        return ""; // TODO
+        return "Smelts items";
     }
 }

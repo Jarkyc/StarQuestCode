@@ -2,7 +2,7 @@ package com.spacebeaverstudios.sqtech.guis.guifunctions;
 
 import com.spacebeaverstudios.sqcore.gui.guifunctions.GUIFunction;
 import com.spacebeaverstudios.sqtech.guis.MachineInventoryGUI;
-import com.spacebeaverstudios.sqtech.machines.Machine;
+import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 

@@ -3,10 +3,10 @@ package com.spacebeaverstudios.sqtech.guis;
 import com.spacebeaverstudios.sqcore.gui.GUI;
 import com.spacebeaverstudios.sqcore.gui.GUIItem;
 import com.spacebeaverstudios.sqcore.gui.guifunctions.GUIFunction;
-import com.spacebeaverstudios.sqtech.guis.guifunctions.OpenChestMachineInventoryGUIFunction;
+import com.spacebeaverstudios.sqtech.guis.guifunctions.OpenHopperMachineInventoryGUIFunction;
 import com.spacebeaverstudios.sqtech.guis.guifunctions.OpenMachineGUIFunction;
-import com.spacebeaverstudios.sqtech.machines.ChestMachine;
-import com.spacebeaverstudios.sqtech.machines.Machine;
+import com.spacebeaverstudios.sqtech.objects.machines.HopperMachine;
+import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
@@ -27,7 +27,7 @@ public class MachineGUI extends GUI {
         this.getGuiItems().add(machineInfo);
 
         GUIFunction inventoryGUIFunction;
-        if (machine instanceof ChestMachine) inventoryGUIFunction = new OpenChestMachineInventoryGUIFunction((ChestMachine) machine);
+        if (machine instanceof HopperMachine) inventoryGUIFunction = new OpenHopperMachineInventoryGUIFunction((HopperMachine) machine);
         else inventoryGUIFunction = new OpenMachineGUIFunction(new MachineInventoryGUI(machine), machine);
         GUIItem inventoryButton = new GUIItem("Machine Inventory", "", Material.CHEST, inventoryGUIFunction);
         inventory.setItem(12, inventoryButton.getItemStack());

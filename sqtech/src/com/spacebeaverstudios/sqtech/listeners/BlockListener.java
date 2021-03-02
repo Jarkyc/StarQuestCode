@@ -1,14 +1,13 @@
 package com.spacebeaverstudios.sqtech.listeners;
 
-import com.spacebeaverstudios.sqtech.machines.Machine;
-import com.spacebeaverstudios.sqtech.pipes.ItemPipe;
+import com.spacebeaverstudios.sqtech.objects.machines.Machine;
+import com.spacebeaverstudios.sqtech.objects.pipes.ItemPipe;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,12 +41,7 @@ public class BlockListener implements Listener {
         }
     }
 
-    @SuppressWarnings("unused")
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
-        // TODO: all other ways of getting rid of blocks
-        //  placing/breaking, pistons, explosions, and ship packing/unpacking
-        Block block = event.getBlock();
+    private void blockBreak(Block block) {
         if (block.getType().toString().endsWith("_STAINED_GLASS")) {
             for (ItemPipe pipe : ItemPipe.getAllPipes()) {
                 if (pipe.getBlocks().contains(block.getLocation())) {
@@ -57,11 +51,37 @@ public class BlockListener implements Listener {
             }
         } else {
             for (Machine machine : Machine.getMachines()) {
-                if (machine.getBlocks().contains(block.getLocation())) {
+                if (machine.getBlocks().containsKey(block.getLocation())) {
                     machine.destroy();
                     return;
                 }
             }
         }
     }
+
+    @SuppressWarnings("unused")
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        blockBreak(event.getBlock());
+    }
+
+    @SuppressWarnings("unused")
+    @EventHandler
+    public void onExplosion(BlockExplodeEvent event) {
+        blockBreak(event.getBlock());
+    }
+
+    @SuppressWarnings("unused")
+    @EventHandler
+    public void onPistonExtend(BlockPistonExtendEvent event) {
+        for (Block block : event.getBlocks()) blockBreak(block.getRelative(event.getDirection().getOppositeFace()));
+    }
+
+    @SuppressWarnings("unused")
+    @EventHandler
+    public void onPistonRetract(BlockPistonRetractEvent event) {
+        for (Block block : event.getBlocks()) blockBreak(block.getRelative(event.getDirection().getOppositeFace()));
+    }
+
+    // TODO: on ship packing/unpacking
 }

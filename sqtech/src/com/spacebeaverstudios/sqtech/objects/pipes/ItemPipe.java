@@ -1,6 +1,7 @@
-package com.spacebeaverstudios.sqtech.pipes;
+package com.spacebeaverstudios.sqtech.objects.pipes;
 
-import com.spacebeaverstudios.sqtech.machines.Machine;
+import com.spacebeaverstudios.sqtech.objects.CanCheckIntact;
+import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -8,7 +9,7 @@ import org.bukkit.block.BlockFace;
 
 import java.util.*;
 
-public class ItemPipe {
+public class ItemPipe implements CanCheckIntact {
     private static final ArrayList<ItemPipe> allPipes = new ArrayList<>();
 
     public static ArrayList<ItemPipe> getAllPipes() {
@@ -46,14 +47,8 @@ public class ItemPipe {
         }
     }
 
-    public boolean intact() {
-        for (Location loc : blocks)
-            if (!loc.getBlock().getType().equals(pipeMaterial))
-                return false;
-        return true;
-    }
-
-    public void breakBlock(Location broken) { // TODO: test this
+    public void breakBlock(Location broken) {
+        // TODO: test this
         outputMachine.getInputPipes().remove(this);
         outputMachine = null;
         for (Machine machine : inputMachines) machine.setOutputPipe(null);
@@ -97,5 +92,14 @@ public class ItemPipe {
     public void setOutputMachine(Machine outputMachine) {
         this.outputMachine = outputMachine;
         if (outputMachine == null && inputMachines.size() == 0) allPipes.remove(this);
+    }
+
+    public void checkIntact() {
+        for (Location loc : blocks) {
+            if (!loc.getBlock().getType().equals(pipeMaterial)) {
+                breakBlock(loc);
+                return;
+            }
+        }
     }
 }

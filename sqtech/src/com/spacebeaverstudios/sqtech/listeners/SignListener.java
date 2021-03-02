@@ -1,8 +1,7 @@
 package com.spacebeaverstudios.sqtech.listeners;
 
-import com.spacebeaverstudios.sqtech.machines.Machine;
+import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -15,8 +14,7 @@ public class SignListener implements Listener {
         Block block = event.getClickedBlock();
         if (block == null) return;
         if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && block.getType().toString().endsWith("_WALL_SIGN")) {
-            if (Machine.getMachinesSignText().contains(((Sign) block.getState()).getLine(0))) Machine.createFromSign(block);
-            else {
+            if (!Machine.createFromSign(block)) {
                 for (Machine machine : Machine.getMachines()) {
                     if (machine.getSign().equals(block.getLocation())) {
                         machine.openGUI(event.getPlayer());

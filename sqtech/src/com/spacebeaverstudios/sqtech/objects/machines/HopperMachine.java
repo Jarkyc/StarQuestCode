@@ -1,9 +1,10 @@
-package com.spacebeaverstudios.sqtech.machines;
+package com.spacebeaverstudios.sqtech.objects.machines;
 
+import com.spacebeaverstudios.sqtech.SQTech;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
+import org.bukkit.block.Hopper;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.Directional;
 import org.bukkit.inventory.Inventory;
@@ -12,16 +13,16 @@ import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 
-public class ChestMachine extends Machine {
-    private Inventory chestInventory; // TODO: make it work with double chests
+public class HopperMachine extends Machine {
+    private Inventory hopperInventory; // TODO: make it work with double chests
 
-    public ChestMachine(Block sign) {
-        super(sign, "Chest Input/Output");
+    public HopperMachine(Block sign) {
+        super(sign, "Hopper Input/Output");
     }
 
     public HashMap<Vector, Material> getSchema() {
         HashMap<Vector, Material> schema = new HashMap<>();
-        schema.put(new Vector(1, 0, 0), Material.CHEST);
+        schema.put(new Vector(1, 0, 0), Material.HOPPER);
         schema.put(new Vector(2, 0, 0), Material.LAPIS_BLOCK);
         return schema;
     }
@@ -30,21 +31,21 @@ public class ChestMachine extends Machine {
         Machine.getMachines().add(this);
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
         sign.setLine(0, "");
-        sign.setLine(1, ChatColor.BLUE + "Chest Input/Output");
+        sign.setLine(1, ChatColor.BLUE + "Hopper Input/Output");
         sign.setLine(2, "");
         sign.setLine(3, "");
         sign.update();
 
-        chestInventory = ((Chest) sign.getBlock().getRelative(((Directional) sign.getBlock().getBlockData())
-                .getFacing().getOppositeFace()).getState()).getBlockInventory();
+        hopperInventory = ((Hopper) sign.getBlock().getRelative(((Directional) sign.getBlock().getBlockData())
+                .getFacing().getOppositeFace()).getState()).getInventory();
     }
 
     public void tick() {
-        if (chestInventory.getViewers().size() == 0 && getOutputPipe() != null) {
-            ItemStack[] contents = chestInventory.getContents();
-            for (int i = chestInventory.getSize()-1; i >= 0; i--) {
+        if (hopperInventory.getViewers().size() == 0 && getOutputPipe() != null) {
+            ItemStack[] contents = hopperInventory.getContents();
+            for (int i = hopperInventory.getSize()-1; i >= 0; i--) {
                 if (contents[i] != null) {
-                    chestInventory.setItem(i, null);
+                    hopperInventory.setItem(i, null);
                     tryOutput(contents[i]);
                     break;
                 }
@@ -54,7 +55,7 @@ public class ChestMachine extends Machine {
 
     @Override
     public ItemStack tryAddItemStack(ItemStack itemStack) {
-        HashMap<Integer, ItemStack> left = chestInventory.addItem(itemStack);
+        HashMap<Integer, ItemStack> left = hopperInventory.addItem(itemStack);
         if (left.size() != 0)
             for (ItemStack stack : left.values())
                 return stack;
@@ -62,10 +63,10 @@ public class ChestMachine extends Machine {
     }
 
     public String getMachineInfo() {
-        return "Allows pipe input/output to and from the attached chest.";
+        return "Allows pipe input/output to and from the attached hopper.";
     }
 
-    public Inventory getChestInventory() {
-        return chestInventory;
+    public Inventory getHopperInventory() {
+        return hopperInventory;
     }
 }
