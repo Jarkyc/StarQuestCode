@@ -1,6 +1,5 @@
 package com.spacebeaverstudios.sqtech.objects.machines;
 
-import com.spacebeaverstudios.sqtech.SQTech;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -11,7 +10,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 public class HopperMachine extends Machine {
     private Inventory hopperInventory; // TODO: make it work with double chests
@@ -41,7 +42,7 @@ public class HopperMachine extends Machine {
     }
 
     public void tick() {
-        if (hopperInventory.getViewers().size() == 0 && getOutputPipe() != null) {
+        if (hopperInventory.getViewers().size() == 0 && getItemOutputPipe() != null) {
             ItemStack[] contents = hopperInventory.getContents();
             for (int i = hopperInventory.getSize()-1; i >= 0; i--) {
                 if (contents[i] != null) {
@@ -64,6 +65,12 @@ public class HopperMachine extends Machine {
 
     public String getMachineInfo() {
         return "Allows pipe input/output to and from the attached hopper.";
+    }
+    public List<TransferType> getInputTypes() {
+        return Collections.singletonList(TransferType.ITEMS);
+    }
+    public TransferType getOutputType() {
+        return TransferType.ITEMS;
     }
 
     public Inventory getHopperInventory() {

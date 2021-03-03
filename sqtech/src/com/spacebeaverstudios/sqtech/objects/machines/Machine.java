@@ -6,6 +6,7 @@ import com.spacebeaverstudios.sqtech.SQTech;
 import com.spacebeaverstudios.sqtech.guis.MachineGUI;
 import com.spacebeaverstudios.sqtech.objects.CanCheckIntact;
 import com.spacebeaverstudios.sqtech.objects.pipes.ItemPipe;
+import com.spacebeaverstudios.sqtech.objects.pipes.PowerPipe;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,8 +21,14 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 public abstract class Machine implements CanCheckIntact {
+    public enum TransferType {
+        ITEMS,
+        POWER
+    }
+
     // static
     private static final ArrayList<Machine> machines = new ArrayList<>();
 
@@ -37,6 +44,13 @@ public abstract class Machine implements CanCheckIntact {
             case "[hopper]":
                 new HopperMachine(sign);
                 return true;
+            case "[coal generator]":
+            case "[coalgenerator]":
+                new CoalGeneratorMachine(sign);
+                return true;
+            case "[battery]":
+                new BatteryMachine(sign);
+                return true;
             default:
                 return false;
         }
@@ -48,9 +62,11 @@ public abstract class Machine implements CanCheckIntact {
     private GUI gui = null;
     private final String machineName;
     private final ArrayList<Material> inputPipeMaterials = new ArrayList<>();
-    private final ArrayList<ItemPipe> inputPipes = new ArrayList<>();
+    private final ArrayList<ItemPipe> itemInputPipes = new ArrayList<>();
+    private final ArrayList<PowerPipe> powerInputPipes = new ArrayList<>();
     private Material outputPipeMaterial;
-    private ItemPipe outputPipe;
+    private ItemPipe itemOutputPipe;
+    private PowerPipe powerOutputPipe;
     private Location node = null;
     private final HashMap<Location, Material> blocks = new HashMap<>();
 
@@ -80,14 +96,14 @@ public abstract class Machine implements CanCheckIntact {
     public ArrayList<Material> getInputPipeMaterials() {
         return inputPipeMaterials;
     }
-    public ArrayList<ItemPipe> getInputPipes() {
-        return inputPipes;
+    public ArrayList<ItemPipe> getItemInputPipes() {
+        return itemInputPipes;
     }
-    public Location getNode() {
-        return node;
+    public ItemPipe getItemOutputPipe() {
+        return itemOutputPipe;
     }
-    public ItemPipe getOutputPipe() {
-        return outputPipe;
+    public PowerPipe getPowerOutputPipe() {
+        return powerOutputPipe;
     }
     public Material getOutputPipeMaterial() {
         return outputPipeMaterial;
@@ -96,8 +112,8 @@ public abstract class Machine implements CanCheckIntact {
         return blocks;
     }
 
-    public void setOutputPipe(ItemPipe outputPipe) {
-        this.outputPipe = outputPipe;
+    public void setItemOutputPipe(ItemPipe itemOutputPipe) {
+        this.itemOutputPipe = itemOutputPipe;
     }
 
     public void setOutputPipeMaterial(Material material, Player player) {
@@ -108,9 +124,9 @@ public abstract class Machine implements CanCheckIntact {
 
         if (material.equals(outputPipeMaterial)) return;
         outputPipeMaterial = material;
-        if (outputPipe != null) {
-            outputPipe.getInputMachines().remove(this);
-            outputPipe = null;
+        if (itemOutputPipe != null) {
+            itemOutputPipe.getInputMachines().remove(this);
+            itemOutputPipe = null;
         }
 
         for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
@@ -120,25 +136,25 @@ public abstract class Machine implements CanCheckIntact {
                 for (ItemPipe pipe : ItemPipe.getAllPipes()) {
                     if (pipe.getBlocks().contains(glass.getLocation())) {
                         pipe.getInputMachines().add(this);
-                        outputPipe = pipe;
+                        itemOutputPipe = pipe;
                         return;
                     }
                 }
-                outputPipe = new ItemPipe(glass.getLocation()); // no pipes found matching it, so create a new one
+                itemOutputPipe = new ItemPipe(glass.getLocation()); // no pipes found matching it, so create a new one
                 return;
             }
         }
     }
     public void setInputPipeMaterials(ArrayList<Material> enabledColors, Player player) {
-        if (enabledColors.contains(outputPipeMaterial)) {
-            player.sendMessage(ChatColor.RED + outputPipeMaterial.toString() + " is already the output color for this machine!");
+        if (enabledColors.contains(itemOutputPipe)) {
+            player.sendMessage(ChatColor.RED + itemOutputPipe.toString() + " is already the output color for this machine!");
             return;
         }
 
         inputPipeMaterials.clear();
         inputPipeMaterials.addAll(enabledColors);
-        for (ItemPipe pipe : inputPipes) pipe.setOutputMachine(null);
-        inputPipes.clear();
+        for (ItemPipe pipe : itemInputPipes) pipe.setOutputMachine(null);
+        itemInputPipes.clear();
 
         for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
                 BlockFace.NORTH, BlockFace.SOUTH)) {
@@ -146,7 +162,7 @@ public abstract class Machine implements CanCheckIntact {
             if (enabledColors.contains(glass.getType())) {
                 for (ItemPipe pipe : ItemPipe.getAllPipes()) {
                     if (pipe.getBlocks().contains(glass.getLocation())) {
-                        inputPipes.add(pipe);
+                        itemInputPipes.add(pipe);
                         pipe.setOutputMachine(this);
                         break;
                     }
@@ -211,6 +227,13 @@ public abstract class Machine implements CanCheckIntact {
 
     public ItemStack tryAddItemStack(ItemStack itemStack) {
         // returns whatever items weren't able to be added
+        if (!getInputTypes().contains(TransferType.ITEMS)) {
+            SQTech.getInstance().getLogger().warning(DiscordUtils.tag("blankman")
+                    + " Tried to add items to machine that doesn't accept item input! Sign location of machine: "
+                    + sign.getWorld().getName() + ", " + sign.getBlockX() + ", " + sign.getBlockY() + ", " + sign.getBlockZ());
+            return new ItemStack(itemStack.getType(), itemStack.getAmount());
+        }
+
         for (ItemStack stack : inventory) {
             if (stack.getType().equals(itemStack.getType()) && stack.getAmount() < stack.getMaxStackSize()) {
                 if (stack.getMaxStackSize()-stack.getAmount() >= itemStack.getAmount()) {
@@ -240,11 +263,11 @@ public abstract class Machine implements CanCheckIntact {
     }
 
     public void tryOutput(ItemStack stack) {
-        if (outputPipe == null || outputPipe.getOutputMachine() == null) {
+        if (itemOutputPipe == null || itemOutputPipe.getOutputMachine() == null) {
             ItemStack left = tryAddItemStack(stack);
             if (left.getAmount() != 0) sign.getWorld().dropItem(sign, left);
         } else {
-            ItemStack left = outputPipe.getOutputMachine().tryAddItemStack(stack);
+            ItemStack left = itemOutputPipe.getOutputMachine().tryAddItemStack(stack);
             if (left.getAmount() != 0) {
                 left = tryAddItemStack(stack);
                 if (left.getAmount() != 0) sign.getWorld().dropItemNaturally(sign, left);
@@ -263,8 +286,8 @@ public abstract class Machine implements CanCheckIntact {
     }
 
     public void destroy() {
-        if (outputPipe != null) outputPipe.getInputMachines().remove(this);
-        for (ItemPipe pipe : inputPipes) pipe.setOutputMachine(null);
+        if (itemOutputPipe != null) itemOutputPipe.getInputMachines().remove(this);
+        for (ItemPipe pipe : itemInputPipes) pipe.setOutputMachine(null);
         if (gui != null) {
             gui.getPlayer().sendMessage(ChatColor.RED + "The machine which you were accessing has been broken!");
             gui.getPlayer().closeInventory();
@@ -283,4 +306,14 @@ public abstract class Machine implements CanCheckIntact {
             if (!loc.getBlock().getType().equals(blocks.get(loc)))
                 destroy();
     }
+
+    public boolean tryUsePower(Integer amount) {
+        for (PowerPipe pipe : powerInputPipes)
+            if (pipe.tryUsePower(amount))
+                return true;
+        return false;
+    }
+
+    abstract List<TransferType> getInputTypes();
+    abstract TransferType getOutputType();
 }

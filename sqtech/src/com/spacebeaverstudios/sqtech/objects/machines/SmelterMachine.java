@@ -11,8 +11,10 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.util.Vector;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 public class SmelterMachine extends Machine {
     // static
@@ -64,7 +66,7 @@ public class SmelterMachine extends Machine {
             }
         }
 
-        if (smeltable != null) {
+        if (smeltable != null && tryUsePower(50)) {
             sign.setLine(2, ChatColor.GREEN + "Active");
             smeltCooldown++;
             if (smeltCooldown == 5) {
@@ -76,12 +78,19 @@ public class SmelterMachine extends Machine {
             }
         } else {
             smeltCooldown = 0;
-            sign.setLine(2, ChatColor.RED + "Inactive");
+            if (smeltable == null) sign.setLine(2, ChatColor.RED + "Inactive");
+            else sign.setLine(2, ChatColor.RED + "No Power");
         }
         sign.update();
     }
 
     public String getMachineInfo() {
         return "Smelts items";
+    }
+    public List<TransferType> getInputTypes() {
+        return Arrays.asList(TransferType.ITEMS, TransferType.POWER);
+    }
+    public TransferType getOutputType() {
+        return TransferType.ITEMS;
     }
 }

@@ -1,6 +1,5 @@
 package com.spacebeaverstudios.sqtech.objects.pipes;
 
-import com.spacebeaverstudios.sqtech.objects.CanCheckIntact;
 import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -9,18 +8,33 @@ import org.bukkit.block.BlockFace;
 
 import java.util.*;
 
-public class ItemPipe implements CanCheckIntact {
+public class ItemPipe implements Pipe {
+    // static
     private static final ArrayList<ItemPipe> allPipes = new ArrayList<>();
 
     public static ArrayList<ItemPipe> getAllPipes() {
         return allPipes;
     }
 
+    // instance
     private final ArrayList<Machine> inputMachines = new ArrayList<>();
     private final Material pipeMaterial;
     private final Location starterBlock; // must always be connected to outputMachine
     private final ArrayList<Location> blocks = new ArrayList<>();
     private Machine outputMachine;
+
+    public ArrayList<Machine> getInputMachines() {
+        return inputMachines;
+    }
+    public ArrayList<Location> getBlocks() {
+        return blocks;
+    }
+    public Machine getOutputMachine() {
+        return outputMachine;
+    }
+    public Material getPipeMaterial() {
+        return pipeMaterial;
+    }
 
     public ItemPipe(Location starterBlock) {
         this.pipeMaterial = starterBlock.getBlock().getType();
@@ -32,11 +46,13 @@ public class ItemPipe implements CanCheckIntact {
     }
 
     public void calculate() {
+        // TODO: if it tries to connect to other pipes
         // TODO: calculate output machines
         ArrayList<Location> blocksToCheck = new ArrayList<>();
         blocksToCheck.add(starterBlock);
         while (blocksToCheck.size() != 0) {
-            for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST)) {
+            for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH,
+                    BlockFace.EAST, BlockFace.WEST)) {
                 Block block = blocksToCheck.get(0).getBlock().getRelative(face);
                 if (block.getType().equals(pipeMaterial) && !blocks.contains(block.getLocation())) {
                     blocks.add(block.getLocation());
@@ -49,9 +65,9 @@ public class ItemPipe implements CanCheckIntact {
 
     public void breakBlock(Location broken) {
         // TODO: test this
-        outputMachine.getInputPipes().remove(this);
+        outputMachine.getItemInputPipes().remove(this);
         outputMachine = null;
-        for (Machine machine : inputMachines) machine.setOutputPipe(null);
+        for (Machine machine : inputMachines) machine.setItemOutputPipe(null);
         inputMachines.clear();
 
         if (broken.equals(starterBlock)) {
@@ -74,19 +90,6 @@ public class ItemPipe implements CanCheckIntact {
             if (blocks.contains(loc.getBlock().getRelative(face).getLocation()))
                 return true;
         return false;
-    }
-
-    public ArrayList<Machine> getInputMachines() {
-        return inputMachines;
-    }
-    public ArrayList<Location> getBlocks() {
-        return blocks;
-    }
-    public Machine getOutputMachine() {
-        return outputMachine;
-    }
-    public Material getPipeMaterial() {
-        return pipeMaterial;
     }
 
     public void setOutputMachine(Machine outputMachine) {
