@@ -8,6 +8,7 @@ import com.spacebeaverstudios.sqtech.objects.machines.SmelterMachine;
 import com.spacebeaverstudios.sqtech.objects.pipes.ItemPipe;
 import com.spacebeaverstudios.sqtech.objects.pipes.PowerPipe;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -31,7 +32,11 @@ public class SQTech extends JavaPlugin {
         SmelterMachine.initializeRecipes();
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
-            for (Machine machine : Machine.getMachines()) machine.tick();
+            for (Machine machine : Machine.getMachines()) {
+                Location sign = machine.getSign();
+                if (sign.getWorld().isChunkLoaded((int) Math.floor(sign.getBlockX()/16f), (int) Math.floor(sign.getBlockZ()/16f)))
+                    machine.tick();
+            }
             MachineInventoryGUI.refreshAll();
 
             // check 3 machines/pipes to see if intact, just in case the listeners missed something

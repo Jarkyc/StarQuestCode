@@ -36,7 +36,7 @@ public class SmelterMachine extends Machine {
     private int smeltCooldown = 0;
 
     public SmelterMachine(Block sign) {
-        super(sign, "Smelter");
+        super(sign, "Smelter", "Smelts items like a furnace.");
     }
 
     public HashMap<Vector, Material> getSchema() {
@@ -49,9 +49,9 @@ public class SmelterMachine extends Machine {
     public void init() {
         Machine.getMachines().add(this);
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
-        sign.setLine(0, "");
-        sign.setLine(1, ChatColor.BLUE + "Smelter");
-        sign.setLine(2, ChatColor.RED + "Inactive");
+        sign.setLine(0, ChatColor.BLUE + "Smelter");
+        sign.setLine(1, ChatColor.RED + "Inactive");
+        sign.setLine(2, "0 BV/second");
         sign.setLine(3, "");
         sign.update();
     }
@@ -67,7 +67,8 @@ public class SmelterMachine extends Machine {
         }
 
         if (smeltable != null && tryUsePower(50)) {
-            sign.setLine(2, ChatColor.GREEN + "Active");
+            sign.setLine(1, ChatColor.GREEN + "Active");
+            sign.setLine(2, "-50 BV/5 seconds");
             smeltCooldown++;
             if (smeltCooldown == 5) {
                 smeltCooldown = 0;
@@ -78,15 +79,17 @@ public class SmelterMachine extends Machine {
             }
         } else {
             smeltCooldown = 0;
-            if (smeltable == null) sign.setLine(2, ChatColor.RED + "Inactive");
-            else sign.setLine(2, ChatColor.RED + "No Power");
+            if (smeltable == null) {
+                sign.setLine(1, ChatColor.RED + "Inactive");
+                sign.setLine(2, "0 BV/second");
+            } else {
+                sign.setLine(1, ChatColor.RED + "No Power");
+                sign.setLine(2, "0 BV/second");
+            }
         }
         sign.update();
     }
 
-    public String getMachineInfo() {
-        return "Smelts items";
-    }
     public List<TransferType> getInputTypes() {
         return Arrays.asList(TransferType.ITEMS, TransferType.POWER);
     }

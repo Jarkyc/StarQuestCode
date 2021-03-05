@@ -1,52 +1,58 @@
 package com.spacebeaverstudios.sqtech.objects.machines;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.block.data.Directional;
 import org.bukkit.util.Vector;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class CoalGeneratorMachine extends Machine {
-    public CoalGeneratorMachine(Block sign) {
-        super(sign, "Coal Generator", "Generates BV from coal and charcoal.");
+public class SolarPanelMachine extends Machine {
+    private Location daylightDetector;
+
+    public SolarPanelMachine(Block sign) {
+        super(sign, "Solar Panel", "Generates BV from sunlight.");
     }
 
     public HashMap<Vector, Material> getSchema() {
-        // TODO: better design
         HashMap<Vector, Material> schema = new HashMap<>();
-        schema.put(new Vector(1, 0, 0), Material.FURNACE);
-        schema.put(new Vector(2, 0, 0), Material.LAPIS_BLOCK);
+        schema.put(new Vector(1, 0, 0), Material.LAPIS_BLOCK);
+        schema.put(new Vector(1, 1, 0), Material.DAYLIGHT_DETECTOR);
         return schema;
     }
 
     public void init() {
         Machine.getMachines().add(this);
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
-        sign.setLine(0, ChatColor.BLUE + "Coal Generator");
+        sign.setLine(0, ChatColor.BLUE + "Solar Panel");
         sign.setLine(1, ChatColor.RED + "Inactive");
         sign.setLine(2, "0 BV/second");
         sign.setLine(3, "");
         sign.update();
+
+        daylightDetector = sign.getBlock().getRelative(((Directional) sign.getBlock().getBlockData())
+                .getFacing().getOppositeFace()).getRelative(BlockFace.UP).getLocation();
     }
 
     public void tick() {
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
-        if (getPowerOutputPipe().connectedToBattery()) {
-            for (ItemStack itemStack : getInventory()) {
-                if (itemStack.getType().equals(Material.COAL) || itemStack.getType().equals(Material.CHARCOAL)) {
-                    getPowerOutputPipe().powerToBattery(400);
+        if (!getPowerOutputPipe().connectedToBattery()) {
+            if (daylightDetector.getWorld().getTime() > 0 && daylightDetector.getWorld().getTime() < 12000) {
+                if (daylightDetector.getBlock().getLightFromSky() == 15) {
+                    getPowerOutputPipe().powerToBattery(2);
                     sign.setLine(1, ChatColor.GREEN + "Active");
-                    sign.setLine(2, "+400 BV/second");
+                    sign.setLine(2, "+2 BV/second");
                     sign.update();
                     return;
                 }
             }
-            sign.setLine(1, ChatColor.GREEN + "Active");
+            sign.setLine(1, ChatColor.RED + "Inactive");
             sign.setLine(2, "0 BV/second");
         } else {
             sign.setLine(1, ChatColor.RED + "Inactive");
@@ -56,7 +62,7 @@ public class CoalGeneratorMachine extends Machine {
     }
 
     public List<TransferType> getInputTypes() {
-        return Collections.singletonList(TransferType.ITEMS);
+        return new ArrayList<>();
     }
     public TransferType getOutputType() {
         return TransferType.POWER;

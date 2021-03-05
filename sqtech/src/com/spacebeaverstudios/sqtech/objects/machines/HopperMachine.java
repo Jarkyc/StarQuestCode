@@ -17,8 +17,12 @@ import java.util.List;
 public class HopperMachine extends Machine {
     private Inventory hopperInventory; // TODO: make it work with double chests
 
+    public Inventory getHopperInventory() {
+        return hopperInventory;
+    }
+
     public HopperMachine(Block sign) {
-        super(sign, "Hopper Input/Output");
+        super(sign, "Hopper Input/Output", "Allows pipe input/output to and from the attached hopper.");
     }
 
     public HashMap<Vector, Material> getSchema() {
@@ -31,8 +35,8 @@ public class HopperMachine extends Machine {
     public void init() {
         Machine.getMachines().add(this);
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
-        sign.setLine(0, "");
-        sign.setLine(1, ChatColor.BLUE + "Hopper Input/Output");
+        sign.setLine(0, ChatColor.BLUE + "Hopper Input/Output");
+        sign.setLine(1, "");
         sign.setLine(2, "");
         sign.setLine(3, "");
         sign.update();
@@ -63,17 +67,10 @@ public class HopperMachine extends Machine {
         return new ItemStack(itemStack.getType(), 0);
     }
 
-    public String getMachineInfo() {
-        return "Allows pipe input/output to and from the attached hopper.";
-    }
     public List<TransferType> getInputTypes() {
         return Collections.singletonList(TransferType.ITEMS);
     }
     public TransferType getOutputType() {
         return TransferType.ITEMS;
-    }
-
-    public Inventory getHopperInventory() {
-        return hopperInventory;
     }
 }

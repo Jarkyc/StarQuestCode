@@ -26,12 +26,17 @@ public class MachineGUI extends GUI {
         inventory.setItem(11, machineInfo.getItemStack());
         this.getGuiItems().add(machineInfo);
 
-        GUIFunction inventoryGUIFunction;
-        if (machine instanceof HopperMachine) inventoryGUIFunction = new OpenHopperMachineInventoryGUIFunction((HopperMachine) machine);
-        else inventoryGUIFunction = new OpenMachineGUIFunction(new MachineInventoryGUI(machine), machine);
-        GUIItem inventoryButton = new GUIItem("Machine Inventory", "", Material.CHEST, inventoryGUIFunction);
-        inventory.setItem(12, inventoryButton.getItemStack());
-        this.getGuiItems().add(inventoryButton);
+        if (machine.getInputTypes().contains(Machine.TransferType.ITEMS)) {
+            GUIFunction inventoryGUIFunction;
+            if (machine instanceof HopperMachine) {
+                inventoryGUIFunction = new OpenHopperMachineInventoryGUIFunction((HopperMachine) machine);
+            } else {
+                inventoryGUIFunction = new OpenMachineGUIFunction(new MachineInventoryGUI(machine), machine);
+            }
+            GUIItem inventoryButton = new GUIItem("Machine Inventory", "", Material.CHEST, inventoryGUIFunction);
+            inventory.setItem(12, inventoryButton.getItemStack());
+            this.getGuiItems().add(inventoryButton);
+        }
 
         GUIItem chooseOutput = new GUIItem("Choose Output Pipe Color", null,
                 (machine.getOutputPipeMaterial() == null ? Material.GLASS : machine.getOutputPipeMaterial()),
@@ -39,10 +44,12 @@ public class MachineGUI extends GUI {
         inventory.setItem(14, chooseOutput.getItemStack());
         this.getGuiItems().add(chooseOutput);
 
-        GUIItem chooseInputs = new GUIItem("Choose Input Pipe Colors", null, Material.COMPASS,
-                new OpenMachineGUIFunction(new ChooseInputColorsGUI(machine), machine));
-        inventory.setItem(15, chooseInputs.getItemStack());
-        this.getGuiItems().add(chooseInputs);
+        if (machine.getInputTypes().size() != 0) {
+            GUIItem chooseInputs = new GUIItem("Choose Input Pipe Colors", null, Material.COMPASS,
+                    new OpenMachineGUIFunction(new ChooseInputColorsGUI(machine), machine));
+            inventory.setItem(15, chooseInputs.getItemStack());
+            this.getGuiItems().add(chooseInputs);
+        }
 
         return inventory;
     }

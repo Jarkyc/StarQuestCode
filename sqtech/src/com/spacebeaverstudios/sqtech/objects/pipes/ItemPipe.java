@@ -98,6 +98,7 @@ public class ItemPipe implements Pipe {
     }
 
     public void checkIntact() {
+        if (outputMachine == null && inputMachines.size() == 0) allPipes.remove(this);
         for (Location loc : blocks) {
             if (!loc.getBlock().getType().equals(pipeMaterial)) {
                 breakBlock(loc);

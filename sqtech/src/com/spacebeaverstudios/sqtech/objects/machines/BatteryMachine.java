@@ -12,6 +12,7 @@ import java.util.List;
 
 public class BatteryMachine extends Machine {
     // TODO: multiple sizes
+    // TODO: some way to not have all the power vaporise when machine broken
     private Integer power = 0;
 
     public Integer getPower() {
@@ -22,7 +23,7 @@ public class BatteryMachine extends Machine {
     }
 
     public BatteryMachine(Block sign) {
-        super(sign, "Battery");
+        super(sign, "Battery", "Stores BV.");
     }
 
     public HashMap<Vector, Material> getSchema() {
@@ -35,22 +36,19 @@ public class BatteryMachine extends Machine {
     public void init() {
         Machine.getMachines().add(this);
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
-        sign.setLine(0, "");
-        sign.setLine(1, ChatColor.BLUE + "Combustion Generator");
-        sign.setLine(2, "0 POWER_UNITs");
+        sign.setLine(0, ChatColor.BLUE + "Battery");
+        sign.setLine(1, "");
+        sign.setLine(2, "0 BV");
         sign.setLine(3, "");
         sign.update();
     }
 
     public void tick() {
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
-        sign.setLine(2, power + " POWER_UNITs");
+        sign.setLine(2, power + " BV");
         sign.update();
     }
 
-    public String getMachineInfo() {
-        return "Stores POWER_UNITs.";
-    }
     public List<TransferType> getInputTypes() {
         return Collections.singletonList(TransferType.POWER);
     }

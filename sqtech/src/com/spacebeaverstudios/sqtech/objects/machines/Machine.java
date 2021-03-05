@@ -37,7 +37,7 @@ public abstract class Machine implements CanCheckIntact {
     }
 
     public static boolean createFromSign(Block sign) {
-        switch(((Sign) sign.getState()).getLine(0)) {
+        switch(((Sign) sign.getState()).getLine(0).toLowerCase()) {
             case "[smelter]":
                 new SmelterMachine(sign);
                 return true;
@@ -47,6 +47,10 @@ public abstract class Machine implements CanCheckIntact {
             case "[coal generator]":
             case "[coalgenerator]":
                 new CoalGeneratorMachine(sign);
+                return true;
+            case "[solar panel]":
+            case "[solarpanel]":
+                new SolarPanelMachine(sign);
                 return true;
             case "[battery]":
                 new BatteryMachine(sign);
@@ -61,6 +65,7 @@ public abstract class Machine implements CanCheckIntact {
     private final ArrayList<ItemStack> inventory = new ArrayList<>();
     private GUI gui = null;
     private final String machineName;
+    private final String machineInfo;
     private final ArrayList<Material> inputPipeMaterials = new ArrayList<>();
     private final ArrayList<ItemPipe> itemInputPipes = new ArrayList<>();
     private final ArrayList<PowerPipe> powerInputPipes = new ArrayList<>();
@@ -70,16 +75,18 @@ public abstract class Machine implements CanCheckIntact {
     private Location node = null;
     private final HashMap<Location, Material> blocks = new HashMap<>();
 
-    public Machine(Block sign, String machineName) {
+    public Machine(Block sign, String machineName, String machineInfo) {
         blocks.put(sign.getLocation(), sign.getType());
         if (detect(sign)) {
             this.sign = sign.getLocation();
             this.machineName = machineName;
+            this.machineInfo = machineInfo;
 
             init();
         } else {
             this.sign = null;
             this.machineName = null;
+            this.machineInfo = null;
             this.node = null;
         }
     }
@@ -89,6 +96,9 @@ public abstract class Machine implements CanCheckIntact {
     }
     public String getMachineName() {
         return machineName;
+    }
+    public String getMachineInfo() {
+        return machineInfo;
     }
     public ArrayList<ItemStack> getInventory() {
         return inventory;
@@ -115,6 +125,9 @@ public abstract class Machine implements CanCheckIntact {
     public void setItemOutputPipe(ItemPipe itemOutputPipe) {
         this.itemOutputPipe = itemOutputPipe;
     }
+    public void setPowerOutputPipe(PowerPipe powerOutputPipe) {
+        this.powerOutputPipe = powerOutputPipe;
+    }
 
     public void setOutputPipeMaterial(Material material, Player player) {
         if (inputPipeMaterials.contains(material)) {
@@ -124,30 +137,45 @@ public abstract class Machine implements CanCheckIntact {
 
         if (material.equals(outputPipeMaterial)) return;
         outputPipeMaterial = material;
+
         if (itemOutputPipe != null) {
             itemOutputPipe.getInputMachines().remove(this);
             itemOutputPipe = null;
+        } else if (powerOutputPipe != null) {
+            powerOutputPipe.getInputMachines().remove(this);
+            powerOutputPipe = null;
         }
 
         for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
                 BlockFace.NORTH, BlockFace.SOUTH)) {
             Block glass = node.getBlock().getRelative(face);
             if (glass.getType().equals(material)) {
-                for (ItemPipe pipe : ItemPipe.getAllPipes()) {
-                    if (pipe.getBlocks().contains(glass.getLocation())) {
-                        pipe.getInputMachines().add(this);
-                        itemOutputPipe = pipe;
-                        return;
+                if (getOutputType().equals(TransferType.ITEMS)) {
+                    for (ItemPipe pipe : ItemPipe.getAllPipes()) {
+                        if (pipe.getBlocks().contains(glass.getLocation())) {
+                            pipe.getInputMachines().add(this);
+                            itemOutputPipe = pipe;
+                            return;
+                        }
                     }
+                    itemOutputPipe = new ItemPipe(glass.getLocation()); // no pipes found matching it, so create a new one
+                } else {
+                    for (PowerPipe pipe : PowerPipe.getAllPipes()) {
+                        if (pipe.getBlocks().contains(glass.getLocation())) {
+                            pipe.getInputMachines().add(this);
+                            powerOutputPipe = pipe;
+                            return;
+                        }
+                    }
+                    powerOutputPipe = new PowerPipe(glass.getLocation()); // no pipes found matching it, so create a new one
                 }
-                itemOutputPipe = new ItemPipe(glass.getLocation()); // no pipes found matching it, so create a new one
                 return;
             }
         }
     }
     public void setInputPipeMaterials(ArrayList<Material> enabledColors, Player player) {
-        if (enabledColors.contains(itemOutputPipe)) {
-            player.sendMessage(ChatColor.RED + itemOutputPipe.toString() + " is already the output color for this machine!");
+        if (enabledColors.contains(outputPipeMaterial)) {
+            player.sendMessage(ChatColor.RED + outputPipeMaterial.toString() + " is already the output color for this machine!");
             return;
         }
 
@@ -160,11 +188,22 @@ public abstract class Machine implements CanCheckIntact {
                 BlockFace.NORTH, BlockFace.SOUTH)) {
             Block glass = node.getBlock().getRelative(face);
             if (enabledColors.contains(glass.getType())) {
-                for (ItemPipe pipe : ItemPipe.getAllPipes()) {
-                    if (pipe.getBlocks().contains(glass.getLocation())) {
-                        itemInputPipes.add(pipe);
-                        pipe.setOutputMachine(this);
-                        break;
+                if (getInputTypes().contains(TransferType.ITEMS)) {
+                    for (ItemPipe pipe : ItemPipe.getAllPipes()) {
+                        if (pipe.getBlocks().contains(glass.getLocation())) {
+                            itemInputPipes.add(pipe);
+                            pipe.setOutputMachine(this);
+                            break;
+                        }
+                    }
+                }
+                if (getInputTypes().contains(TransferType.POWER)) {
+                    for (PowerPipe pipe : PowerPipe.getAllPipes()) {
+                        if (pipe.getBlocks().contains(glass.getLocation())) {
+                            powerInputPipes.add(pipe);
+                            pipe.getOutputMachines().add(this);
+                            break;
+                        }
                     }
                 }
             }
@@ -172,7 +211,7 @@ public abstract class Machine implements CanCheckIntact {
     }
 
     // schema is oriented so that positive x points to behind the sign, and positive z to the right
-    // schemas MUST include a node block (Material.LAPIS_BLOCK)
+    // schemas MUST include a single node block (Material.LAPIS_BLOCK)
     public abstract HashMap<Vector, Material> getSchema();
 
     public boolean detect(Block sign) {
@@ -220,16 +259,13 @@ public abstract class Machine implements CanCheckIntact {
     }
 
     public abstract void init(); // MUST include MachineBase.getMachines().add(this);
-
     public abstract void tick(); // run all the functions that occur once a second
-
-    public abstract String getMachineInfo();
 
     public ItemStack tryAddItemStack(ItemStack itemStack) {
         // returns whatever items weren't able to be added
         if (!getInputTypes().contains(TransferType.ITEMS)) {
             SQTech.getInstance().getLogger().warning(DiscordUtils.tag("blankman")
-                    + " Tried to add items to machine that doesn't accept item input! Sign location of machine: "
+                    + " Tried to add items to machine that doesn't accept item input! Sign location of accepting machine: "
                     + sign.getWorld().getName() + ", " + sign.getBlockX() + ", " + sign.getBlockY() + ", " + sign.getBlockZ());
             return new ItemStack(itemStack.getType(), itemStack.getAmount());
         }
@@ -314,6 +350,6 @@ public abstract class Machine implements CanCheckIntact {
         return false;
     }
 
-    abstract List<TransferType> getInputTypes();
-    abstract TransferType getOutputType();
+    public abstract List<TransferType> getInputTypes();
+    public abstract TransferType getOutputType();
 }
