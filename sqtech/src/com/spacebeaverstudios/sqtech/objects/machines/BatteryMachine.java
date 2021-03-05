@@ -13,6 +13,7 @@ import java.util.List;
 public class BatteryMachine extends Machine {
     // TODO: multiple sizes
     // TODO: some way to not have all the power vaporise when machine broken
+    // TODO: battery not properly destroy()ing
     private Integer power = 0;
 
     public Integer getPower() {
@@ -34,7 +35,6 @@ public class BatteryMachine extends Machine {
     }
 
     public void init() {
-        Machine.getMachines().add(this);
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
         sign.setLine(0, ChatColor.BLUE + "Battery");
         sign.setLine(1, "");

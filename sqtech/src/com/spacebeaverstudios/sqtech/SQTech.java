@@ -34,8 +34,9 @@ public class SQTech extends JavaPlugin {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             for (Machine machine : Machine.getMachines()) {
                 Location sign = machine.getSign();
-                if (sign.getWorld().isChunkLoaded((int) Math.floor(sign.getBlockX()/16f), (int) Math.floor(sign.getBlockZ()/16f)))
+                if (sign.getWorld().isChunkLoaded((int) Math.floor(sign.getBlockX()/16f), (int) Math.floor(sign.getBlockZ()/16f))) {
                     machine.tick();
+                }
             }
             MachineInventoryGUI.refreshAll();
 
@@ -46,8 +47,11 @@ public class SQTech extends JavaPlugin {
             checkIntacts.addAll(PowerPipe.getAllPipes());
             if (checkIntacts.size() != 0) {
                 for (int i = 0; i < 3; i++) {
-                    if (checkIntactsIndex == checkIntacts.size() - 1) checkIntactsIndex = 0;
-                    else checkIntactsIndex++;
+                    if (checkIntactsIndex >= checkIntacts.size() - 1) {
+                        checkIntactsIndex = 0;
+                    } else {
+                        checkIntactsIndex++;
+                    }
                     checkIntacts.get(checkIntactsIndex).checkIntact();
                 }
             }

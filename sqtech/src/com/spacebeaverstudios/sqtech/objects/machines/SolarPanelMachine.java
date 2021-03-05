@@ -28,7 +28,6 @@ public class SolarPanelMachine extends Machine {
     }
 
     public void init() {
-        Machine.getMachines().add(this);
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
         sign.setLine(0, ChatColor.BLUE + "Solar Panel");
         sign.setLine(1, ChatColor.RED + "Inactive");
@@ -42,22 +41,22 @@ public class SolarPanelMachine extends Machine {
 
     public void tick() {
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
-        if (!getPowerOutputPipe().connectedToBattery()) {
+        if (getPowerOutputPipe() != null && getPowerOutputPipe().connectedToBattery()) {
             if (daylightDetector.getWorld().getTime() > 0 && daylightDetector.getWorld().getTime() < 12000) {
                 if (daylightDetector.getBlock().getLightFromSky() == 15) {
                     getPowerOutputPipe().powerToBattery(2);
-                    sign.setLine(1, ChatColor.GREEN + "Active");
+                    sign.setLine(1, ChatColor.GREEN + "Sunlight");
                     sign.setLine(2, "+2 BV/second");
                     sign.update();
                     return;
                 }
+            } else {
+                sign.setLine(1, ChatColor.RED + "No Sunlight");
             }
-            sign.setLine(1, ChatColor.RED + "Inactive");
-            sign.setLine(2, "0 BV/second");
         } else {
-            sign.setLine(1, ChatColor.RED + "Inactive");
-            sign.setLine(2, ChatColor.RED + "Not Connected to Battery");
+            sign.setLine(1, ChatColor.RED + "Not Connected");
         }
+        sign.setLine(2, "0 BV/second");
         sign.update();
     }
 

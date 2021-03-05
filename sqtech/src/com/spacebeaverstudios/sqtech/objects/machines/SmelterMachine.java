@@ -47,7 +47,6 @@ public class SmelterMachine extends Machine {
     }
 
     public void init() {
-        Machine.getMachines().add(this);
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
         sign.setLine(0, ChatColor.BLUE + "Smelter");
         sign.setLine(1, ChatColor.RED + "Inactive");
@@ -58,34 +57,37 @@ public class SmelterMachine extends Machine {
 
     public void tick() {
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
-        ItemStack smeltable = null;
-        for (ItemStack stack : getInventory()) {
-            if (recipes.containsKey(stack.getType())) {
-                smeltable = stack;
-                break;
+        if (canUsePower(50)) {
+            ItemStack smeltable = null;
+            for (ItemStack stack : getInventory()) {
+                if (recipes.containsKey(stack.getType())) {
+                    smeltable = stack;
+                    break;
+                }
             }
-        }
 
-        if (smeltable != null && tryUsePower(50)) {
-            sign.setLine(1, ChatColor.GREEN + "Active");
-            sign.setLine(2, "-50 BV/5 seconds");
-            smeltCooldown++;
-            if (smeltCooldown == 5) {
+            if (smeltable != null) {
+                sign.setLine(1, ChatColor.GREEN + "Active");
+                sign.setLine(2, "-50 BV/5 seconds");
+                smeltCooldown++;
+                if (smeltCooldown == 5) {
+                    smeltCooldown = 0;
+                    tryUsePower(50);
+                    ItemStack output = new ItemStack(recipes.get(smeltable.getType()), 1);
+                    smeltable.setAmount(smeltable.getAmount()-1);
+                    if (smeltable.getAmount() == 0) {
+                        getInventory().remove(smeltable);
+                    }
+                    tryOutput(output); // separate to make ItemStack bullshit work
+                }
+            } else {
                 smeltCooldown = 0;
-                ItemStack output = new ItemStack(recipes.get(smeltable.getType()), 1);
-                smeltable.setAmount(smeltable.getAmount()-1);
-                if (smeltable.getAmount() == 0) getInventory().remove(smeltable);
-                tryOutput(output); // separate to make ItemStack bullshit work
-            }
-        } else {
-            smeltCooldown = 0;
-            if (smeltable == null) {
                 sign.setLine(1, ChatColor.RED + "Inactive");
                 sign.setLine(2, "0 BV/second");
-            } else {
-                sign.setLine(1, ChatColor.RED + "No Power");
-                sign.setLine(2, "0 BV/second");
             }
+        } else {
+            sign.setLine(1, ChatColor.RED + "No Power");
+            sign.setLine(2, "0 BV/second");
         }
         sign.update();
     }

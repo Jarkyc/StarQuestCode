@@ -42,45 +42,61 @@ public class ItemPipe implements Pipe {
         blocks.add(starterBlock);
 
         calculate();
+        if (outputMachine == null && inputMachines.size() == 0) {
+            return; // delete this pipe
+        }
         allPipes.add(this);
     }
 
     public void calculate() {
         // TODO: if it tries to connect to other pipes
-        // TODO: calculate output machines
         ArrayList<Location> blocksToCheck = new ArrayList<>();
         blocksToCheck.add(starterBlock);
         while (blocksToCheck.size() != 0) {
             for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH,
                     BlockFace.EAST, BlockFace.WEST)) {
                 Block block = blocksToCheck.get(0).getBlock().getRelative(face);
-                if (block.getType().equals(pipeMaterial) && !blocks.contains(block.getLocation())) {
+                if (blocks.contains(block.getLocation())) {
+                    continue;
+                }
+                if (block.getType().equals(pipeMaterial)) {
                     blocks.add(block.getLocation());
                     blocksToCheck.add(block.getLocation());
+                } else if (block.getType().equals(Material.LAPIS_BLOCK) && outputMachine == null) {
+                    for (Machine machine : Machine.getMachines()) {
+                        if (machine.getNode().equals(block.getLocation())) {
+                            if (machine.getInputPipeMaterials().contains(pipeMaterial)
+                                    && machine.getInputTypes().contains(Machine.TransferType.ITEMS)) {
+                                machine.getItemInputPipes().add(this);
+                                outputMachine = machine;
+                            }
+                            break;
+                        }
+                    }
                 }
             }
             blocksToCheck.remove(0);
         }
     }
 
-    public void breakBlock(Location broken) {
+    public void breakBlock() {
         // TODO: test this
         outputMachine.getItemInputPipes().remove(this);
         outputMachine = null;
-        for (Machine machine : inputMachines) machine.setItemOutputPipe(null);
+        for (Machine machine : inputMachines) {
+            machine.setItemOutputPipe(null);
+        }
         inputMachines.clear();
 
-        if (broken.equals(starterBlock)) {
-            allPipes.remove(this);
-            return;
-        }
-
-        ArrayList<Location> oldBlocks = new ArrayList<>(blocks);
-        calculate();
-        for (Location loc : oldBlocks) {
-            if (!blocks.contains(loc) && !loc.equals(broken)) {
-                ItemPipe newPipe = new ItemPipe(loc);
-                if (newPipe.getOutputMachine() == null && newPipe.getInputMachines().size() == 0) allPipes.remove(newPipe);
+        ArrayList<Location> blocksToCheck = new ArrayList<>(blocks);
+        while (blocksToCheck.size() != 0) {
+            if (blocksToCheck.get(0).getBlock().getType().equals(pipeMaterial)) {
+                ItemPipe newPipe = new ItemPipe(blocksToCheck.get(0));
+                for (Location loc : newPipe.getBlocks()) {
+                    blocksToCheck.remove(loc);
+                }
+            } else {
+                blocksToCheck.remove(0);
             }
         }
     }
@@ -101,7 +117,7 @@ public class ItemPipe implements Pipe {
         if (outputMachine == null && inputMachines.size() == 0) allPipes.remove(this);
         for (Location loc : blocks) {
             if (!loc.getBlock().getType().equals(pipeMaterial)) {
-                breakBlock(loc);
+                breakBlock();
                 return;
             }
         }

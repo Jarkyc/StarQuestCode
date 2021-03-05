@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class PowerPipe implements Pipe {
+    // TODO: not properly destroying() when all connected machines gone (ItemPipes too?)
     // static
     private static final ArrayList<PowerPipe> allPipes = new ArrayList<>();
 
@@ -50,16 +51,29 @@ public class PowerPipe implements Pipe {
 
     public void calculate() {
         // TODO: if it tries to connect to other pipes
-        // TODO: calculate connected machines
         ArrayList<Location> blocksToCheck = new ArrayList<>();
         blocksToCheck.add(starterBlock);
         while (blocksToCheck.size() != 0) {
             for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH,
                     BlockFace.EAST, BlockFace.WEST)) {
                 Block block = blocksToCheck.get(0).getBlock().getRelative(face);
-                if (block.getType().equals(pipeMaterial) && !blocks.contains(block.getLocation())) {
+                if (blocks.contains(block.getLocation())) {
+                    continue;
+                }
+                if (block.getType().equals(pipeMaterial)) {
                     blocks.add(block.getLocation());
                     blocksToCheck.add(block.getLocation());
+                } else if (block.getType().equals(Material.LAPIS_BLOCK)) {
+                    for (Machine machine : Machine.getMachines()) {
+                        if (machine.getNode().equals(block.getLocation())) {
+                            if (machine.getInputPipeMaterials().contains(pipeMaterial)
+                                    && machine.getInputTypes().contains(Machine.TransferType.POWER)) {
+                                machine.getPowerInputPipes().add(this);
+                                outputMachines.add(machine);
+                            }
+                            break;
+                        }
+                    }
                 }
             }
             blocksToCheck.remove(0);
@@ -73,31 +87,66 @@ public class PowerPipe implements Pipe {
         return false;
     }
 
-    public void breakBlock(Location broken) {
-        // TODO
+    public void breakBlock() {
+        // TODO: test this
+        for (Machine machine : outputMachines) {
+            machine.getPowerInputPipes().remove(this);
+        }
+        outputMachines.clear();
+        for (Machine machine : inputMachines) {
+            machine.setPowerOutputPipe(null);
+        }
+        inputMachines.clear();
+
+        ArrayList<Location> blocksToCheck = new ArrayList<>(blocks);
+        while (blocksToCheck.size() != 0) {
+            if (blocksToCheck.get(0).getBlock().getType().equals(pipeMaterial)) {
+                PowerPipe newPipe = new PowerPipe(blocksToCheck.get(0));
+                for (Location loc : newPipe.getBlocks()) {
+                    blocksToCheck.remove(loc);
+                }
+            } else {
+                blocksToCheck.remove(0);
+            }
+        }
     }
 
     public void checkIntact() {
         if (outputMachines.size() == 0 && inputMachines.size() == 0) allPipes.remove(this);
         for (Location loc : blocks) {
             if (!loc.getBlock().getType().equals(pipeMaterial)) {
-                breakBlock(loc);
+                breakBlock();
                 return;
             }
         }
     }
 
+    public boolean canUsePower(Integer amount) {
+        for (Machine machine : inputMachines) {
+            if (machine instanceof BatteryMachine) {
+                BatteryMachine batteryMachine = (BatteryMachine) machine;
+                if (batteryMachine.getPower() >= amount) {
+                    return true;
+                } else if (batteryMachine.getPower() != 0) {
+                    amount -= batteryMachine.getPower();
+                }
+            }
+        }
+        return false;
+    }
     public boolean tryUsePower(Integer amount) {
         HashMap<BatteryMachine, Integer> powerDeducted = new HashMap<>();
         for (Machine machine : inputMachines) {
-            BatteryMachine batteryMachine = (BatteryMachine) machine;
-            if (batteryMachine.getPower() >= amount) {
-                batteryMachine.setPower(batteryMachine.getPower()-amount);
-                return true;
-            } else if (batteryMachine.getPower() != 0) {
-                powerDeducted.put(batteryMachine, batteryMachine.getPower());
-                amount -= batteryMachine.getPower();
-                batteryMachine.setPower(0);
+            if (machine instanceof BatteryMachine) {
+                BatteryMachine batteryMachine = (BatteryMachine) machine;
+                if (batteryMachine.getPower() >= amount) {
+                    batteryMachine.setPower(batteryMachine.getPower() - amount);
+                    return true;
+                } else if (batteryMachine.getPower() != 0) {
+                    powerDeducted.put(batteryMachine, batteryMachine.getPower());
+                    amount -= batteryMachine.getPower();
+                    batteryMachine.setPower(0);
+                }
             }
         }
 

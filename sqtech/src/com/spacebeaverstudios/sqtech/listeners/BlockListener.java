@@ -15,6 +15,7 @@ public class BlockListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlock();
         if (block.getType().toString().endsWith("_STAINED_GLASS")) {
+            // TODO: check if not adding to pipe but touching node block
             ArrayList<Pipe> pipes = new ArrayList<>();
             for (ItemPipe pipe : ItemPipe.getAllPipes())
                 if (pipe.connects(block.getLocation()) && pipe.getPipeMaterial().equals(block.getType()))
@@ -34,13 +35,13 @@ public class BlockListener implements Listener {
         if (block.getType().toString().endsWith("_STAINED_GLASS")) {
             for (ItemPipe pipe : ItemPipe.getAllPipes()) {
                 if (pipe.getBlocks().contains(block.getLocation())) {
-                    pipe.breakBlock(block.getLocation());
+                    pipe.breakBlock();
                     return;
                 }
             }
             for (PowerPipe pipe : PowerPipe.getAllPipes()) {
                 if (pipe.getBlocks().contains(block.getLocation())) {
-                    pipe.breakBlock(block.getLocation());
+                    pipe.breakBlock();
                     return;
                 }
             }

@@ -77,17 +77,12 @@ public abstract class Machine implements CanCheckIntact {
 
     public Machine(Block sign, String machineName, String machineInfo) {
         blocks.put(sign.getLocation(), sign.getType());
+        this.sign = sign.getLocation();
+        this.machineName = machineName;
+        this.machineInfo = machineInfo;
         if (detect(sign)) {
-            this.sign = sign.getLocation();
-            this.machineName = machineName;
-            this.machineInfo = machineInfo;
-
+            machines.add(this);
             init();
-        } else {
-            this.sign = null;
-            this.machineName = null;
-            this.machineInfo = null;
-            this.node = null;
         }
     }
 
@@ -109,6 +104,9 @@ public abstract class Machine implements CanCheckIntact {
     public ArrayList<ItemPipe> getItemInputPipes() {
         return itemInputPipes;
     }
+    public ArrayList<PowerPipe> getPowerInputPipes() {
+        return powerInputPipes;
+    }
     public ItemPipe getItemOutputPipe() {
         return itemOutputPipe;
     }
@@ -117,6 +115,9 @@ public abstract class Machine implements CanCheckIntact {
     }
     public Material getOutputPipeMaterial() {
         return outputPipeMaterial;
+    }
+    public Location getNode() {
+        return node;
     }
     public HashMap<Location, Material> getBlocks() {
         return blocks;
@@ -159,6 +160,7 @@ public abstract class Machine implements CanCheckIntact {
                         }
                     }
                     itemOutputPipe = new ItemPipe(glass.getLocation()); // no pipes found matching it, so create a new one
+                    itemOutputPipe.getInputMachines().add(this);
                 } else {
                     for (PowerPipe pipe : PowerPipe.getAllPipes()) {
                         if (pipe.getBlocks().contains(glass.getLocation())) {
@@ -168,6 +170,7 @@ public abstract class Machine implements CanCheckIntact {
                         }
                     }
                     powerOutputPipe = new PowerPipe(glass.getLocation()); // no pipes found matching it, so create a new one
+                    powerOutputPipe.getInputMachines().add(this);
                 }
                 return;
             }
@@ -218,31 +221,29 @@ public abstract class Machine implements CanCheckIntact {
         HashMap<Vector, Material> schema = getSchema();
         Directional dir = (Directional) sign.getBlockData();
         for (Vector vec : schema.keySet()) {
-            if (schema.get(vec).equals(Material.LAPIS_BLOCK)) {
-                Block block = sign;
-                block = block.getRelative(dir.getFacing().getOppositeFace(), vec.getBlockX());
-                block = block.getRelative(BlockFace.UP, vec.getBlockY());
+            Block block = sign;
+            block = block.getRelative(dir.getFacing().getOppositeFace(), vec.getBlockX());
+            block = block.getRelative(BlockFace.UP, vec.getBlockY());
 
-                // have to do it like this cause there's no 90 degree rotate
-                switch (dir.getFacing().getOppositeFace()) {
-                    case NORTH:
-                        block = block.getRelative(BlockFace.EAST, vec.getBlockZ());
-                        break;
-                    case EAST:
-                        block = block.getRelative(BlockFace.SOUTH, vec.getBlockZ());
-                        break;
-                    case SOUTH:
-                        block = block.getRelative(BlockFace.WEST, vec.getBlockZ());
-                        break;
-                    case WEST:
-                        block = block.getRelative(BlockFace.NORTH, vec.getBlockZ());
-                        break;
-                }
-
-                if (!block.getType().equals(schema.get(vec))) return false;
-                blocks.put(block.getLocation(), block.getType());
-                if (block.getType().equals(Material.LAPIS_BLOCK)) node = block.getLocation();
+            // have to do it like this cause there's no 90 degree rotate
+            switch (dir.getFacing().getOppositeFace()) {
+                case NORTH:
+                    block = block.getRelative(BlockFace.EAST, vec.getBlockZ());
+                    break;
+                case EAST:
+                    block = block.getRelative(BlockFace.SOUTH, vec.getBlockZ());
+                    break;
+                case SOUTH:
+                    block = block.getRelative(BlockFace.WEST, vec.getBlockZ());
+                    break;
+                case WEST:
+                    block = block.getRelative(BlockFace.NORTH, vec.getBlockZ());
+                    break;
             }
+
+            if (!block.getType().equals(schema.get(vec))) return false;
+            blocks.put(block.getLocation(), block.getType());
+            if (block.getType().equals(Material.LAPIS_BLOCK)) node = block.getLocation();
         }
 
         if (node == null) {
@@ -258,7 +259,7 @@ public abstract class Machine implements CanCheckIntact {
         return true;
     }
 
-    public abstract void init(); // MUST include MachineBase.getMachines().add(this);
+    public abstract void init();
     public abstract void tick(); // run all the functions that occur once a second
 
     public ItemStack tryAddItemStack(ItemStack itemStack) {
@@ -343,6 +344,12 @@ public abstract class Machine implements CanCheckIntact {
                 destroy();
     }
 
+    public boolean canUsePower(Integer amount) {
+        for (PowerPipe pipe : powerInputPipes)
+            if (pipe.canUsePower(amount))
+                return true;
+        return false;
+    }
     public boolean tryUsePower(Integer amount) {
         for (PowerPipe pipe : powerInputPipes)
             if (pipe.tryUsePower(amount))

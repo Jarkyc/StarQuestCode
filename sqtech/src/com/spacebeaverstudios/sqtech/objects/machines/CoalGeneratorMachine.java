@@ -25,7 +25,6 @@ public class CoalGeneratorMachine extends Machine {
     }
 
     public void init() {
-        Machine.getMachines().add(this);
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
         sign.setLine(0, ChatColor.BLUE + "Coal Generator");
         sign.setLine(1, ChatColor.RED + "Inactive");
@@ -36,9 +35,13 @@ public class CoalGeneratorMachine extends Machine {
 
     public void tick() {
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
-        if (getPowerOutputPipe().connectedToBattery()) {
+        if (getPowerOutputPipe() != null && getPowerOutputPipe().connectedToBattery()) {
             for (ItemStack itemStack : getInventory()) {
                 if (itemStack.getType().equals(Material.COAL) || itemStack.getType().equals(Material.CHARCOAL)) {
+                    itemStack.setAmount(itemStack.getAmount()-1);
+                    if (itemStack.getAmount() == 0) {
+                        getInventory().remove(itemStack);
+                    }
                     getPowerOutputPipe().powerToBattery(400);
                     sign.setLine(1, ChatColor.GREEN + "Active");
                     sign.setLine(2, "+400 BV/second");
@@ -46,12 +49,11 @@ public class CoalGeneratorMachine extends Machine {
                     return;
                 }
             }
-            sign.setLine(1, ChatColor.GREEN + "Active");
-            sign.setLine(2, "0 BV/second");
-        } else {
             sign.setLine(1, ChatColor.RED + "Inactive");
-            sign.setLine(2, ChatColor.RED + "Not Connected to Battery");
+        } else {
+            sign.setLine(1, ChatColor.RED + "Not Connected");
         }
+        sign.setLine(2, "0 BV/second");
         sign.update();
     }
 
