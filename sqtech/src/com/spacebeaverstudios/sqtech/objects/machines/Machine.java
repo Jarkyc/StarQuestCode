@@ -1,6 +1,7 @@
 package com.spacebeaverstudios.sqtech.objects.machines;
 
 import com.spacebeaverstudios.sqcore.gui.GUI;
+import com.spacebeaverstudios.sqcore.gui.GUIItem;
 import com.spacebeaverstudios.sqcore.utils.discord.DiscordUtils;
 import com.spacebeaverstudios.sqtech.SQTech;
 import com.spacebeaverstudios.sqtech.guis.MachineGUI;
@@ -359,4 +360,8 @@ public abstract class Machine implements CanCheckIntact {
 
     public abstract List<TransferType> getInputTypes();
     public abstract TransferType getOutputType();
+
+    public GUIItem getCustomOptionsGUIItem() {
+        return null;
+    }
 }

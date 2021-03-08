@@ -24,6 +24,7 @@ public class SQTech extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        // TODO: HashMaps to store objects by Location
         instance = this;
         getServer().getPluginManager().registerEvents(new BlockListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);

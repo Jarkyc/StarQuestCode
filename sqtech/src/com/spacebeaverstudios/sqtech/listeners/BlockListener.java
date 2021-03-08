@@ -13,6 +13,7 @@ public class BlockListener implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
+        // TODO: total rewrite (and account for other listeners)
         Block block = event.getBlock();
         if (block.getType().toString().endsWith("_STAINED_GLASS")) {
             // TODO: check if not adding to pipe but touching node block
