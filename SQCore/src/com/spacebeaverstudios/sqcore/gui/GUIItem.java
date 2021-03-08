@@ -23,7 +23,7 @@ public class GUIItem {
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(ChatColor.WHITE + name); // puts in white to get rid of italics if there's no specified color
         if (lore != null) {
-            List<String> loreList = GUIUtils.splitStringOverLines(ChatColor.WHITE + lore, "", 40);
+            List<String> loreList = GUIUtils.splitStringOverLines(ChatColor.WHITE + lore, 40);
             stackMeta.setLore(loreList);
         }
         stack.setItemMeta(stackMeta);

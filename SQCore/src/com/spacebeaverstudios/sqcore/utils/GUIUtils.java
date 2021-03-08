@@ -2,6 +2,7 @@ package com.spacebeaverstudios.sqcore.utils;
 
 import com.spacebeaverstudios.sqcore.gui.GUIItem;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
@@ -39,9 +40,9 @@ public class GUIUtils {
         return null;
     }
 
-    public static List<String> splitStringOverLines(String string, String linePrefix, int characterLimit) {
+    public static List<String> splitStringOverLines(String string, int characterLimit) {
         List<String> stringLines = new ArrayList<>();
-        stringLines.add(linePrefix + "");
+        stringLines.add("");
 
         int currentLine = 0;
         int currentLineCharacterCount = 0;
@@ -56,7 +57,7 @@ public class GUIUtils {
 
                 if (i != words.length - 1) {
                     currentLine++;
-                    stringLines.add(linePrefix + "");
+                    stringLines.add(ChatColor.getLastColors(stringLines.get(stringLines.size()-1)) + "");
                     currentLineCharacterCount = 0;
                 }
             } else {
@@ -66,7 +67,7 @@ public class GUIUtils {
 
                 if (currentLineCharacterCount >= characterLimit && i != words.length - 1) {
                     currentLine++;
-                    stringLines.add(linePrefix + "");
+                    stringLines.add(ChatColor.getLastColors(stringLines.get(stringLines.size()-1)) + "");
                     currentLineCharacterCount = 0;
                 }
             }
