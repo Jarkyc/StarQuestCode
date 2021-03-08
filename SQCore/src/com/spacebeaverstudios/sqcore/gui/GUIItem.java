@@ -2,6 +2,7 @@ package com.spacebeaverstudios.sqcore.gui;
 
 import com.spacebeaverstudios.sqcore.gui.guifunctions.GUIFunction;
 import com.spacebeaverstudios.sqcore.utils.GUIUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,9 +21,9 @@ public class GUIItem {
 
         ItemStack stack = new ItemStack(itemType);
         ItemMeta stackMeta = stack.getItemMeta();
-        stackMeta.setDisplayName(name);
+        stackMeta.setDisplayName(ChatColor.WHITE + name); // puts in white to get rid of italics if there's no specified color
         if (lore != null) {
-            List<String> loreList = GUIUtils.splitStringOverLines(lore, "", 20);
+            List<String> loreList = GUIUtils.splitStringOverLines(ChatColor.WHITE + lore, "", 40);
             stackMeta.setLore(loreList);
         }
         stack.setItemMeta(stackMeta);

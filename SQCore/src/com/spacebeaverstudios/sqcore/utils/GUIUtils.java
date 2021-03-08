@@ -50,22 +50,34 @@ public class GUIUtils {
 
         // Split description across multiple lines so that the lore will fit on the screen
         for (int i = 0; i < words.length; i ++) {
-            String word = words[i];
-            stringLines.set(currentLine, stringLines.get(currentLine) + (currentLineCharacterCount == 0 ? "" : " ") + word);
-            currentLineCharacterCount += word.length() + 1;
+            if (words[i].endsWith("\n")) {
+                stringLines.set(currentLine, stringLines.get(currentLine) + (currentLineCharacterCount == 0 ? "" : " ")
+                        + words[i].substring(0, words[i].length()-1));
 
-            if (currentLineCharacterCount >= characterLimit && i != words.length - 1) {
-                currentLine ++;
-                stringLines.add(linePrefix + "");
-                currentLineCharacterCount = 0;
+                if (i != words.length - 1) {
+                    currentLine++;
+                    stringLines.add(linePrefix + "");
+                    currentLineCharacterCount = 0;
+                }
+            } else {
+                String word = words[i];
+                stringLines.set(currentLine, stringLines.get(currentLine) + (currentLineCharacterCount == 0 ? "" : " ") + word);
+                currentLineCharacterCount += word.length() + 1;
+
+                if (currentLineCharacterCount >= characterLimit && i != words.length - 1) {
+                    currentLine++;
+                    stringLines.add(linePrefix + "");
+                    currentLineCharacterCount = 0;
+                }
             }
         }
         return stringLines;
     }
 
     public static ItemStack setWanted(ItemStack itemStack, boolean isWanted) {
-        if (itemStack == null) return null;
-        else {
+        if (itemStack == null) {
+            return null;
+        } else {
             //return setNBTFlag(itemStack, "isWanted", true);
             net.minecraft.server.v1_15_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
 
@@ -78,8 +90,9 @@ public class GUIUtils {
     }
 
     public static boolean isWanted(ItemStack itemStack) {
-        if (itemStack == null) return false;
-        else {
+        if (itemStack == null) {
+            return false;
+        } else {
 //            return getNBTFlag(itemStack, "isWanted");
             net.minecraft.server.v1_15_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(itemStack);
             NBTTagCompound tag = nmsStack.getOrCreateTag();
