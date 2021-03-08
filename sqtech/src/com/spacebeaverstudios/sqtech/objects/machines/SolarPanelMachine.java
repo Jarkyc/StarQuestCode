@@ -17,7 +17,8 @@ public class SolarPanelMachine extends Machine {
     private Location daylightDetector;
 
     public SolarPanelMachine(Block sign) {
-        super(sign, "Solar Panel", "Generates BV from sunlight.");
+        super(sign, "Solar Panel", "Generates BV from sunlight.\n " + ChatColor.GOLD + "Power Generation: "
+                + ChatColor.GRAY + "2 BV/second");
     }
 
     public HashMap<Vector, Material> getSchema() {

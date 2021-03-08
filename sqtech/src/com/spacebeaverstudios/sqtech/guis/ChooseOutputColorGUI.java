@@ -16,7 +16,7 @@ public class ChooseOutputColorGUI extends GUI {
     private final Machine machine;
 
     public ChooseOutputColorGUI(Machine machine) {
-        super("Choose " + machine.getMachineName() + " Output Pipe Color");
+        super("Choose Output Pipe Color");
         this.machine = machine;
     }
 
@@ -43,8 +43,7 @@ public class ChooseOutputColorGUI extends GUI {
     @Override
     public void onClose() {
         super.onClose();
-        MachineGUI machineGUI = new MachineGUI(machine);
-        machine.setGUI(machineGUI);
-        machineGUI.open(this.getPlayer());
+        machine.setGUIPlayer(getPlayer());
+        (new MachineGUI(machine)).open(getPlayer());
     }
 }

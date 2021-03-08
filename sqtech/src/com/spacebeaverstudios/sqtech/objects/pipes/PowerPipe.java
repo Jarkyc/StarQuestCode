@@ -89,6 +89,7 @@ public class PowerPipe implements Pipe {
 
     public void breakBlock() {
         // TODO: test this
+        allPipes.remove(this);
         for (Machine machine : outputMachines) {
             machine.getPowerInputPipes().remove(this);
         }
@@ -151,15 +152,18 @@ public class PowerPipe implements Pipe {
         }
 
         // means that there wasn't enough
-        for (BatteryMachine machine : powerDeducted.keySet())
+        for (BatteryMachine machine : powerDeducted.keySet()) {
             machine.setPower(machine.getPower() + powerDeducted.get(machine));
+        }
         return false;
     }
 
     public boolean connectedToBattery() {
-        for (Machine machine : outputMachines)
-            if (machine instanceof BatteryMachine)
+        for (Machine machine : outputMachines) {
+            if (machine instanceof BatteryMachine) {
                 return true;
+            }
+        }
         return false;
     }
     public void powerToBattery(Integer amount) {

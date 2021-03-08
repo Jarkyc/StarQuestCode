@@ -81,6 +81,7 @@ public class ItemPipe implements Pipe {
 
     public void breakBlock() {
         // TODO: test this
+        allPipes.remove(this);
         outputMachine.getItemInputPipes().remove(this);
         outputMachine = null;
         for (Machine machine : inputMachines) {

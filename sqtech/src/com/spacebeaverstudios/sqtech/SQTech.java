@@ -27,7 +27,9 @@ public class SQTech extends JavaPlugin {
         // TODO: HashMaps to store objects by Location
         instance = this;
         getServer().getPluginManager().registerEvents(new BlockListener(), this);
-        getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
+        getServer().getPluginManager().registerEvents(new CraftingListener(), this);
+        getServer().getPluginManager().registerEvents(new InventoryListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
         getServer().getPluginManager().registerEvents(new SignListener(), this);
 
         SmelterMachine.initializeRecipes();

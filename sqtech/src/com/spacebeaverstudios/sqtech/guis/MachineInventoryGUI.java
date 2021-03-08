@@ -89,8 +89,7 @@ public class MachineInventoryGUI extends GUI {
     public void onClose() {
         super.onClose();
         allMachineInventoryGUIs.remove(this);
-        MachineGUI machineGUI = new MachineGUI(machine);
-        machine.setGUI(machineGUI);
-        machineGUI.open(this.getPlayer());
+        machine.setGUIPlayer(getPlayer());
+        (new MachineGUI(machine)).open(getPlayer());
     }
 }

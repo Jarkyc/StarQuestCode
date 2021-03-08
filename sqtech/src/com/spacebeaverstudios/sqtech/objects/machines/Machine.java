@@ -56,6 +56,11 @@ public abstract class Machine implements CanCheckIntact {
             case "[battery]":
                 new BatteryMachine(sign);
                 return true;
+            case "[crafter]":
+            case "[auto crafter]":
+            case "[autocrafter]":
+                new CrafterMachine(sign);
+                return true;
             default:
                 return false;
         }
@@ -64,7 +69,7 @@ public abstract class Machine implements CanCheckIntact {
     // instance
     private final Location sign;
     private final ArrayList<ItemStack> inventory = new ArrayList<>();
-    private GUI gui = null;
+    private Player guiPlayer = null;
     private final String machineName;
     private final String machineInfo;
     private final ArrayList<Material> inputPipeMaterials = new ArrayList<>();
@@ -99,6 +104,9 @@ public abstract class Machine implements CanCheckIntact {
     public ArrayList<ItemStack> getInventory() {
         return inventory;
     }
+    public Player getGUIPlayer() {
+        return guiPlayer;
+    }
     public ArrayList<Material> getInputPipeMaterials() {
         return inputPipeMaterials;
     }
@@ -124,6 +132,9 @@ public abstract class Machine implements CanCheckIntact {
         return blocks;
     }
 
+    public void setGUIPlayer(Player guiPlayer) {
+        this.guiPlayer = guiPlayer;
+    }
     public void setItemOutputPipe(ItemPipe itemOutputPipe) {
         this.itemOutputPipe = itemOutputPipe;
     }
@@ -137,7 +148,9 @@ public abstract class Machine implements CanCheckIntact {
             return;
         }
 
-        if (material.equals(outputPipeMaterial)) return;
+        if (material.equals(outputPipeMaterial)) {
+            return;
+        }
         outputPipeMaterial = material;
 
         if (itemOutputPipe != null) {
@@ -185,7 +198,9 @@ public abstract class Machine implements CanCheckIntact {
 
         inputPipeMaterials.clear();
         inputPipeMaterials.addAll(enabledColors);
-        for (ItemPipe pipe : itemInputPipes) pipe.setOutputMachine(null);
+        for (ItemPipe pipe : itemInputPipes) {
+            pipe.setOutputMachine(null);
+        }
         itemInputPipes.clear();
 
         for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
@@ -242,18 +257,28 @@ public abstract class Machine implements CanCheckIntact {
                     break;
             }
 
-            if (!block.getType().equals(schema.get(vec))) return false;
+            if (!block.getType().equals(schema.get(vec))) {
+                return false;
+            }
             blocks.put(block.getLocation(), block.getType());
-            if (block.getType().equals(Material.LAPIS_BLOCK)) node = block.getLocation();
+            if (block.getType().equals(Material.LAPIS_BLOCK)) {
+                node = block.getLocation();
+                for (Machine machine : machines) {
+                    if (machine != this && machine.getNode().equals(node)) {
+                        return false;
+                    }
+                }
+            }
         }
 
         if (node == null) {
             // This SHOULDN'T happen. DON'T let it.
             SQTech.getInstance().getLogger().warning(DiscordUtils.tag("blankman")
                     + " Machine has no node block! Sign text: " + ((Sign) sign.getState()).getLine(0));
-            for (Player player : sign.getLocation().getNearbyPlayers(5))
+            for (Player player : sign.getLocation().getNearbyPlayers(5)) {
                 player.sendMessage(ChatColor.RED + "An error occurred when attempting to create the machine. " +
                         "Staff have been notified!");
+            }
             return false;
         }
 
@@ -286,11 +311,14 @@ public abstract class Machine implements CanCheckIntact {
         if (itemStack.getAmount() > 0 && inventory.size() < 9) {
             inventory.add(itemStack);
             return new ItemStack(itemStack.getType(), 0);
-        } else return itemStack;
+        } else {
+            return itemStack;
+        }
     }
     public ItemStack takeItem(int slot, int amount) {
-        if (inventory.size() <= slot) return null;
-        else if (inventory.get(slot).getAmount() <= amount) {
+        if (inventory.size() <= slot) {
+            return null;
+        } else if (inventory.get(slot).getAmount() <= amount) {
             ItemStack itemStack = inventory.get(slot);
             inventory.remove(slot);
             return itemStack;
@@ -303,7 +331,9 @@ public abstract class Machine implements CanCheckIntact {
     public void tryOutput(ItemStack stack) {
         if (itemOutputPipe == null || itemOutputPipe.getOutputMachine() == null) {
             ItemStack left = tryAddItemStack(stack);
-            if (left.getAmount() != 0) sign.getWorld().dropItem(sign, left);
+            if (left.getAmount() != 0) {
+                sign.getWorld().dropItem(sign, left);
+            }
         } else {
             ItemStack left = itemOutputPipe.getOutputMachine().tryAddItemStack(stack);
             if (left.getAmount() != 0) {
@@ -314,47 +344,54 @@ public abstract class Machine implements CanCheckIntact {
     }
 
     public void openGUI(Player player) {
-        if (gui == null) {
-            gui = new MachineGUI(this);
-            gui.open(player);
-        } else player.sendMessage(ChatColor.RED + "Someone is already accessing that machine!");
-    }
-    public void setGUI(GUI gui) {
-        this.gui = gui;
+        if (guiPlayer == null) {
+            guiPlayer = player;
+            (new MachineGUI(this)).open(player);
+        } else {
+            player.sendMessage(ChatColor.RED + "Someone is already accessing that machine!");
+        }
     }
 
     public void destroy() {
         if (itemOutputPipe != null) itemOutputPipe.getInputMachines().remove(this);
         for (ItemPipe pipe : itemInputPipes) pipe.setOutputMachine(null);
-        if (gui != null) {
-            gui.getPlayer().sendMessage(ChatColor.RED + "The machine which you were accessing has been broken!");
-            gui.getPlayer().closeInventory();
+        if (guiPlayer != null) {
+            guiPlayer.sendMessage(ChatColor.RED + "The machine which you were accessing has been broken!");
+            guiPlayer.closeInventory();
         }
         if (sign.getBlock().getType().toString().endsWith("_SIGN")) {
             Sign signBlock = (Sign) sign.getWorld().getBlockAt(this.getSign()).getState();
             signBlock.setLine(2, ChatColor.RED + "Broken");
             signBlock.update();
         }
-        for (ItemStack itemStack : inventory) sign.getWorld().dropItemNaturally(sign, itemStack);
+        for (ItemStack itemStack : inventory) {
+            sign.getWorld().dropItemNaturally(sign, itemStack);
+        }
         machines.remove(this);
     }
 
     public void checkIntact() {
-        for (Location loc : blocks.keySet())
-            if (!loc.getBlock().getType().equals(blocks.get(loc)))
+        for (Location loc : blocks.keySet()) {
+            if (!loc.getBlock().getType().equals(blocks.get(loc))) {
                 destroy();
+            }
+        }
     }
 
     public boolean canUsePower(Integer amount) {
-        for (PowerPipe pipe : powerInputPipes)
-            if (pipe.canUsePower(amount))
+        for (PowerPipe pipe : powerInputPipes) {
+            if (pipe.canUsePower(amount)) {
                 return true;
+            }
+        }
         return false;
     }
     public boolean tryUsePower(Integer amount) {
-        for (PowerPipe pipe : powerInputPipes)
-            if (pipe.tryUsePower(amount))
+        for (PowerPipe pipe : powerInputPipes) {
+            if (pipe.tryUsePower(amount)) {
                 return true;
+            }
+        }
         return false;
     }
 

@@ -20,7 +20,7 @@ public class ChooseInputColorsGUI extends GUI {
     private final ArrayList<Material> enabledColors = new ArrayList<>();
 
     public ChooseInputColorsGUI(Machine machine) {
-        super("Choose " + machine.getMachineName() + " Input Pipe Colors");
+        super("Choose Input Pipe Colors");
         this.machine = machine;
         enabledColors.addAll(machine.getInputPipeMaterials());
     }
@@ -106,8 +106,7 @@ public class ChooseInputColorsGUI extends GUI {
     @Override
     public void onClose() {
         super.onClose();
-        MachineGUI machineGUI = new MachineGUI(machine);
-        machine.setGUI(machineGUI);
-        machineGUI.open(this.getPlayer());
+        machine.setGUIPlayer(getPlayer());
+        (new MachineGUI(machine)).open(getPlayer());
     }
 }

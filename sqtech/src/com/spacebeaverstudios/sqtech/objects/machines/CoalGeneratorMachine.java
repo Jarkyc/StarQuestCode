@@ -13,7 +13,8 @@ import java.util.List;
 
 public class CoalGeneratorMachine extends Machine {
     public CoalGeneratorMachine(Block sign) {
-        super(sign, "Coal Generator", "Generates BV from coal and charcoal.");
+        super(sign, "Coal Generator", "Generates BV from coal and charcoal.\n " + ChatColor.GOLD + "Speed: "
+                + ChatColor.GRAY + "1 item/second\n " + ChatColor.GOLD + "Power Generation: " + ChatColor.GRAY + "400 BV/item");
     }
 
     public HashMap<Vector, Material> getSchema() {

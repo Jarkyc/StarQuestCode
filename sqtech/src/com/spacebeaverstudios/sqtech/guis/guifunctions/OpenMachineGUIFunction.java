@@ -15,7 +15,7 @@ public class OpenMachineGUIFunction extends GUIFunction {
     }
 
     public void run(Player player) {
-        machine.setGUI(gui);
+        machine.setGUIPlayer(player);
         gui.open(player);
     }
 }
