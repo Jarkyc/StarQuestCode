@@ -1,6 +1,5 @@
 package com.spacebeaverstudios.sqtech.objects.machines;
 
-import com.spacebeaverstudios.sqtech.SQTech;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -46,7 +45,6 @@ public class HopperMachine extends Machine {
     }
 
     public void tick() {
-        SQTech.getInstance().getLogger().info(String.valueOf(getItemOutputPipe() == null));
         if (hopperInventory.getViewers().size() == 0 && getItemOutputPipe() != null) {
             ItemStack[] contents = hopperInventory.getContents();
             for (int i = hopperInventory.getSize()-1; i >= 0; i--) {
@@ -62,9 +60,11 @@ public class HopperMachine extends Machine {
     @Override
     public ItemStack tryAddItemStack(ItemStack itemStack) {
         HashMap<Integer, ItemStack> left = hopperInventory.addItem(itemStack);
-        if (left.size() != 0)
-            for (ItemStack stack : left.values())
+        if (left.size() != 0) {
+            for (ItemStack stack : left.values()) {
                 return stack;
+            }
+        }
         return new ItemStack(itemStack.getType(), 0);
     }
 

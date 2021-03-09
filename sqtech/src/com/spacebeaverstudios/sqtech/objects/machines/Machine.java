@@ -1,6 +1,5 @@
 package com.spacebeaverstudios.sqtech.objects.machines;
 
-import com.spacebeaverstudios.sqcore.gui.GUI;
 import com.spacebeaverstudios.sqcore.gui.GUIItem;
 import com.spacebeaverstudios.sqcore.utils.discord.DiscordUtils;
 import com.spacebeaverstudios.sqtech.SQTech;
@@ -32,9 +31,13 @@ public abstract class Machine implements CanCheckIntact {
 
     // static
     private static final ArrayList<Machine> machines = new ArrayList<>();
+    private static final HashMap<Location, Machine> machinesByBlock = new HashMap<>();
 
     public static ArrayList<Machine> getMachines() {
         return machines;
+    }
+    public static HashMap<Location, Machine> getMachinesByBlock() {
+        return machinesByBlock;
     }
 
     public static boolean createFromSign(Block sign) {
@@ -88,6 +91,9 @@ public abstract class Machine implements CanCheckIntact {
         this.machineInfo = machineInfo;
         if (detect(sign)) {
             machines.add(this);
+            for (Location loc : blocks.keySet()) {
+                machinesByBlock.put(loc, this);
+            }
             init();
         }
     }
@@ -127,9 +133,6 @@ public abstract class Machine implements CanCheckIntact {
     }
     public Location getNode() {
         return node;
-    }
-    public HashMap<Location, Material> getBlocks() {
-        return blocks;
     }
 
     public void setGUIPlayer(Player guiPlayer) {
@@ -191,6 +194,7 @@ public abstract class Machine implements CanCheckIntact {
         }
     }
     public void setInputPipeMaterials(ArrayList<Material> enabledColors, Player player) {
+        // TODO: pipes might be on multiple BlockFaces
         if (enabledColors.contains(outputPipeMaterial)) {
             player.sendMessage(ChatColor.RED + outputPipeMaterial.toString() + " is already the output color for this machine!");
             return;
@@ -202,6 +206,10 @@ public abstract class Machine implements CanCheckIntact {
             pipe.setOutputMachine(null);
         }
         itemInputPipes.clear();
+        for (PowerPipe pipe : powerInputPipes) {
+            pipe.getOutputMachines().remove(this);
+        }
+        powerInputPipes.clear();
 
         for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
                 BlockFace.NORTH, BlockFace.SOUTH)) {
@@ -263,8 +271,8 @@ public abstract class Machine implements CanCheckIntact {
             blocks.put(block.getLocation(), block.getType());
             if (block.getType().equals(Material.LAPIS_BLOCK)) {
                 node = block.getLocation();
-                for (Machine machine : machines) {
-                    if (machine != this && machine.getNode().equals(node)) {
+                if (machinesByBlock.containsKey(node)) {
+                    if (machinesByBlock.get(node) != this && machinesByBlock.get(node).getNode().equals(node)) {
                         return false;
                     }
                 }
@@ -353,8 +361,20 @@ public abstract class Machine implements CanCheckIntact {
     }
 
     public void destroy() {
-        if (itemOutputPipe != null) itemOutputPipe.getInputMachines().remove(this);
-        for (ItemPipe pipe : itemInputPipes) pipe.setOutputMachine(null);
+        // clear pipes
+        if (itemOutputPipe != null) {
+            itemOutputPipe.getInputMachines().remove(this);
+        }
+        if (powerOutputPipe != null) {
+            powerOutputPipe.getInputMachines().remove(this);
+        }
+        for (ItemPipe pipe : itemInputPipes) {
+            pipe.setOutputMachine(null);
+        }
+        for (PowerPipe pipe : powerInputPipes) {
+            pipe.getOutputMachines().remove(this);
+        }
+
         if (guiPlayer != null) {
             guiPlayer.sendMessage(ChatColor.RED + "The machine which you were accessing has been broken!");
             guiPlayer.closeInventory();
@@ -366,6 +386,11 @@ public abstract class Machine implements CanCheckIntact {
         }
         for (ItemStack itemStack : inventory) {
             sign.getWorld().dropItemNaturally(sign, itemStack);
+        }
+
+        // remove this machine from the lists
+        for (Location loc : blocks.keySet()) {
+            machinesByBlock.remove(loc);
         }
         machines.remove(this);
     }

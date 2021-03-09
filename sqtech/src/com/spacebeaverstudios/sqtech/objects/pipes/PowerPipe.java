@@ -12,8 +12,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class PowerPipe implements Pipe {
-    // TODO: not properly destroying() when all connected machines gone (ItemPipes too?)
     // static
+    // TODO: store in a HashMap by Location
     private static final ArrayList<PowerPipe> allPipes = new ArrayList<>();
 
     public static ArrayList<PowerPipe> getAllPipes() {
@@ -50,7 +50,7 @@ public class PowerPipe implements Pipe {
     }
 
     public void calculate() {
-        // TODO: if it tries to connect to other pipes
+        // TODO: if it tries to connect to other pipes (including ItemPipes)
         ArrayList<Location> blocksToCheck = new ArrayList<>();
         blocksToCheck.add(starterBlock);
         while (blocksToCheck.size() != 0) {
@@ -64,14 +64,12 @@ public class PowerPipe implements Pipe {
                     blocks.add(block.getLocation());
                     blocksToCheck.add(block.getLocation());
                 } else if (block.getType().equals(Material.LAPIS_BLOCK)) {
-                    for (Machine machine : Machine.getMachines()) {
-                        if (machine.getNode().equals(block.getLocation())) {
-                            if (machine.getInputPipeMaterials().contains(pipeMaterial)
-                                    && machine.getInputTypes().contains(Machine.TransferType.POWER)) {
-                                machine.getPowerInputPipes().add(this);
-                                outputMachines.add(machine);
-                            }
-                            break;
+                    if (Machine.getMachinesByBlock().containsKey(block.getLocation())) {
+                        Machine machine = Machine.getMachinesByBlock().get(block.getLocation());
+                        if (machine.getInputPipeMaterials().contains(pipeMaterial)
+                                && machine.getInputTypes().contains(Machine.TransferType.POWER)) {
+                            machine.getPowerInputPipes().add(this);
+                            outputMachines.add(machine);
                         }
                     }
                 }
@@ -81,14 +79,17 @@ public class PowerPipe implements Pipe {
     }
 
     public boolean connects(Location loc) {
-        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST))
-            if (blocks.contains(loc.getBlock().getRelative(face).getLocation()))
+        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH,
+                BlockFace.EAST, BlockFace.WEST)) {
+            if (blocks.contains(loc.getBlock().getRelative(face).getLocation())) {
                 return true;
+            }
+        }
         return false;
     }
 
     public void breakBlock() {
-        // TODO: test this
+        // TODO: doesn't work
         allPipes.remove(this);
         for (Machine machine : outputMachines) {
             machine.getPowerInputPipes().remove(this);
@@ -105,6 +106,9 @@ public class PowerPipe implements Pipe {
                 PowerPipe newPipe = new PowerPipe(blocksToCheck.get(0));
                 for (Location loc : newPipe.getBlocks()) {
                     blocksToCheck.remove(loc);
+                }
+                if (newPipe.getOutputMachines().size() == 0 && newPipe.getInputMachines().size() == 0) {
+                    allPipes.remove(newPipe);
                 }
             } else {
                 blocksToCheck.remove(0);

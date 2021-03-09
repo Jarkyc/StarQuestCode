@@ -14,12 +14,9 @@ public class SignListener implements Listener {
         Block block = event.getClickedBlock();
         if (block == null) return;
         if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && block.getType().toString().endsWith("_WALL_SIGN")) {
-            if (!Machine.createFromSign(block)) {
-                for (Machine machine : Machine.getMachines()) {
-                    if (machine.getSign().equals(block.getLocation())) {
-                        machine.openGUI(event.getPlayer());
-                        break;
-                    }
+            if (!Machine.createFromSign(block) && Machine.getMachinesByBlock().containsKey(block.getLocation())) {
+                if (Machine.getMachinesByBlock().get(block.getLocation()).getSign().equals(block.getLocation())) {
+                    Machine.getMachinesByBlock().get(block.getLocation()).openGUI(event.getPlayer());
                 }
             }
         }

@@ -18,15 +18,20 @@ public class BlockListener implements Listener {
         if (block.getType().toString().endsWith("_STAINED_GLASS")) {
             // TODO: check if not adding to pipe but touching node block
             ArrayList<Pipe> pipes = new ArrayList<>();
-            for (ItemPipe pipe : ItemPipe.getAllPipes())
-                if (pipe.connects(block.getLocation()) && pipe.getPipeMaterial().equals(block.getType()))
+            for (ItemPipe pipe : ItemPipe.getAllPipes()) {
+                if (pipe.connects(block.getLocation()) && pipe.getPipeMaterial().equals(block.getType())) {
                     pipes.add(pipe);
-            for (PowerPipe pipe : PowerPipe.getAllPipes())
-                if (pipe.connects(block.getLocation()) && pipe.getPipeMaterial().equals(block.getType()))
+                }
+            }
+            for (PowerPipe pipe : PowerPipe.getAllPipes()) {
+                if (pipe.connects(block.getLocation()) && pipe.getPipeMaterial().equals(block.getType())) {
                     pipes.add(pipe);
+                }
+            }
 
-            if (pipes.size() == 1) pipes.get(0).calculate();
-            else if (pipes.size() != 0) {
+            if (pipes.size() == 1) {
+                pipes.get(0).calculate();
+            } else if (pipes.size() != 0) {
                 // TODO: try to "merge" pipes
             }
         }
@@ -47,11 +52,8 @@ public class BlockListener implements Listener {
                 }
             }
         } else {
-            for (Machine machine : Machine.getMachines()) {
-                if (machine.getBlocks().containsKey(block.getLocation())) {
-                    machine.destroy();
-                    return;
-                }
+            if (Machine.getMachinesByBlock().containsKey(block.getLocation())) {
+                Machine.getMachinesByBlock().get(block.getLocation()).destroy();
             }
         }
     }
@@ -71,13 +73,17 @@ public class BlockListener implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onPistonExtend(BlockPistonExtendEvent event) {
-        for (Block block : event.getBlocks()) blockBreak(block.getRelative(event.getDirection().getOppositeFace()));
+        for (Block block : event.getBlocks()) {
+            blockBreak(block.getRelative(event.getDirection().getOppositeFace()));
+        }
     }
 
     @SuppressWarnings("unused")
     @EventHandler
     public void onPistonRetract(BlockPistonRetractEvent event) {
-        for (Block block : event.getBlocks()) blockBreak(block.getRelative(event.getDirection().getOppositeFace()));
+        for (Block block : event.getBlocks()) {
+            blockBreak(block.getRelative(event.getDirection().getOppositeFace()));
+        }
     }
 
     // TODO: on ship packing/unpacking

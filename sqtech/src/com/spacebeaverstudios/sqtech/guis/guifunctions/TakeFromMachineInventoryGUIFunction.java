@@ -19,7 +19,9 @@ public class TakeFromMachineInventoryGUIFunction extends GUIFunction {
 
     public void run(Player player) {
         Inventory inventory = player.getInventory();
-        if (inventory.firstEmpty() == -1) return;
+        if (inventory.firstEmpty() == -1) {
+            return;
+        }
         inventory.addItem(machine.takeItem(slot, machine.getInventory().get(slot).getAmount()));
         gui.refresh();
     }

@@ -19,7 +19,9 @@ public class MachineInventoryGUI extends GUI {
     private static final ArrayList<MachineInventoryGUI> allMachineInventoryGUIs = new ArrayList<>();
 
     public static void refreshAll() {
-        for (MachineInventoryGUI gui : allMachineInventoryGUIs) gui.refresh();
+        for (MachineInventoryGUI gui : allMachineInventoryGUIs) {
+            gui.refresh();
+        }
     }
 
     private final Machine machine;

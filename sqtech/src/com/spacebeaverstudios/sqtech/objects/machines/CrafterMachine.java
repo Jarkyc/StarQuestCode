@@ -63,6 +63,13 @@ public class CrafterMachine extends Machine {
                 }
             }
 
+            for (int i = 0; i < newInventory.size(); i++) {
+                if (newInventory.get(i).getAmount() == 0) {
+                    newInventory.remove(i);
+                    i--;
+                }
+            }
+
             boolean canCraft = true;
             for (Integer num : deductibleInputs.values()) {
                 if (num != 0) {

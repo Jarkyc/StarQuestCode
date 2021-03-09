@@ -17,7 +17,10 @@ public class ToggleInputColorGUIFunction extends GUIFunction {
 
     public void run(Player player) {
         GUI gui = GUI.getGuis().get(player);
-        if (gui instanceof ChooseInputColorsGUI) ((ChooseInputColorsGUI) gui).toggle(glassMaterial);
-        else SQTech.getInstance().getLogger().warning(DiscordUtils.tag("blankman") + " !(gui instanceof ChooseInputColorsGUI)");
+        if (gui instanceof ChooseInputColorsGUI) {
+            ((ChooseInputColorsGUI) gui).toggle(glassMaterial);
+        } else {
+            SQTech.getInstance().getLogger().warning(DiscordUtils.tag("blankman") + " !(gui instanceof ChooseInputColorsGUI)");
+        }
     }
 }

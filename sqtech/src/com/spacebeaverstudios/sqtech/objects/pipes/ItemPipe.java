@@ -10,6 +10,7 @@ import java.util.*;
 
 public class ItemPipe implements Pipe {
     // static
+    // TODO: store in a HashMap by Location
     private static final ArrayList<ItemPipe> allPipes = new ArrayList<>();
 
     public static ArrayList<ItemPipe> getAllPipes() {
@@ -42,14 +43,11 @@ public class ItemPipe implements Pipe {
         blocks.add(starterBlock);
 
         calculate();
-        if (outputMachine == null && inputMachines.size() == 0) {
-            return; // delete this pipe
-        }
         allPipes.add(this);
     }
 
     public void calculate() {
-        // TODO: if it tries to connect to other pipes
+        // TODO: if it tries to connect to other pipes (including PowerPipes)
         ArrayList<Location> blocksToCheck = new ArrayList<>();
         blocksToCheck.add(starterBlock);
         while (blocksToCheck.size() != 0) {
@@ -63,14 +61,12 @@ public class ItemPipe implements Pipe {
                     blocks.add(block.getLocation());
                     blocksToCheck.add(block.getLocation());
                 } else if (block.getType().equals(Material.LAPIS_BLOCK) && outputMachine == null) {
-                    for (Machine machine : Machine.getMachines()) {
-                        if (machine.getNode().equals(block.getLocation())) {
-                            if (machine.getInputPipeMaterials().contains(pipeMaterial)
-                                    && machine.getInputTypes().contains(Machine.TransferType.ITEMS)) {
-                                machine.getItemInputPipes().add(this);
-                                outputMachine = machine;
-                            }
-                            break;
+                    if (Machine.getMachinesByBlock().containsKey(block.getLocation())) {
+                        Machine machine = Machine.getMachinesByBlock().get(block.getLocation());
+                        if (machine.getInputPipeMaterials().contains(pipeMaterial)
+                                && machine.getInputTypes().contains(Machine.TransferType.ITEMS)) {
+                            machine.getItemInputPipes().add(this);
+                            outputMachine = machine;
                         }
                     }
                 }
@@ -80,7 +76,7 @@ public class ItemPipe implements Pipe {
     }
 
     public void breakBlock() {
-        // TODO: test this
+        // TODO: doesn't work
         allPipes.remove(this);
         outputMachine.getItemInputPipes().remove(this);
         outputMachine = null;
@@ -96,6 +92,9 @@ public class ItemPipe implements Pipe {
                 for (Location loc : newPipe.getBlocks()) {
                     blocksToCheck.remove(loc);
                 }
+                if (newPipe.getOutputMachine() == null && newPipe.getInputMachines().size() == 0) {
+                    allPipes.remove(newPipe);
+                }
             } else {
                 blocksToCheck.remove(0);
             }
@@ -103,19 +102,26 @@ public class ItemPipe implements Pipe {
     }
 
     public boolean connects(Location loc) {
-        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST))
-            if (blocks.contains(loc.getBlock().getRelative(face).getLocation()))
+        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH,
+                BlockFace.EAST, BlockFace.WEST)) {
+            if (blocks.contains(loc.getBlock().getRelative(face).getLocation())) {
                 return true;
+            }
+        }
         return false;
     }
 
     public void setOutputMachine(Machine outputMachine) {
         this.outputMachine = outputMachine;
-        if (outputMachine == null && inputMachines.size() == 0) allPipes.remove(this);
+        if (outputMachine == null && inputMachines.size() == 0) {
+            allPipes.remove(this);
+        }
     }
 
     public void checkIntact() {
-        if (outputMachine == null && inputMachines.size() == 0) allPipes.remove(this);
+        if (outputMachine == null && inputMachines.size() == 0) {
+            allPipes.remove(this);
+        }
         for (Location loc : blocks) {
             if (!loc.getBlock().getType().equals(pipeMaterial)) {
                 breakBlock();
