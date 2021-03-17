@@ -10,11 +10,14 @@ import java.util.*;
 
 public class ItemPipe implements Pipe {
     // static
-    // TODO: store in a HashMap by Location
     private static final ArrayList<ItemPipe> allPipes = new ArrayList<>();
+    private static final HashMap<Location, ItemPipe> pipesByBlock = new HashMap<>();
 
     public static ArrayList<ItemPipe> getAllPipes() {
         return allPipes;
+    }
+    public static HashMap<Location, ItemPipe> getPipesByBlock() {
+        return pipesByBlock;
     }
 
     // instance
@@ -24,23 +27,19 @@ public class ItemPipe implements Pipe {
     private final ArrayList<Location> blocks = new ArrayList<>();
     private Machine outputMachine;
 
-    public ArrayList<Machine> getInputMachines() {
-        return inputMachines;
-    }
     public ArrayList<Location> getBlocks() {
         return blocks;
     }
+    public ArrayList<Machine> getInputMachines() {
+        return inputMachines;
+    }
     public Machine getOutputMachine() {
         return outputMachine;
-    }
-    public Material getPipeMaterial() {
-        return pipeMaterial;
     }
 
     public ItemPipe(Location starterBlock) {
         this.pipeMaterial = starterBlock.getBlock().getType();
         this.starterBlock = starterBlock;
-        blocks.add(starterBlock);
 
         calculate();
         allPipes.add(this);
@@ -48,8 +47,16 @@ public class ItemPipe implements Pipe {
 
     public void calculate() {
         // TODO: if it tries to connect to other pipes (including PowerPipes)
+        for (Location loc : blocks) {
+            pipesByBlock.remove(loc);
+        }
+        blocks.clear();
+
         ArrayList<Location> blocksToCheck = new ArrayList<>();
         blocksToCheck.add(starterBlock);
+        blocks.add(starterBlock);
+        pipesByBlock.put(starterBlock, this);
+
         while (blocksToCheck.size() != 0) {
             for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH,
                     BlockFace.EAST, BlockFace.WEST)) {
@@ -59,6 +66,7 @@ public class ItemPipe implements Pipe {
                 }
                 if (block.getType().equals(pipeMaterial)) {
                     blocks.add(block.getLocation());
+                    pipesByBlock.put(block.getLocation(), this);
                     blocksToCheck.add(block.getLocation());
                 } else if (block.getType().equals(Material.LAPIS_BLOCK) && outputMachine == null) {
                     if (Machine.getMachinesByBlock().containsKey(block.getLocation())) {
@@ -77,6 +85,9 @@ public class ItemPipe implements Pipe {
 
     public void breakBlock() {
         // TODO: doesn't work
+        for (Location loc : blocks) {
+            pipesByBlock.remove(loc);
+        }
         allPipes.remove(this);
         outputMachine.getItemInputPipes().remove(this);
         outputMachine = null;
@@ -93,22 +104,15 @@ public class ItemPipe implements Pipe {
                     blocksToCheck.remove(loc);
                 }
                 if (newPipe.getOutputMachine() == null && newPipe.getInputMachines().size() == 0) {
+                    for (Location loc : newPipe.getBlocks()) {
+                        pipesByBlock.remove(loc);
+                    }
                     allPipes.remove(newPipe);
                 }
             } else {
                 blocksToCheck.remove(0);
             }
         }
-    }
-
-    public boolean connects(Location loc) {
-        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH,
-                BlockFace.EAST, BlockFace.WEST)) {
-            if (blocks.contains(loc.getBlock().getRelative(face).getLocation())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public void setOutputMachine(Machine outputMachine) {
@@ -120,7 +124,11 @@ public class ItemPipe implements Pipe {
 
     public void checkIntact() {
         if (outputMachine == null && inputMachines.size() == 0) {
+            for (Location loc : blocks) {
+                pipesByBlock.remove(loc);
+            }
             allPipes.remove(this);
+            return;
         }
         for (Location loc : blocks) {
             if (!loc.getBlock().getType().equals(pipeMaterial)) {

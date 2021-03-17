@@ -145,98 +145,6 @@ public abstract class Machine implements CanCheckIntact {
         this.powerOutputPipe = powerOutputPipe;
     }
 
-    public void setOutputPipeMaterial(Material material, Player player) {
-        if (inputPipeMaterials.contains(material)) {
-            player.sendMessage(ChatColor.RED + material.toString() + " is already one of the input colors for this machine!");
-            return;
-        }
-
-        if (material.equals(outputPipeMaterial)) {
-            return;
-        }
-        outputPipeMaterial = material;
-
-        if (itemOutputPipe != null) {
-            itemOutputPipe.getInputMachines().remove(this);
-            itemOutputPipe = null;
-        } else if (powerOutputPipe != null) {
-            powerOutputPipe.getInputMachines().remove(this);
-            powerOutputPipe = null;
-        }
-
-        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
-                BlockFace.NORTH, BlockFace.SOUTH)) {
-            Block glass = node.getBlock().getRelative(face);
-            if (glass.getType().equals(material)) {
-                if (getOutputType().equals(TransferType.ITEMS)) {
-                    for (ItemPipe pipe : ItemPipe.getAllPipes()) {
-                        if (pipe.getBlocks().contains(glass.getLocation())) {
-                            pipe.getInputMachines().add(this);
-                            itemOutputPipe = pipe;
-                            return;
-                        }
-                    }
-                    itemOutputPipe = new ItemPipe(glass.getLocation()); // no pipes found matching it, so create a new one
-                    itemOutputPipe.getInputMachines().add(this);
-                } else {
-                    for (PowerPipe pipe : PowerPipe.getAllPipes()) {
-                        if (pipe.getBlocks().contains(glass.getLocation())) {
-                            pipe.getInputMachines().add(this);
-                            powerOutputPipe = pipe;
-                            return;
-                        }
-                    }
-                    powerOutputPipe = new PowerPipe(glass.getLocation()); // no pipes found matching it, so create a new one
-                    powerOutputPipe.getInputMachines().add(this);
-                }
-                return;
-            }
-        }
-    }
-    public void setInputPipeMaterials(ArrayList<Material> enabledColors, Player player) {
-        // TODO: pipes might be on multiple BlockFaces
-        if (enabledColors.contains(outputPipeMaterial)) {
-            player.sendMessage(ChatColor.RED + outputPipeMaterial.toString() + " is already the output color for this machine!");
-            return;
-        }
-
-        inputPipeMaterials.clear();
-        inputPipeMaterials.addAll(enabledColors);
-        for (ItemPipe pipe : itemInputPipes) {
-            pipe.setOutputMachine(null);
-        }
-        itemInputPipes.clear();
-        for (PowerPipe pipe : powerInputPipes) {
-            pipe.getOutputMachines().remove(this);
-        }
-        powerInputPipes.clear();
-
-        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
-                BlockFace.NORTH, BlockFace.SOUTH)) {
-            Block glass = node.getBlock().getRelative(face);
-            if (enabledColors.contains(glass.getType())) {
-                if (getInputTypes().contains(TransferType.ITEMS)) {
-                    for (ItemPipe pipe : ItemPipe.getAllPipes()) {
-                        if (pipe.getBlocks().contains(glass.getLocation())) {
-                            itemInputPipes.add(pipe);
-                            pipe.setOutputMachine(this);
-                            break;
-                        }
-                    }
-                }
-                if (getInputTypes().contains(TransferType.POWER)) {
-                    for (PowerPipe pipe : PowerPipe.getAllPipes()) {
-                        if (pipe.getBlocks().contains(glass.getLocation())) {
-                            powerInputPipes.add(pipe);
-                            pipe.getOutputMachines().add(this);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     // schema is oriented so that positive x points to behind the sign, and positive z to the right
     // schemas MUST include a single node block (Material.LAPIS_BLOCK)
     public abstract HashMap<Vector, Material> getSchema();
@@ -295,6 +203,91 @@ public abstract class Machine implements CanCheckIntact {
 
     public abstract void init();
     public abstract void tick(); // run all the functions that occur once a second
+
+    public void setOutputPipeMaterial(Material material, Player player) {
+        if (inputPipeMaterials.contains(material)) {
+            player.sendMessage(ChatColor.RED + material.toString() + " is already one of the input colors for this machine!");
+            return;
+        }
+
+        if (material.equals(outputPipeMaterial)) {
+            return;
+        }
+        outputPipeMaterial = material;
+
+        if (itemOutputPipe != null) {
+            itemOutputPipe.getInputMachines().remove(this);
+            itemOutputPipe = null;
+        } else if (powerOutputPipe != null) {
+            powerOutputPipe.getInputMachines().remove(this);
+            powerOutputPipe = null;
+        }
+
+        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
+                BlockFace.NORTH, BlockFace.SOUTH)) {
+            Block glass = node.getBlock().getRelative(face);
+            if (glass.getType().equals(material)) {
+                if (getOutputType().equals(TransferType.ITEMS)) {
+                    if (ItemPipe.getPipesByBlock().containsKey(glass.getLocation())) {
+                        ItemPipe pipe = ItemPipe.getPipesByBlock().get(glass.getLocation());
+                        pipe.getInputMachines().add(this);
+                        itemOutputPipe = pipe;
+                    } else {
+                        itemOutputPipe = new ItemPipe(glass.getLocation()); // no pipes found matching it, so create a new one
+                        itemOutputPipe.getInputMachines().add(this);
+                    }
+                } else {
+                    if (PowerPipe.getPipesByBlock().containsKey(glass.getLocation())) {
+                        PowerPipe pipe = PowerPipe.getPipesByBlock().get(glass.getLocation());
+                        pipe.getInputMachines().add(this);
+                        powerOutputPipe = pipe;
+                    } else {
+                        powerOutputPipe = new PowerPipe(glass.getLocation()); // no pipes found matching it, so create a new one
+                        powerOutputPipe.getInputMachines().add(this);
+                    }
+                }
+                return;
+            }
+        }
+    }
+    public void setInputPipeMaterials(ArrayList<Material> enabledColors, Player player) {
+        if (enabledColors.contains(outputPipeMaterial)) {
+            player.sendMessage(ChatColor.RED + outputPipeMaterial.toString() + " is already the output color for this machine!");
+            return;
+        }
+
+        inputPipeMaterials.clear();
+        inputPipeMaterials.addAll(enabledColors);
+        for (ItemPipe pipe : itemInputPipes) {
+            pipe.setOutputMachine(null);
+        }
+        itemInputPipes.clear();
+        for (PowerPipe pipe : powerInputPipes) {
+            pipe.getOutputMachines().remove(this);
+        }
+        powerInputPipes.clear();
+
+        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
+                BlockFace.NORTH, BlockFace.SOUTH)) {
+            Block glass = node.getBlock().getRelative(face);
+            if (enabledColors.contains(glass.getType())) {
+                if (getInputTypes().contains(TransferType.ITEMS) && ItemPipe.getPipesByBlock().containsKey(glass.getLocation())) {
+                    ItemPipe pipe = ItemPipe.getPipesByBlock().get(glass.getLocation());
+                    if (!itemInputPipes.contains(pipe)) {
+                        itemInputPipes.add(pipe);
+                        pipe.setOutputMachine(this);
+                    }
+                }
+                if (getInputTypes().contains(TransferType.POWER) && PowerPipe.getPipesByBlock().containsKey(glass.getLocation())) {
+                    PowerPipe pipe = PowerPipe.getPipesByBlock().get(glass.getLocation());
+                    if (!powerInputPipes.contains(pipe)) {
+                        powerInputPipes.add(pipe);
+                        pipe.getOutputMachines().add(this);
+                    }
+                }
+            }
+        }
+    }
 
     public ItemStack tryAddItemStack(ItemStack itemStack) {
         // returns whatever items weren't able to be added

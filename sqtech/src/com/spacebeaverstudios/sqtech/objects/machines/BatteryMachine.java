@@ -28,7 +28,7 @@ public class BatteryMachine extends Machine {
 
     public HashMap<Vector, Material> getSchema() {
         HashMap<Vector, Material> schema = new HashMap<>();
-        schema.put(new Vector(1, 0, 0), Material.SPONGE); // TODO: different block?
+        schema.put(new Vector(1, 0, 0), Material.REDSTONE_BLOCK);
         schema.put(new Vector(2, 0, 0), Material.LAPIS_BLOCK);
         return schema;
     }

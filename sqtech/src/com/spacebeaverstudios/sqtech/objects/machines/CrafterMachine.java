@@ -82,7 +82,7 @@ public class CrafterMachine extends Machine {
                 if (tryUsePower(10)) {
                     getInventory().clear();
                     getInventory().addAll(newInventory);
-                    tryOutput(outputItemStack);
+                    tryOutput(new ItemStack(outputItemStack.getType(), outputItemStack.getAmount()));
                     sign.setLine(1, ChatColor.GREEN + "Active");
                     sign.setLine(2, "-10 BV/second");
                 } else {

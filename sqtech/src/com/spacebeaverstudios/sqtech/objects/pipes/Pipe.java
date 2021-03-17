@@ -7,6 +7,5 @@ import java.util.ArrayList;
 
 public interface Pipe extends CanCheckIntact {
     ArrayList<Location> getBlocks();
-    boolean connects(Location loc);
     void calculate();
 }

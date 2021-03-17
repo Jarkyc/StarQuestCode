@@ -13,11 +13,14 @@ import java.util.HashMap;
 
 public class PowerPipe implements Pipe {
     // static
-    // TODO: store in a HashMap by Location
     private static final ArrayList<PowerPipe> allPipes = new ArrayList<>();
+    private static final HashMap<Location, PowerPipe> pipesByBlock = new HashMap<>();
 
     public static ArrayList<PowerPipe> getAllPipes() {
         return allPipes;
+    }
+    public static HashMap<Location, PowerPipe> getPipesByBlock() {
+        return pipesByBlock;
     }
 
     // instance
@@ -30,9 +33,6 @@ public class PowerPipe implements Pipe {
     public ArrayList<Location> getBlocks() {
         return blocks;
     }
-    public Material getPipeMaterial() {
-        return pipeMaterial;
-    }
     public ArrayList<Machine> getInputMachines() {
         return inputMachines;
     }
@@ -43,7 +43,6 @@ public class PowerPipe implements Pipe {
     public PowerPipe(Location starterBlock) {
         this.starterBlock = starterBlock;
         this.pipeMaterial = starterBlock.getBlock().getType();
-        blocks.add(starterBlock);
 
         calculate();
         allPipes.add(this);
@@ -51,8 +50,16 @@ public class PowerPipe implements Pipe {
 
     public void calculate() {
         // TODO: if it tries to connect to other pipes (including ItemPipes)
+        for (Location loc : blocks) {
+            pipesByBlock.remove(loc);
+        }
+        blocks.clear();
+
         ArrayList<Location> blocksToCheck = new ArrayList<>();
         blocksToCheck.add(starterBlock);
+        blocks.add(starterBlock);
+        pipesByBlock.put(starterBlock, this);
+
         while (blocksToCheck.size() != 0) {
             for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH,
                     BlockFace.EAST, BlockFace.WEST)) {
@@ -62,6 +69,7 @@ public class PowerPipe implements Pipe {
                 }
                 if (block.getType().equals(pipeMaterial)) {
                     blocks.add(block.getLocation());
+                    pipesByBlock.put(block.getLocation(), this);
                     blocksToCheck.add(block.getLocation());
                 } else if (block.getType().equals(Material.LAPIS_BLOCK)) {
                     if (Machine.getMachinesByBlock().containsKey(block.getLocation())) {
@@ -78,18 +86,11 @@ public class PowerPipe implements Pipe {
         }
     }
 
-    public boolean connects(Location loc) {
-        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH,
-                BlockFace.EAST, BlockFace.WEST)) {
-            if (blocks.contains(loc.getBlock().getRelative(face).getLocation())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void breakBlock() {
         // TODO: doesn't work
+        for (Location loc : blocks) {
+            pipesByBlock.remove(loc);
+        }
         allPipes.remove(this);
         for (Machine machine : outputMachines) {
             machine.getPowerInputPipes().remove(this);
@@ -108,6 +109,9 @@ public class PowerPipe implements Pipe {
                     blocksToCheck.remove(loc);
                 }
                 if (newPipe.getOutputMachines().size() == 0 && newPipe.getInputMachines().size() == 0) {
+                    for (Location loc : newPipe.getBlocks()) {
+                        pipesByBlock.remove(loc);
+                    }
                     allPipes.remove(newPipe);
                 }
             } else {
@@ -117,7 +121,13 @@ public class PowerPipe implements Pipe {
     }
 
     public void checkIntact() {
-        if (outputMachines.size() == 0 && inputMachines.size() == 0) allPipes.remove(this);
+        if (outputMachines.size() == 0 && inputMachines.size() == 0) {
+            for (Location loc : blocks) {
+                pipesByBlock.remove(loc);
+            }
+            allPipes.remove(this);
+            return;
+        }
         for (Location loc : blocks) {
             if (!loc.getBlock().getType().equals(pipeMaterial)) {
                 breakBlock();
