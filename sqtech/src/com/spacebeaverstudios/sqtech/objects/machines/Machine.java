@@ -173,11 +173,11 @@ public abstract class Machine implements CanCheckIntact {
                     break;
             }
 
-            if (!block.getType().equals(schema.get(vec))) {
+            if (block.getType() != schema.get(vec)) {
                 return false;
             }
             blocks.put(block.getLocation(), block.getType());
-            if (block.getType().equals(Material.LAPIS_BLOCK)) {
+            if (block.getType() == Material.LAPIS_BLOCK) {
                 node = block.getLocation();
                 if (machinesByBlock.containsKey(node)) {
                     if (machinesByBlock.get(node) != this && machinesByBlock.get(node).getNode().equals(node)) {
@@ -210,7 +210,7 @@ public abstract class Machine implements CanCheckIntact {
             return;
         }
 
-        if (material.equals(outputPipeMaterial)) {
+        if (material == outputPipeMaterial) {
             return;
         }
         outputPipeMaterial = material;
@@ -226,8 +226,8 @@ public abstract class Machine implements CanCheckIntact {
         for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
                 BlockFace.NORTH, BlockFace.SOUTH)) {
             Block glass = node.getBlock().getRelative(face);
-            if (glass.getType().equals(material)) {
-                if (getOutputType().equals(TransferType.ITEMS)) {
+            if (glass.getType() == material) {
+                if (getOutputType() == TransferType.ITEMS) {
                     if (ItemPipe.getPipesByBlock().containsKey(glass.getLocation())) {
                         ItemPipe pipe = ItemPipe.getPipesByBlock().get(glass.getLocation());
                         pipe.getInputMachines().add(this);
@@ -299,7 +299,7 @@ public abstract class Machine implements CanCheckIntact {
         }
 
         for (ItemStack stack : inventory) {
-            if (stack.getType().equals(itemStack.getType()) && stack.getAmount() < stack.getMaxStackSize()) {
+            if (stack.getType() == itemStack.getType() && stack.getAmount() < stack.getMaxStackSize()) {
                 if (stack.getMaxStackSize()-stack.getAmount() >= itemStack.getAmount()) {
                     stack.setAmount(stack.getAmount() + itemStack.getAmount());
                     return new ItemStack(itemStack.getType(), 0);
@@ -390,7 +390,7 @@ public abstract class Machine implements CanCheckIntact {
 
     public void checkIntact() {
         for (Location loc : blocks.keySet()) {
-            if (!loc.getBlock().getType().equals(blocks.get(loc))) {
+            if (loc.getBlock().getType() != blocks.get(loc)) {
                 destroy();
             }
         }

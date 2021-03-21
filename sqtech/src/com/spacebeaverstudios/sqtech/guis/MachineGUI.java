@@ -54,7 +54,7 @@ public class MachineGUI extends GUI {
 
             if (machine.getInputTypes().size() == 2) {
                 chooseInputsLore.append("s: ").append(ChatColor.AQUA).append("Items, BV");
-            } else if (machine.getInputTypes().get(0).equals(Machine.TransferType.ITEMS)) {
+            } else if (machine.getInputTypes().get(0) == Machine.TransferType.ITEMS) {
                 chooseInputsLore.append(": ").append(ChatColor.AQUA).append("Items");
             } else {
                 chooseInputsLore.append(": ").append(ChatColor.AQUA).append("BV");

@@ -1,6 +1,5 @@
 package com.spacebeaverstudios.sqtech.listeners;
 
-import com.spacebeaverstudios.sqtech.SQTech;
 import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import com.spacebeaverstudios.sqtech.objects.pipes.*;
 import org.bukkit.Material;
@@ -15,41 +14,51 @@ import java.util.Arrays;
 
 public class BlockListener implements Listener {
     private void blockPlace(Block block) {
-        // TODO: can't test this until I get breakBlock() working
         if (block.getType().toString().endsWith("_STAINED_GLASS")) {
-            ArrayList<Pipe> pipes = new ArrayList<>();
+            ArrayList<ItemPipe> itemPipes = new ArrayList<>();
+            ArrayList<PowerPipe> powerPipes = new ArrayList<>();
             ArrayList<Machine> machines = new ArrayList<>();
+
             for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
                     BlockFace.NORTH, BlockFace.SOUTH)) {
                 Block relative = block.getRelative(face);
                 if (ItemPipe.getPipesByBlock().containsKey(relative.getLocation())) {
-                    pipes.add(ItemPipe.getPipesByBlock().get(relative.getLocation()));
+                    itemPipes.add(ItemPipe.getPipesByBlock().get(relative.getLocation()));
                 } else if (PowerPipe.getPipesByBlock().containsKey(relative.getLocation())) {
-                    pipes.add(PowerPipe.getPipesByBlock().get(relative.getLocation()));
-                } else if (relative.getType().equals(Material.LAPIS_BLOCK)
+                    powerPipes.add(PowerPipe.getPipesByBlock().get(relative.getLocation()));
+                } else if (relative.getType() == Material.LAPIS_BLOCK
                         && Machine.getMachinesByBlock().containsKey(relative.getLocation())) {
                     machines.add(Machine.getMachinesByBlock().get(relative.getLocation()));
                 }
             }
 
-            SQTech.getInstance().getLogger().info(String.valueOf(pipes.size()));
-            SQTech.getInstance().getLogger().info(String.valueOf(machines.size()));
-
-            if (pipes.size() == 1) {
-                pipes.get(0).calculate();
-            } else if (pipes.size() > 1) {
-                // TODO
-            } else if (machines.size() != 0) {
-                for (Machine machine : machines) {
-                    if (block.getType().equals(machine.getOutputPipeMaterial())) {
-                        if (machine.getOutputType().equals(Machine.TransferType.ITEMS)) {
-                            new ItemPipe(block.getLocation());
-                        } else if (machine.getOutputType().equals(Machine.TransferType.POWER)) {
-                            new PowerPipe(block.getLocation());
+            if (itemPipes.size() == 0 && powerPipes.size() == 0) {
+                if (machines.size() != 0) {
+                    for (Machine machine : machines) {
+                        if (block.getType() == machine.getOutputPipeMaterial()) {
+                            if (machine.getOutputType() == Machine.TransferType.ITEMS) {
+                                new ItemPipe(block.getLocation());
+                            } else if (machine.getOutputType() == Machine.TransferType.POWER) {
+                                new PowerPipe(block.getLocation());
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
+            } else if (itemPipes.size() != 0 && powerPipes.size() == 0) {
+                if (itemPipes.size() == 1) {
+                    itemPipes.get(0).calculate();
+                } else {
+                    // TODO
+                }
+            } else if (itemPipes.size() == 0) {
+                if (powerPipes.size() == 1) {
+                    powerPipes.get(0).calculate();
+                } else {
+                    // TODO
+                }
+            } else {
+                // TODO
             }
         }
     }

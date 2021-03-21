@@ -13,7 +13,7 @@ public class SignListener implements Listener {
     public void onSignClick(PlayerInteractEvent event) {
         Block block = event.getClickedBlock();
         if (block == null) return;
-        if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && block.getType().toString().endsWith("_WALL_SIGN")) {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && block.getType().toString().endsWith("_WALL_SIGN")) {
             if (!Machine.createFromSign(block) && Machine.getMachinesByBlock().containsKey(block.getLocation())) {
                 if (Machine.getMachinesByBlock().get(block.getLocation()).getSign().equals(block.getLocation())) {
                     Machine.getMachinesByBlock().get(block.getLocation()).openGUI(event.getPlayer());

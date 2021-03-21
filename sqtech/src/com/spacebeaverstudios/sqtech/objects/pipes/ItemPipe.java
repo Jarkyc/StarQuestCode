@@ -1,5 +1,6 @@
 package com.spacebeaverstudios.sqtech.objects.pipes;
 
+import com.spacebeaverstudios.sqtech.objects.CanCheckIntact;
 import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -8,7 +9,7 @@ import org.bukkit.block.BlockFace;
 
 import java.util.*;
 
-public class ItemPipe implements Pipe {
+public class ItemPipe implements CanCheckIntact {
     // static
     private static final ArrayList<ItemPipe> allPipes = new ArrayList<>();
     private static final HashMap<Location, ItemPipe> pipesByBlock = new HashMap<>();
@@ -64,17 +65,21 @@ public class ItemPipe implements Pipe {
                 if (blocks.contains(block.getLocation())) {
                     continue;
                 }
-                if (block.getType().equals(pipeMaterial)) {
+                if (block.getType() == pipeMaterial) {
                     blocks.add(block.getLocation());
                     pipesByBlock.put(block.getLocation(), this);
                     blocksToCheck.add(block.getLocation());
-                } else if (block.getType().equals(Material.LAPIS_BLOCK) && outputMachine == null) {
+                } else if (block.getType() == Material.LAPIS_BLOCK && outputMachine == null) {
                     if (Machine.getMachinesByBlock().containsKey(block.getLocation())) {
                         Machine machine = Machine.getMachinesByBlock().get(block.getLocation());
                         if (machine.getInputPipeMaterials().contains(pipeMaterial)
                                 && machine.getInputTypes().contains(Machine.TransferType.ITEMS)) {
                             machine.getItemInputPipes().add(this);
                             outputMachine = machine;
+                        } else if (pipeMaterial == machine.getOutputPipeMaterial()
+                                && machine.getOutputType() == Machine.TransferType.ITEMS && machine.getItemOutputPipe() == null) {
+                            machine.setItemOutputPipe(this);
+                            inputMachines.add(machine);
                         }
                     }
                 }
@@ -84,7 +89,6 @@ public class ItemPipe implements Pipe {
     }
 
     public void breakBlock() {
-        // TODO: doesn't work
         for (Location loc : blocks) {
             pipesByBlock.remove(loc);
         }
@@ -98,7 +102,7 @@ public class ItemPipe implements Pipe {
 
         ArrayList<Location> blocksToCheck = new ArrayList<>(blocks);
         while (blocksToCheck.size() != 0) {
-            if (blocksToCheck.get(0).getBlock().getType().equals(pipeMaterial)) {
+            if (blocksToCheck.get(0).getBlock().getType() == pipeMaterial) {
                 ItemPipe newPipe = new ItemPipe(blocksToCheck.get(0));
                 for (Location loc : newPipe.getBlocks()) {
                     blocksToCheck.remove(loc);
@@ -131,7 +135,7 @@ public class ItemPipe implements Pipe {
             return;
         }
         for (Location loc : blocks) {
-            if (!loc.getBlock().getType().equals(pipeMaterial)) {
+            if (loc.getBlock().getType() != pipeMaterial) {
                 breakBlock();
                 return;
             }

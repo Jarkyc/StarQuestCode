@@ -1,5 +1,6 @@
 package com.spacebeaverstudios.sqtech.objects.pipes;
 
+import com.spacebeaverstudios.sqtech.objects.CanCheckIntact;
 import com.spacebeaverstudios.sqtech.objects.machines.BatteryMachine;
 import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import org.bukkit.Location;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class PowerPipe implements Pipe {
+public class PowerPipe implements CanCheckIntact {
     // static
     private static final ArrayList<PowerPipe> allPipes = new ArrayList<>();
     private static final HashMap<Location, PowerPipe> pipesByBlock = new HashMap<>();
@@ -67,17 +68,21 @@ public class PowerPipe implements Pipe {
                 if (blocks.contains(block.getLocation())) {
                     continue;
                 }
-                if (block.getType().equals(pipeMaterial)) {
+                if (block.getType() == pipeMaterial) {
                     blocks.add(block.getLocation());
                     pipesByBlock.put(block.getLocation(), this);
                     blocksToCheck.add(block.getLocation());
-                } else if (block.getType().equals(Material.LAPIS_BLOCK)) {
+                } else if (block.getType() == Material.LAPIS_BLOCK) {
                     if (Machine.getMachinesByBlock().containsKey(block.getLocation())) {
                         Machine machine = Machine.getMachinesByBlock().get(block.getLocation());
                         if (machine.getInputPipeMaterials().contains(pipeMaterial)
                                 && machine.getInputTypes().contains(Machine.TransferType.POWER)) {
                             machine.getPowerInputPipes().add(this);
                             outputMachines.add(machine);
+                        } else if (pipeMaterial == machine.getOutputPipeMaterial()
+                                && machine.getOutputType() == Machine.TransferType.POWER && machine.getPowerOutputPipe() == null) {
+                            machine.setPowerOutputPipe(this);
+                            inputMachines.add(machine);
                         }
                     }
                 }
@@ -87,7 +92,6 @@ public class PowerPipe implements Pipe {
     }
 
     public void breakBlock() {
-        // TODO: doesn't work
         for (Location loc : blocks) {
             pipesByBlock.remove(loc);
         }
@@ -103,7 +107,7 @@ public class PowerPipe implements Pipe {
 
         ArrayList<Location> blocksToCheck = new ArrayList<>(blocks);
         while (blocksToCheck.size() != 0) {
-            if (blocksToCheck.get(0).getBlock().getType().equals(pipeMaterial)) {
+            if (blocksToCheck.get(0).getBlock().getType() == pipeMaterial) {
                 PowerPipe newPipe = new PowerPipe(blocksToCheck.get(0));
                 for (Location loc : newPipe.getBlocks()) {
                     blocksToCheck.remove(loc);
@@ -129,7 +133,7 @@ public class PowerPipe implements Pipe {
             return;
         }
         for (Location loc : blocks) {
-            if (!loc.getBlock().getType().equals(pipeMaterial)) {
+            if (loc.getBlock().getType() != pipeMaterial) {
                 breakBlock();
                 return;
             }

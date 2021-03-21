@@ -38,7 +38,7 @@ public class CoalGeneratorMachine extends Machine {
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
         if (getPowerOutputPipe() != null && getPowerOutputPipe().connectedToBattery()) {
             for (ItemStack itemStack : getInventory()) {
-                if (itemStack.getType().equals(Material.COAL) || itemStack.getType().equals(Material.CHARCOAL)) {
+                if (itemStack.getType() == Material.COAL || itemStack.getType() == Material.CHARCOAL) {
                     itemStack.setAmount(itemStack.getAmount()-1);
                     if (itemStack.getAmount() == 0) {
                         getInventory().remove(itemStack);
