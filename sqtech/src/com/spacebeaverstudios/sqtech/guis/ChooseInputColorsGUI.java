@@ -18,11 +18,17 @@ import java.util.List;
 public class ChooseInputColorsGUI extends GUI {
     private final Machine machine;
     private final ArrayList<Material> enabledColors = new ArrayList<>();
+    private final Machine.TransferType transferType;
 
-    public ChooseInputColorsGUI(Machine machine) {
-        super("Choose Input Pipe Colors");
+    public ChooseInputColorsGUI(Machine machine, Machine.TransferType transferType) {
+        super("Choose " + (transferType == Machine.TransferType.ITEMS ? "Item" : "Power") + " Input Pipe Colors");
         this.machine = machine;
-        enabledColors.addAll(machine.getInputPipeMaterials());
+        if (transferType == Machine.TransferType.ITEMS) {
+            enabledColors.addAll(machine.getItemInputPipeMaterials());
+        } else {
+            enabledColors.addAll(machine.getPowerInputPipeMaterials());
+        }
+        this.transferType = transferType;
     }
 
     private List<Integer> getWoolSlots() {
@@ -46,7 +52,8 @@ public class ChooseInputColorsGUI extends GUI {
             Material woolMaterial = Material.GREEN_WOOL;
             ChatColor color = ChatColor.GREEN;
             String enabledDisabled = ": Enabled";
-            if (!machine.getInputPipeMaterials().contains(getGlassColors().get(i))) {
+            if (!(transferType == Machine.TransferType.ITEMS ?
+                    machine.getItemInputPipeMaterials() : machine.getPowerInputPipeMaterials()).contains(getGlassColors().get(i))) {
                 woolMaterial = Material.RED_WOOL;
                 color = ChatColor.RED;
                 enabledDisabled = ": Disabled";
@@ -68,7 +75,7 @@ public class ChooseInputColorsGUI extends GUI {
         inventory.setItem(52, cancelItem.getItemStack());
 
         GUIItem confirmItem = new GUIItem("Confirm", "", Material.GREEN_TERRACOTTA,
-                new ConfirmInputColorsGUIFunction(machine, enabledColors));
+                new ConfirmInputColorsGUIFunction(machine, enabledColors, transferType));
         getGuiItems().add(confirmItem);
         inventory.setItem(53, confirmItem.getItemStack());
 

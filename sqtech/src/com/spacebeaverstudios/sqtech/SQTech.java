@@ -1,12 +1,12 @@
 package com.spacebeaverstudios.sqtech;
 
+import com.spacebeaverstudios.sqtech.commands.*;
 import com.spacebeaverstudios.sqtech.guis.MachineInventoryGUI;
 import com.spacebeaverstudios.sqtech.listeners.*;
 import com.spacebeaverstudios.sqtech.objects.CanCheckIntact;
+import com.spacebeaverstudios.sqtech.objects.Pipe;
 import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import com.spacebeaverstudios.sqtech.objects.machines.SmelterMachine;
-import com.spacebeaverstudios.sqtech.objects.pipes.ItemPipe;
-import com.spacebeaverstudios.sqtech.objects.pipes.PowerPipe;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,6 +31,8 @@ public class SQTech extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
         getServer().getPluginManager().registerEvents(new SignListener(), this);
 
+        getCommand("pipe").setExecutor(new PipeCmd());
+
         SmelterMachine.initializeRecipes();
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
@@ -45,8 +47,7 @@ public class SQTech extends JavaPlugin {
             // check 3 machines/pipes to see if intact, just in case the listeners missed something
             ArrayList<CanCheckIntact> checkIntacts = new ArrayList<>();
             checkIntacts.addAll(Machine.getMachines());
-            checkIntacts.addAll(ItemPipe.getAllPipes());
-            checkIntacts.addAll(PowerPipe.getAllPipes());
+            checkIntacts.addAll(Pipe.getAllPipes());
             if (checkIntacts.size() != 0) {
                 for (int i = 0; i < 3; i++) {
                     if (checkIntactsIndex >= checkIntacts.size() - 1) {

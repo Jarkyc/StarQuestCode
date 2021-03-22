@@ -5,8 +5,7 @@ import com.spacebeaverstudios.sqcore.utils.discord.DiscordUtils;
 import com.spacebeaverstudios.sqtech.SQTech;
 import com.spacebeaverstudios.sqtech.guis.MachineGUI;
 import com.spacebeaverstudios.sqtech.objects.CanCheckIntact;
-import com.spacebeaverstudios.sqtech.objects.pipes.ItemPipe;
-import com.spacebeaverstudios.sqtech.objects.pipes.PowerPipe;
+import com.spacebeaverstudios.sqtech.objects.Pipe;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -75,12 +74,13 @@ public abstract class Machine implements CanCheckIntact {
     private Player guiPlayer = null;
     private final String machineName;
     private final String machineInfo;
-    private final ArrayList<Material> inputPipeMaterials = new ArrayList<>();
-    private final ArrayList<ItemPipe> itemInputPipes = new ArrayList<>();
-    private final ArrayList<PowerPipe> powerInputPipes = new ArrayList<>();
+    private final ArrayList<Material> itemInputPipeMaterials = new ArrayList<>();
+    private final ArrayList<Material> powerInputPipeMaterials = new ArrayList<>();
+    private final ArrayList<Pipe> itemInputPipes = new ArrayList<>();
+    private final ArrayList<Pipe> powerInputPipes = new ArrayList<>();
     private Material outputPipeMaterial;
-    private ItemPipe itemOutputPipe;
-    private PowerPipe powerOutputPipe;
+    private Pipe itemOutputPipe;
+    private Pipe powerOutputPipe;
     private Location node = null;
     private final HashMap<Location, Material> blocks = new HashMap<>();
 
@@ -113,19 +113,22 @@ public abstract class Machine implements CanCheckIntact {
     public Player getGUIPlayer() {
         return guiPlayer;
     }
-    public ArrayList<Material> getInputPipeMaterials() {
-        return inputPipeMaterials;
+    public ArrayList<Material> getItemInputPipeMaterials() {
+        return itemInputPipeMaterials;
     }
-    public ArrayList<ItemPipe> getItemInputPipes() {
+    public ArrayList<Material> getPowerInputPipeMaterials() {
+        return powerInputPipeMaterials;
+    }
+    public ArrayList<Pipe> getItemInputPipes() {
         return itemInputPipes;
     }
-    public ArrayList<PowerPipe> getPowerInputPipes() {
+    public ArrayList<Pipe> getPowerInputPipes() {
         return powerInputPipes;
     }
-    public ItemPipe getItemOutputPipe() {
+    public Pipe getItemOutputPipe() {
         return itemOutputPipe;
     }
-    public PowerPipe getPowerOutputPipe() {
+    public Pipe getPowerOutputPipe() {
         return powerOutputPipe;
     }
     public Material getOutputPipeMaterial() {
@@ -138,10 +141,10 @@ public abstract class Machine implements CanCheckIntact {
     public void setGUIPlayer(Player guiPlayer) {
         this.guiPlayer = guiPlayer;
     }
-    public void setItemOutputPipe(ItemPipe itemOutputPipe) {
+    public void setItemOutputPipe(Pipe itemOutputPipe) {
         this.itemOutputPipe = itemOutputPipe;
     }
-    public void setPowerOutputPipe(PowerPipe powerOutputPipe) {
+    public void setPowerOutputPipe(Pipe powerOutputPipe) {
         this.powerOutputPipe = powerOutputPipe;
     }
 
@@ -205,7 +208,7 @@ public abstract class Machine implements CanCheckIntact {
     public abstract void tick(); // run all the functions that occur once a second
 
     public void setOutputPipeMaterial(Material material, Player player) {
-        if (inputPipeMaterials.contains(material)) {
+        if (itemInputPipeMaterials.contains(material) || powerInputPipeMaterials.contains(material)) {
             player.sendMessage(ChatColor.RED + material.toString() + " is already one of the input colors for this machine!");
             return;
         }
@@ -216,10 +219,10 @@ public abstract class Machine implements CanCheckIntact {
         outputPipeMaterial = material;
 
         if (itemOutputPipe != null) {
-            itemOutputPipe.getInputMachines().remove(this);
+            itemOutputPipe.getItemInputMachines().remove(this);
             itemOutputPipe = null;
         } else if (powerOutputPipe != null) {
-            powerOutputPipe.getInputMachines().remove(this);
+            powerOutputPipe.getItemInputMachines().remove(this);
             powerOutputPipe = null;
         }
 
@@ -228,62 +231,98 @@ public abstract class Machine implements CanCheckIntact {
             Block glass = node.getBlock().getRelative(face);
             if (glass.getType() == material) {
                 if (getOutputType() == TransferType.ITEMS) {
-                    if (ItemPipe.getPipesByBlock().containsKey(glass.getLocation())) {
-                        ItemPipe pipe = ItemPipe.getPipesByBlock().get(glass.getLocation());
-                        pipe.getInputMachines().add(this);
-                        itemOutputPipe = pipe;
+                    if (Pipe.getPipesByBlock().containsKey(glass.getLocation())) {
+                        itemOutputPipe = Pipe.getPipesByBlock().get(glass.getLocation());
+                        itemOutputPipe.getItemInputMachines().add(this);
                     } else {
-                        itemOutputPipe = new ItemPipe(glass.getLocation()); // no pipes found matching it, so create a new one
-                        itemOutputPipe.getInputMachines().add(this);
+                        itemOutputPipe = new Pipe(glass.getLocation());
                     }
                 } else {
-                    if (PowerPipe.getPipesByBlock().containsKey(glass.getLocation())) {
-                        PowerPipe pipe = PowerPipe.getPipesByBlock().get(glass.getLocation());
-                        pipe.getInputMachines().add(this);
-                        powerOutputPipe = pipe;
+                    if (Pipe.getPipesByBlock().containsKey(glass.getLocation())) {
+                        powerOutputPipe = Pipe.getPipesByBlock().get(glass.getLocation());
+                        powerOutputPipe.getPowerInputMachines().add(this);
                     } else {
-                        powerOutputPipe = new PowerPipe(glass.getLocation()); // no pipes found matching it, so create a new one
-                        powerOutputPipe.getInputMachines().add(this);
+                        powerOutputPipe = new Pipe(glass.getLocation());
                     }
                 }
                 return;
             }
         }
     }
-    public void setInputPipeMaterials(ArrayList<Material> enabledColors, Player player) {
+    public void setItemInputPipeMaterials(ArrayList<Material> enabledColors, Player player) {
+        if (!getInputTypes().contains(TransferType.ITEMS)) {
+            SQTech.getInstance().getLogger().warning(DiscordUtils.tag("blankman")
+                    + " Tried to add setItemInputPipeMaterials() to machine that doesn't accept item input!"
+                    + " Sign location of accepting machine: "
+                    + sign.getWorld().getName() + ", " + sign.getBlockX() + ", " + sign.getBlockY() + ", " + sign.getBlockZ());
+            return;
+        }
+
         if (enabledColors.contains(outputPipeMaterial)) {
             player.sendMessage(ChatColor.RED + outputPipeMaterial.toString() + " is already the output color for this machine!");
             return;
         }
+        for (Material color : enabledColors) {
+            if (powerInputPipeMaterials.contains(color)) {
+                player.sendMessage(ChatColor.RED + color.toString() + " is already one of the power input colors for this machine!");
+                return;
+            }
+        }
 
-        inputPipeMaterials.clear();
-        inputPipeMaterials.addAll(enabledColors);
-        for (ItemPipe pipe : itemInputPipes) {
-            pipe.setOutputMachine(null);
+        itemInputPipeMaterials.clear();
+        itemInputPipeMaterials.addAll(enabledColors);
+        for (Pipe pipe : itemInputPipes) {
+            pipe.getItemOutputMachines().remove(this);
         }
         itemInputPipes.clear();
-        for (PowerPipe pipe : powerInputPipes) {
-            pipe.getOutputMachines().remove(this);
+
+        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
+                BlockFace.NORTH, BlockFace.SOUTH)) {
+            Block glass = node.getBlock().getRelative(face);
+            if (enabledColors.contains(glass.getType()) && Pipe.getPipesByBlock().containsKey(glass.getLocation())) {
+                Pipe pipe = Pipe.getPipesByBlock().get(glass.getLocation());
+                if (!itemInputPipes.contains(pipe)) {
+                    itemInputPipes.add(pipe);
+                    pipe.getItemOutputMachines().add(this);
+                }
+            }
+        }
+    }
+    public void setPowerInputPipeMaterials(ArrayList<Material> enabledColors, Player player) {
+        if (!getInputTypes().contains(TransferType.POWER)) {
+            SQTech.getInstance().getLogger().warning(DiscordUtils.tag("blankman")
+                    + " Tried to setPowerInputPipeMaterials() to machine that doesn't accept power input!"
+                    + " Sign location of accepting machine: "
+                    + sign.getWorld().getName() + ", " + sign.getBlockX() + ", " + sign.getBlockY() + ", " + sign.getBlockZ());
+            return;
+        }
+
+        if (enabledColors.contains(outputPipeMaterial)) {
+            player.sendMessage(ChatColor.RED + outputPipeMaterial.toString() + " is already the output color for this machine!");
+            return;
+        }
+        for (Material color : enabledColors) {
+            if (itemInputPipeMaterials.contains(color)) {
+                player.sendMessage(ChatColor.RED + color.toString() + " is already one of the item input colors for this machine!");
+                return;
+            }
+        }
+
+        powerInputPipeMaterials.clear();
+        powerInputPipeMaterials.addAll(enabledColors);
+        for (Pipe pipe : powerInputPipes) {
+            pipe.getPowerOutputMachines().remove(this);
         }
         powerInputPipes.clear();
 
         for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
                 BlockFace.NORTH, BlockFace.SOUTH)) {
             Block glass = node.getBlock().getRelative(face);
-            if (enabledColors.contains(glass.getType())) {
-                if (getInputTypes().contains(TransferType.ITEMS) && ItemPipe.getPipesByBlock().containsKey(glass.getLocation())) {
-                    ItemPipe pipe = ItemPipe.getPipesByBlock().get(glass.getLocation());
-                    if (!itemInputPipes.contains(pipe)) {
-                        itemInputPipes.add(pipe);
-                        pipe.setOutputMachine(this);
-                    }
-                }
-                if (getInputTypes().contains(TransferType.POWER) && PowerPipe.getPipesByBlock().containsKey(glass.getLocation())) {
-                    PowerPipe pipe = PowerPipe.getPipesByBlock().get(glass.getLocation());
-                    if (!powerInputPipes.contains(pipe)) {
-                        powerInputPipes.add(pipe);
-                        pipe.getOutputMachines().add(this);
-                    }
+            if (enabledColors.contains(glass.getType()) && Pipe.getPipesByBlock().containsKey(glass.getLocation())) {
+                Pipe pipe = Pipe.getPipesByBlock().get(glass.getLocation());
+                if (!powerInputPipes.contains(pipe)) {
+                    powerInputPipes.add(pipe);
+                    pipe.getPowerOutputMachines().add(this);
                 }
             }
         }
@@ -330,17 +369,16 @@ public abstract class Machine implements CanCheckIntact {
     }
 
     public void tryOutput(ItemStack stack) {
-        if (itemOutputPipe == null || itemOutputPipe.getOutputMachine() == null) {
-            ItemStack left = tryAddItemStack(stack);
-            if (left.getAmount() != 0) {
-                sign.getWorld().dropItem(sign, left);
-            }
+        System.out.println(itemOutputPipe == null);
+        ItemStack left;
+        if (itemOutputPipe == null) {
+            left = new ItemStack(stack.getType(), stack.getAmount());
         } else {
-            ItemStack left = itemOutputPipe.getOutputMachine().tryAddItemStack(stack);
-            if (left.getAmount() != 0) {
-                left = tryAddItemStack(stack);
-                if (left.getAmount() != 0) sign.getWorld().dropItemNaturally(sign, left);
-            }
+            left = itemOutputPipe.tryOutputItemStack(stack);
+        }
+        if (left.getAmount() != 0) {
+            left = tryAddItemStack(stack);
+            if (left.getAmount() != 0) sign.getWorld().dropItemNaturally(sign, left);
         }
     }
 
@@ -356,16 +394,16 @@ public abstract class Machine implements CanCheckIntact {
     public void destroy() {
         // clear pipes
         if (itemOutputPipe != null) {
-            itemOutputPipe.getInputMachines().remove(this);
+            itemOutputPipe.getItemInputMachines().remove(this);
         }
         if (powerOutputPipe != null) {
-            powerOutputPipe.getInputMachines().remove(this);
+            powerOutputPipe.getPowerInputMachines().remove(this);
         }
-        for (ItemPipe pipe : itemInputPipes) {
-            pipe.setOutputMachine(null);
+        for (Pipe pipe : itemInputPipes) {
+            pipe.getItemOutputMachines().remove(this);
         }
-        for (PowerPipe pipe : powerInputPipes) {
-            pipe.getOutputMachines().remove(this);
+        for (Pipe pipe : powerInputPipes) {
+            pipe.getPowerOutputMachines().remove(this);
         }
 
         if (guiPlayer != null) {
@@ -397,7 +435,7 @@ public abstract class Machine implements CanCheckIntact {
     }
 
     public boolean canUsePower(Integer amount) {
-        for (PowerPipe pipe : powerInputPipes) {
+        for (Pipe pipe : powerInputPipes) {
             if (pipe.canUsePower(amount)) {
                 return true;
             }
@@ -405,7 +443,7 @@ public abstract class Machine implements CanCheckIntact {
         return false;
     }
     public boolean tryUsePower(Integer amount) {
-        for (PowerPipe pipe : powerInputPipes) {
+        for (Pipe pipe : powerInputPipes) {
             if (pipe.tryUsePower(amount)) {
                 return true;
             }

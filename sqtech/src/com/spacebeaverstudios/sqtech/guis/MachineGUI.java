@@ -49,35 +49,46 @@ public class MachineGUI extends GUI {
         inventory.addItem(chooseOutputItem.getItemStack());
         this.getGuiItems().add(chooseOutputItem);
 
-        if (machine.getInputTypes().size() != 0) {
-            StringBuilder chooseInputsLore = new StringBuilder(ChatColor.GOLD + "Input Type");
+        if (machine.getInputTypes().contains(Machine.TransferType.ITEMS)) {
+            StringBuilder chooseInputsLore = new StringBuilder(ChatColor.GOLD + "Selected Colors: ");
 
-            if (machine.getInputTypes().size() == 2) {
-                chooseInputsLore.append("s: ").append(ChatColor.AQUA).append("Items, BV");
-            } else if (machine.getInputTypes().get(0) == Machine.TransferType.ITEMS) {
-                chooseInputsLore.append(": ").append(ChatColor.AQUA).append("Items");
-            } else {
-                chooseInputsLore.append(": ").append(ChatColor.AQUA).append("BV");
-            }
-            chooseInputsLore.append("\n ");
-
-            chooseInputsLore.append(ChatColor.GOLD).append("Selected Colors: ");
-            if (machine.getInputPipeMaterials().size() == 0) {
+            if (machine.getItemInputPipeMaterials().size() == 0) {
                 chooseInputsLore.append(getColorName(null));
             } else {
-                for (Material glass : machine.getInputPipeMaterials()) {
+                for (Material glass : machine.getItemInputPipeMaterials()) {
                     chooseInputsLore.append(getColorName(glass)).append(ChatColor.WHITE).append(", ");
                 }
                 chooseInputsLore.delete(chooseInputsLore.length()-2, chooseInputsLore.length());
             }
 
-            GUIItem chooseInputsItem = new GUIItem("Choose Input Pipe Colors", chooseInputsLore.toString(), Material.HOPPER,
-                    new OpenMachineGUIFunction(new ChooseInputColorsGUI(machine), machine));
-            if (machine.getInputPipeMaterials().size() > 1) {
-                chooseInputsItem.getItemStack().setAmount(machine.getInputPipeMaterials().size());
+            GUIItem chooseItemInputsItem = new GUIItem("Choose Item Input Pipe Colors", chooseInputsLore.toString(),
+                    Material.HOPPER, new OpenMachineGUIFunction(new ChooseInputColorsGUI(machine, Machine.TransferType.ITEMS), machine));
+            if (machine.getItemInputPipeMaterials().size() > 1) {
+                chooseItemInputsItem.getItemStack().setAmount(machine.getItemInputPipeMaterials().size());
             }
-            inventory.addItem(chooseInputsItem.getItemStack());
-            this.getGuiItems().add(chooseInputsItem);
+            inventory.addItem(chooseItemInputsItem.getItemStack());
+            this.getGuiItems().add(chooseItemInputsItem);
+        }
+
+        if (machine.getInputTypes().contains(Machine.TransferType.POWER)) {
+            StringBuilder chooseInputsLore = new StringBuilder(ChatColor.GOLD + "Selected Colors: ");
+
+            if (machine.getPowerInputPipeMaterials().size() == 0) {
+                chooseInputsLore.append(getColorName(null));
+            } else {
+                for (Material glass : machine.getPowerInputPipeMaterials()) {
+                    chooseInputsLore.append(getColorName(glass)).append(ChatColor.WHITE).append(", ");
+                }
+                chooseInputsLore.delete(chooseInputsLore.length()-2, chooseInputsLore.length());
+            }
+
+            GUIItem choosePowerInputsItem = new GUIItem("Choose Power Input Pipe Colors", chooseInputsLore.toString(),
+                    Material.HOPPER, new OpenMachineGUIFunction(new ChooseInputColorsGUI(machine, Machine.TransferType.POWER), machine));
+            if (machine.getPowerInputPipeMaterials().size() > 1) {
+                choosePowerInputsItem.getItemStack().setAmount(machine.getPowerInputPipeMaterials().size());
+            }
+            inventory.addItem(choosePowerInputsItem.getItemStack());
+            this.getGuiItems().add(choosePowerInputsItem);
         }
 
         GUIItem customOptionsItem = machine.getCustomOptionsGUIItem();

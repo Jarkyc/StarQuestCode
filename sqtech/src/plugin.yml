@@ -3,3 +3,7 @@ main: com.spacebeaverstudios.sqtech.SQTech
 version: 1.0.0
 api-version: "1.15"
 depend: [SQCore]
+commands:
+  pipe:
+    usage: /<command>
+    description: Shows what machines are connected to a pipe.
