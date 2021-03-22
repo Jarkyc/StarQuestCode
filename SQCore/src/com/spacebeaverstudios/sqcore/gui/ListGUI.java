@@ -102,6 +102,7 @@ public abstract class ListGUI extends GUI {
 
     public void goToPage(int page) {
         currentPage = page;
+        getGuiItems().clear();
         Inventory inventory = createInventory();
         Bukkit.getScheduler().runTaskLater(SQCore.getInstance(), () -> getPlayer().openInventory(inventory), 1);
     }
