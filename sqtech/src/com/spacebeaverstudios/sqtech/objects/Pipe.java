@@ -59,11 +59,27 @@ public class Pipe implements CanCheckIntact {
     }
 
     public void calculate() {
-        // TODO: if it tries to connect to other pipes
         for (Location loc : blocks) {
             pipesByBlock.remove(loc);
         }
         blocks.clear();
+
+        for (Machine machine : itemInputMachines) {
+            machine.setItemOutputPipe(null);
+        }
+        itemInputMachines.clear();
+        for (Machine machine : powerInputMachines) {
+            machine.setPowerOutputPipe(null);
+        }
+        powerInputMachines.clear();
+        for (Machine machine : itemOutputMachines) {
+            machine.getItemInputPipes().remove(this);
+        }
+        itemInputMachines.clear();
+        for (Machine machine : powerInputMachines) {
+            machine.getPowerInputPipes().remove(this);
+        }
+        powerInputMachines.clear();
 
         ArrayList<Location> blocksToCheck = new ArrayList<>();
         blocksToCheck.add(starterBlock);
@@ -78,9 +94,13 @@ public class Pipe implements CanCheckIntact {
                     continue;
                 }
                 if (block.getType() == pipeMaterial) {
-                    blocks.add(block.getLocation());
-                    pipesByBlock.put(block.getLocation(), this);
-                    blocksToCheck.add(block.getLocation());
+                    if (pipesByBlock.containsKey(block.getLocation())) {
+                        mergeWith(pipesByBlock.get(block.getLocation()));
+                    } else {
+                        blocks.add(block.getLocation());
+                        pipesByBlock.put(block.getLocation(), this);
+                        blocksToCheck.add(block.getLocation());
+                    }
                 } else if (block.getType() == Material.LAPIS_BLOCK) {
                     if (Machine.getMachinesByBlock().containsKey(block.getLocation())) {
                         Machine machine = Machine.getMachinesByBlock().get(block.getLocation());
@@ -249,22 +269,24 @@ public class Pipe implements CanCheckIntact {
             pipesByBlock.put(loc, this);
         }
         for (Machine machine : pipe.getItemInputMachines()) {
-            if (!itemInputMachines.contains(machine)) {
-                itemInputMachines.add(machine);
-            }
+            machine.setItemOutputPipe(this);
+            itemInputMachines.add(machine);
         }
         for (Machine machine : pipe.getPowerInputMachines()) {
-            if (!powerInputMachines.contains(machine)) {
-                powerInputMachines.add(machine);
-            }
+            machine.setPowerOutputPipe(this);
+            powerInputMachines.add(machine);
         }
         for (Machine machine : pipe.getItemOutputMachines()) {
-            if (!itemOutputMachines.contains(machine)) {
+            machine.getItemInputPipes().remove(pipe);
+            if (!itemInputMachines.contains(machine)) {
+                machine.getItemInputPipes().add(this);
                 itemOutputMachines.add(machine);
             }
         }
         for (Machine machine : pipe.getPowerOutputMachines()) {
-            if (!powerOutputMachines.contains(machine)) {
+            machine.getPowerInputPipes().remove(pipe);
+            if (!powerInputMachines.contains(machine)) {
+                machine.getPowerInputPipes().add(this);
                 powerOutputMachines.add(machine);
             }
         }

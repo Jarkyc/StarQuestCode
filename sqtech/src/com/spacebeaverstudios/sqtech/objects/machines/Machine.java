@@ -369,7 +369,6 @@ public abstract class Machine implements CanCheckIntact {
     }
 
     public void tryOutput(ItemStack stack) {
-        System.out.println(itemOutputPipe == null);
         ItemStack left;
         if (itemOutputPipe == null) {
             left = new ItemStack(stack.getType(), stack.getAmount());

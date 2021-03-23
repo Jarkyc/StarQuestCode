@@ -17,12 +17,10 @@ public class PipeCmd extends SQCmd {
         Player player = (Player) sender;
         Block target = player.getTargetBlock(5);
 
-        if (target == null) {
-            player.sendMessage(ChatColor.RED + "You aren't looking at a block!");
-        } else if (Pipe.getPipesByBlock().containsKey(target.getLocation())) {
-            (new PipeGUI(Pipe.getPipesByBlock().get(target.getLocation()), target.getLocation())).open(player);
+        if (target == null || !Pipe.getPipesByBlock().containsKey(target.getLocation())) {
+            player.sendMessage(ChatColor.RED + "You aren't looking at a pipe!");
         } else {
-            player.sendMessage(ChatColor.RED + "The block you are looking at isn't part of a pipe!");
+            (new PipeGUI(Pipe.getPipesByBlock().get(target.getLocation()), target.getLocation())).open(player);
         }
     }
 }

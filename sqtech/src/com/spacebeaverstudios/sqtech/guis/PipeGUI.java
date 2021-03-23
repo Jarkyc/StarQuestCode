@@ -2,7 +2,6 @@ package com.spacebeaverstudios.sqtech.guis;
 
 import com.spacebeaverstudios.sqcore.gui.GUI;
 import com.spacebeaverstudios.sqcore.gui.GUIItem;
-import com.spacebeaverstudios.sqtech.SQTech;
 import com.spacebeaverstudios.sqtech.guis.guifunctions.ChangePipeGUIPageGUIFunction;
 import com.spacebeaverstudios.sqtech.objects.Pipe;
 import com.spacebeaverstudios.sqtech.objects.machines.Machine;
@@ -25,12 +24,13 @@ public class PipeGUI extends GUI {
 
     public Inventory createInventory() {
         int size = 36;
-        if (currentPage != 0 || pipe.getItemInputMachines().size() > 7 || pipe.getPowerInputMachines().size() > 7
-                || pipe.getItemOutputMachines().size() > 7 || pipe.getPowerOutputMachines().size() > 7) {
+        if (currentPage != 0 || pipe.getItemInputMachines().size() > 8 || pipe.getPowerInputMachines().size() > 8
+                || pipe.getItemOutputMachines().size() > 8 || pipe.getPowerOutputMachines().size() > 8) {
             size = 45;
         }
         
-        Inventory inventory = Bukkit.createInventory(null, size, getInventoryName());
+        Inventory inventory = Bukkit.createInventory(null, size, getInventoryName()
+                + (size == 36 ? "" : " (Page " + (currentPage + 1) + ")"));
 
         // labels
         GUIItem itemInputLabelItem = new GUIItem("Item Input Machines",
@@ -41,59 +41,59 @@ public class PipeGUI extends GUI {
         GUIItem powerInputLabelItem = new GUIItem("Power Input Machines",
                 ChatColor.GRAY + "Machines that input power to this pipe.", Material.REDSTONE_BLOCK, null);
         getGuiItems().add(powerInputLabelItem);
-        inventory.setItem(0, powerInputLabelItem.getItemStack());
+        inventory.setItem(9, powerInputLabelItem.getItemStack());
 
         GUIItem itemOutputLabelItem = new GUIItem("Item Output Machines",
                 ChatColor.GRAY + "Machines that receive items from this pipe.", Material.CHEST, null);
         getGuiItems().add(itemOutputLabelItem);
-        inventory.setItem(0, itemOutputLabelItem.getItemStack());
+        inventory.setItem(18, itemOutputLabelItem.getItemStack());
 
         GUIItem powerOutputLabelItem = new GUIItem("Power Output Machines",
                 ChatColor.GRAY + "Machines that receive power from this pipe.", Material.REDSTONE_BLOCK, null);
         getGuiItems().add(powerOutputLabelItem);
-        inventory.setItem(0, powerOutputLabelItem.getItemStack());
+        inventory.setItem(27, powerOutputLabelItem.getItemStack());
 
         // machines
-        for (int i = currentPage * 7; i < (currentPage + 1) * 7; i++) {
-            if (pipe.getItemInputMachines().size() >= i) {
+        for (int i = currentPage * 8; i < (currentPage + 1) * 8; i++) {
+            if (pipe.getItemInputMachines().size() > i) {
                 Machine machine = pipe.getItemInputMachines().get(i);
-                GUIItem machineItem = new GUIItem(machine.getMachineName(), "Inputs items to this pipe.\n"
+                GUIItem machineItem = new GUIItem(machine.getMachineName(), "Inputs items to this pipe.\n "
                         + ChatColor.GOLD + "Sign Location: " + ChatColor.AQUA + machine.getSign().getBlockX() + ", "
                         + machine.getSign().getBlockY() + ", " + machine.getSign().getBlockZ() + "\n " + ChatColor.GOLD
                         + "Node Location: " + ChatColor.AQUA + machine.getNode().getBlockX() + ", " + machine.getNode().getBlockY()
                         + ", " + machine.getNode().getBlockZ(), Material.LAPIS_BLOCK, null);
                 getGuiItems().add(machineItem);
-                inventory.setItem((i % 7) + 2, machineItem.getItemStack());
+                inventory.setItem((i % 8) + 1, machineItem.getItemStack());
             }
-            if (pipe.getPowerInputMachines().size() >= i) {
+            if (pipe.getPowerInputMachines().size() > i) {
                 Machine machine = pipe.getPowerInputMachines().get(i);
-                GUIItem machineItem = new GUIItem(machine.getMachineName(), "Inputs power to this pipe.\n"
+                GUIItem machineItem = new GUIItem(machine.getMachineName(), "Inputs power to this pipe.\n "
                         + ChatColor.GOLD + "Sign Location: " + ChatColor.AQUA + machine.getSign().getBlockX() + ", "
                         + machine.getSign().getBlockY() + ", " + machine.getSign().getBlockZ() + "\n " + ChatColor.GOLD
                         + "Node Location: " + ChatColor.AQUA + machine.getNode().getBlockX() + ", " + machine.getNode().getBlockY()
                         + ", " + machine.getNode().getBlockZ(), Material.LAPIS_BLOCK, null);
                 getGuiItems().add(machineItem);
-                inventory.setItem((i % 7) + 11, machineItem.getItemStack());
+                inventory.setItem((i % 8) + 10, machineItem.getItemStack());
             }
-            if (pipe.getItemOutputMachines().size() >= i) {
+            if (pipe.getItemOutputMachines().size() > i) {
                 Machine machine = pipe.getItemOutputMachines().get(i);
-                GUIItem machineItem = new GUIItem(machine.getMachineName(), "Receives items from this pipe.\n"
+                GUIItem machineItem = new GUIItem(machine.getMachineName(), "Receives items from this pipe.\n "
                         + ChatColor.GOLD + "Sign Location: " + ChatColor.AQUA + machine.getSign().getBlockX() + ", "
                         + machine.getSign().getBlockY() + ", " + machine.getSign().getBlockZ() + "\n " + ChatColor.GOLD
                         + "Node Location: " + ChatColor.AQUA + machine.getNode().getBlockX() + ", " + machine.getNode().getBlockY()
                         + ", " + machine.getNode().getBlockZ(), Material.LAPIS_BLOCK, null);
                 getGuiItems().add(machineItem);
-                inventory.setItem((i % 7) + 20, machineItem.getItemStack());
+                inventory.setItem((i % 8) + 19, machineItem.getItemStack());
             }
-            if (pipe.getPowerOutputMachines().size() >= i) {
+            if (pipe.getPowerOutputMachines().size() > i) {
                 Machine machine = pipe.getPowerOutputMachines().get(i);
-                GUIItem machineItem = new GUIItem(machine.getMachineName(), "Receives power from this pipe.\n"
+                GUIItem machineItem = new GUIItem(machine.getMachineName(), "Receives power from this pipe.\n "
                         + ChatColor.GOLD + "Sign Location: " + ChatColor.AQUA + machine.getSign().getBlockX() + ", "
                         + machine.getSign().getBlockY() + ", " + machine.getSign().getBlockZ() + "\n " + ChatColor.GOLD
                         + "Node Location: " + ChatColor.AQUA + machine.getNode().getBlockX() + ", " + machine.getNode().getBlockY()
                         + ", " + machine.getNode().getBlockZ(), Material.LAPIS_BLOCK, null);
                 getGuiItems().add(machineItem);
-                inventory.setItem((i % 7) + 29, machineItem.getItemStack());
+                inventory.setItem((i % 8) + 28, machineItem.getItemStack());
             }
         }
 
@@ -126,10 +126,10 @@ public class PipeGUI extends GUI {
                 inventory.setItem(37 + i, barItem.getItemStack());
             }
 
-            if (pipe.getItemInputMachines().size() > (currentPage + 1) * 7
-                    || pipe.getPowerInputMachines().size() > (currentPage + 1) * 7
-                    || pipe.getItemOutputMachines().size() > (currentPage + 1) * 7
-                    || pipe.getPowerOutputMachines().size() > (currentPage + 1) * 7) {
+            if (pipe.getItemInputMachines().size() > (currentPage + 1) * 8
+                    || pipe.getPowerInputMachines().size() > (currentPage + 1) * 8
+                    || pipe.getItemOutputMachines().size() > (currentPage + 1) * 8
+                    || pipe.getPowerOutputMachines().size() > (currentPage + 1) * 8) {
                 ItemStack banner = new ItemStack(Material.WHITE_BANNER);
                 BannerMeta bannerMeta = (BannerMeta) banner.getItemMeta();
                 bannerMeta.setDisplayName(ChatColor.BLUE + "Next Page");
@@ -156,8 +156,6 @@ public class PipeGUI extends GUI {
 
     public void goToPage(int page) {
         currentPage = page;
-        getGuiItems().clear();
-        Inventory inventory = createInventory();
-        Bukkit.getScheduler().runTaskLater(SQTech.getInstance(), () -> getPlayer().openInventory(inventory), 1);
+        refreshInventory();
     }
 }

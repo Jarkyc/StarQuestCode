@@ -41,15 +41,18 @@ public class CraftingListener implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onPrepareItemCraft(PrepareItemCraftEvent event) {
-        Player player = (Player) event.getViewers().get(0);
-        HashMap<Player, CrafterMachine> playersCrafting = ChooseCrafterMachineRecipeGUIFunction.getPlayersCrafting();
+        // this if statement is necessary because of some bullshit involving the creative inventory
+        if (event.getViewers().size() != 0) {
+            Player player = (Player) event.getViewers().get(0);
+            HashMap<Player, CrafterMachine> playersCrafting = ChooseCrafterMachineRecipeGUIFunction.getPlayersCrafting();
 
-        if (playersCrafting.containsKey(player) && !event.isRepair()) {
-            HashMap<Material, Integer> inputItems = playersCrafting.get(player).getPotentialInputItems();
-            inputItems.clear();
-            for (ItemStack itemStack : event.getInventory().getMatrix()) {
-                if (itemStack != null) {
-                    inputItems.put(itemStack.getType(), inputItems.getOrDefault(itemStack.getType(), 0)+1);
+            if (playersCrafting.containsKey(player) && !event.isRepair()) {
+                HashMap<Material, Integer> inputItems = playersCrafting.get(player).getPotentialInputItems();
+                inputItems.clear();
+                for (ItemStack itemStack : event.getInventory().getMatrix()) {
+                    if (itemStack != null) {
+                        inputItems.put(itemStack.getType(), inputItems.getOrDefault(itemStack.getType(), 0) + 1);
+                    }
                 }
             }
         }
