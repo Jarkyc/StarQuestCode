@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class BatteryMachine extends Machine {
-    // TODO: multiple sizes, maximum power
+    // TODO: multiple sizes? maximum power?
     // TODO: some way to not have all the power vaporise when machine broken
     private Integer power = 0;
 
