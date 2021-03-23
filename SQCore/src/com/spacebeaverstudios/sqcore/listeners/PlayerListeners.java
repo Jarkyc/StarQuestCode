@@ -7,7 +7,7 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class PlayerListeners implements Listener {
-
+    @SuppressWarnings("unused")
     @EventHandler
     public static void onCraft(PrepareItemCraftEvent e){
         if(e.getRecipe() == null || e.getRecipe().getResult() == null) return;

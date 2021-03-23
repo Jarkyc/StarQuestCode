@@ -12,12 +12,10 @@ import java.util.List;
 
 public class GUIItem {
     private final ItemStack item;
-    private final boolean hasFunction;
     private final GUIFunction function;
 
     public GUIItem(String name, String lore, Material itemType, GUIFunction function) {
         this.function = function;
-        this.hasFunction = function != null;
 
         ItemStack stack = new ItemStack(itemType);
         ItemMeta stackMeta = stack.getItemMeta();
@@ -35,7 +33,6 @@ public class GUIItem {
     public GUIItem(ItemStack item, GUIFunction function) {
         this.item = item;
         this.function = function;
-        this.hasFunction = function != null;
         GUIUtils.setWanted(item, true);
         GUIUtils.getButtons().add(this);
     }
@@ -45,10 +42,12 @@ public class GUIItem {
     }
 
     public boolean hasFunction() {
-        return hasFunction;
+        return function != null;
     }
 
     public void runFunction(Player player) {
-        function.run(player);
+        if (function != null) {
+            function.run(player);
+        }
     }
 }

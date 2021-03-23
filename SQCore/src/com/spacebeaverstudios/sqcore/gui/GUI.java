@@ -16,8 +16,10 @@ public abstract class GUI {
         return guis;
     }
 
-    public static void closePlayer(Player player) {
-        if (guis.containsKey(player)) guis.get(player).onClose();
+    public static void closePlayer(Player player, Inventory inventory) {
+        if (guis.containsKey(player) && guis.get(player).getInventory().equals(inventory)) {
+            guis.get(player).onClose();
+        }
     }
 
     private Player player;
@@ -54,8 +56,18 @@ public abstract class GUI {
         return inventory;
     }
 
+    public void refreshInventory() {
+        for (GUIItem guiItem : guiItems) {
+            GUIUtils.getButtons().remove(guiItem);
+        }
+        guiItems.clear();
+        open(player);
+    }
+
     public void onClose() {
         guis.remove(player);
-        for (GUIItem guiItem : guiItems) GUIUtils.getButtons().remove(guiItem);
+        for (GUIItem guiItem : guiItems) {
+            GUIUtils.getButtons().remove(guiItem);
+        }
     }
 }

@@ -19,7 +19,7 @@ public class InventoryListener implements Listener {
             if (event.getCurrentItem() != null && GUIUtils.isButton(event.getCurrentItem())
                     && GUI.getGuis().get((Player) event.getWhoClicked()).getInventory().equals(event.getClickedInventory())) {
                 GUIItem item = GUIUtils.getGUIItem(event.getCurrentItem());
-                if (item.hasFunction()) item.runFunction((Player) event.getWhoClicked());
+                item.runFunction((Player) event.getWhoClicked());
             }
         }
     }
@@ -27,12 +27,16 @@ public class InventoryListener implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        GUI.closePlayer((Player) event.getPlayer());
+        GUI.closePlayer((Player) event.getPlayer(), event.getInventory());
     }
 
     @SuppressWarnings("unused")
     @EventHandler
     public void onPLayerLeave(PlayerQuitEvent event) {
-        GUI.closePlayer(event.getPlayer());
+        Player player = event.getPlayer();
+
+        if (GUI.getGuis().containsKey(player)) {
+            GUI.closePlayer(player, GUI.getGuis().get(player).getInventory());
+        }
     }
 }

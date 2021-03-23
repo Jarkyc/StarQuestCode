@@ -1,6 +1,5 @@
 package com.spacebeaverstudios.sqcore.gui;
 
-import com.spacebeaverstudios.sqcore.SQCore;
 import com.spacebeaverstudios.sqcore.gui.guifunctions.ChangePageFunction;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -22,15 +21,21 @@ public abstract class ListGUI extends GUI {
 
     public ListGUI(String inventoryName, int rows) {
         super(inventoryName);
-        if (rows < 1) this.rows = 1;
-        else this.rows = Math.min(rows, 6);
+        if (rows < 1) {
+            this.rows = 1;
+        } else {
+            this.rows = Math.min(rows, 6);
+        }
     }
 
     public Inventory createInventory() {
-        Inventory inventory = Bukkit.createInventory(null, rows*9, super.getInventoryName() + " Page " + (currentPage+1));
+        Inventory inventory = Bukkit.createInventory(null, rows*9,
+                super.getInventoryName() + " (Page " + (currentPage+1) + ")");
 
         ArrayList<ItemStack> bottomRow = createBottomRow();
-        for (int i = 0; i < bottomRow.size(); i++) inventory.setItem(inventory.getSize()-(9-i), bottomRow.get(i));
+        for (int i = 0; i < bottomRow.size(); i++) {
+            inventory.setItem(inventory.getSize()-(9-i), bottomRow.get(i));
+        }
 
         for (int i = 0; i < inventory.getSize() - 9; i ++) {
             int objectIndex = i + (currentPage * (inventory.getSize() - 9));
@@ -40,8 +45,9 @@ public abstract class ListGUI extends GUI {
                 GUIItem guiItem = getObjectItem(objectList.get(objectIndex));
                 getGuiItems().add(guiItem);
                 inventory.setItem(i, guiItem.getItemStack());
+            } else {
+                break;
             }
-            else break;
         }
 
         return inventory;
@@ -52,15 +58,23 @@ public abstract class ListGUI extends GUI {
         ArrayList<GUIItem> guiItems = new ArrayList<>();
 
         // previous page item
-        if (currentPage > 0) guiItems.add(getPrevPageItem());
-        else guiItems.add(new GUIItem(" ", null, Material.IRON_BARS, null));
+        if (currentPage > 0) {
+            guiItems.add(getPrevPageItem());
+        } else {
+            guiItems.add(new GUIItem(" ", null, Material.IRON_BARS, null));
+        }
 
         // all the bars in between
-        for (int i = 0; i < 7; i++) guiItems.add(new GUIItem(" ", null, Material.IRON_BARS, null));
+        for (int i = 0; i < 7; i++) {
+            guiItems.add(new GUIItem(" ", null, Material.IRON_BARS, null));
+        }
 
         // next page item
-        if (currentPage < (Math.ceil(getObjectList().size()/9d))/(rows-1)-1) guiItems.add(getNextPageItem());
-        else guiItems.add(new GUIItem(" ", null, Material.IRON_BARS, null));
+        if (currentPage < (Math.ceil(getObjectList().size()/9d))/(rows-1)-1) {
+            guiItems.add(getNextPageItem());
+        } else {
+            guiItems.add(new GUIItem(" ", null, Material.IRON_BARS, null));
+        }
 
         // convert to ArrayList<ItemStack>
         ArrayList<ItemStack> itemStacks = new ArrayList<>();
@@ -102,9 +116,7 @@ public abstract class ListGUI extends GUI {
 
     public void goToPage(int page) {
         currentPage = page;
-        getGuiItems().clear();
-        Inventory inventory = createInventory();
-        Bukkit.getScheduler().runTaskLater(SQCore.getInstance(), () -> getPlayer().openInventory(inventory), 1);
+        refreshInventory();
     }
 
     public abstract List<Object> getObjectList();
