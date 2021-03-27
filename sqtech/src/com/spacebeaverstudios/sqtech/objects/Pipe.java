@@ -104,20 +104,23 @@ public class Pipe implements CanCheckIntact {
                 } else if (block.getType() == Material.LAPIS_BLOCK) {
                     if (Machine.getMachinesByBlock().containsKey(block.getLocation())) {
                         Machine machine = Machine.getMachinesByBlock().get(block.getLocation());
-                        if (machine.getItemInputPipeMaterials().contains(pipeMaterial) && !machine.getItemInputPipes().contains(this)) {
-                            machine.getItemInputPipes().add(this);
-                            itemOutputMachines.add(machine);
-                        } else if (machine.getPowerInputPipeMaterials().contains(pipeMaterial)
-                                && !machine.getPowerInputPipes().contains(this)) {
-                            machine.getPowerInputPipes().add(this);
-                            powerOutputMachines.add(machine);
-                        } else if (pipeMaterial == machine.getOutputPipeMaterial()) {
+                        if (pipeMaterial == machine.getOutputPipeMaterial()) {
                             if (machine.getOutputType() == Machine.TransferType.ITEMS) {
                                 machine.setItemOutputPipe(this);
                                 itemInputMachines.add(machine);
                             } else {
                                 machine.setPowerOutputPipe(this);
                                 powerInputMachines.add(machine);
+                            }
+                        } else {
+                            if (machine.getItemInputPipeMaterials().contains(pipeMaterial) && !machine.getItemInputPipes().contains(this)) {
+                                machine.getItemInputPipes().add(this);
+                                itemOutputMachines.add(machine);
+                            }
+                            if (machine.getPowerInputPipeMaterials().contains(pipeMaterial)
+                                    && !machine.getPowerInputPipes().contains(this)) {
+                                machine.getPowerInputPipes().add(this);
+                                powerOutputMachines.add(machine);
                             }
                         }
                     }

@@ -5,11 +5,11 @@ import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-public class ChooseOutputColorFunction extends GUIFunction {
+public class ChooseOutputColorGUIFunction extends GUIFunction {
     private final Machine machine;
     private final Material material;
 
-    public ChooseOutputColorFunction(Machine machine, Material material) {
+    public ChooseOutputColorGUIFunction(Machine machine, Material material) {
         this.machine = machine;
         this.material = material;
     }

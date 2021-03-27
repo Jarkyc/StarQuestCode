@@ -64,4 +64,8 @@ public class CoalGeneratorMachine extends Machine {
     public TransferType getOutputType() {
         return TransferType.POWER;
     }
+
+    public String getSignText() {
+        return "[coal generator]";
+    }
 }

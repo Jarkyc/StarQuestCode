@@ -54,4 +54,14 @@ public class BatteryMachine extends Machine {
     public TransferType getOutputType() {
         return TransferType.POWER;
     }
+
+    public String getSignText() {
+        return "[battery]";
+    }
+    public String getCustomSaveText() {
+        return power.toString();
+    }
+    public void loadCustomSaveText(String text) {
+        power = Integer.parseInt(text);
+    }
 }

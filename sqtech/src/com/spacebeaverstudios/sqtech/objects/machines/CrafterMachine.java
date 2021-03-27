@@ -100,14 +100,6 @@ public class CrafterMachine extends Machine {
         sign.update();
     }
 
-    @Override
-    public GUIItem getCustomOptionsGUIItem() {
-        return new GUIItem("Choose Crafting Recipe", ChatColor.GRAY + "Craft the item you want the machine to craft.\n "
-                + ChatColor.GOLD + "Current Recipe: " + (outputItemStack == null ? ChatColor.GRAY + "None"
-                : ChatColor.AQUA + WordUtils.capitalizeFully(outputItemStack.getType().toString().replace("_", " "))),
-                Material.CRAFTING_TABLE, new ChooseCrafterMachineRecipeGUIFunction(this));
-    }
-
     public HashMap<Material, Integer> getPotentialInputItems() {
         return potentialInputItems;
     }
@@ -124,5 +116,41 @@ public class CrafterMachine extends Machine {
     }
     public TransferType getOutputType() {
         return TransferType.ITEMS;
+    }
+
+    @Override
+    public GUIItem getCustomOptionsGUIItem() {
+        return new GUIItem("Choose Crafting Recipe", ChatColor.GRAY + "Craft the item you want the machine to craft.\n "
+                + ChatColor.GOLD + "Current Recipe: " + (outputItemStack == null ? ChatColor.GRAY + "None"
+                : ChatColor.AQUA + WordUtils.capitalizeFully(outputItemStack.getType().toString().replace("_", " "))),
+                Material.CRAFTING_TABLE, new ChooseCrafterMachineRecipeGUIFunction(this));
+    }
+
+    public String getSignText() {
+        return "[crafter]";
+    }
+    @Override
+    public String getCustomSaveText() {
+        if (outputItemStack == null) {
+            return "0";
+        } else {
+            StringBuilder text = new StringBuilder(outputItemStack.getType().toString() + ":" + outputItemStack.getAmount() + ";");
+            for (Material input : inputItems.keySet()) {
+                text.append(input.toString()).append(":").append(inputItems.get(input)).append(";");
+            }
+            return text.toString();
+        }
+    }
+    @Override
+    public void loadCustomSaveText(String text) {
+        String[] textSplit = text.split(";");
+
+        String[] outputSplit = textSplit[0].split(":");
+        outputItemStack = new ItemStack(Material.getMaterial(outputSplit[0]), Integer.parseInt(outputSplit[1]));
+
+        for (int i = 1; i < textSplit.length; i++) {
+            String[] inputSplit = textSplit[i].split(":");
+            inputItems.put(Material.getMaterial(inputSplit[0]), Integer.parseInt(inputSplit[1]));
+        }
     }
 }

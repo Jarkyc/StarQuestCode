@@ -216,7 +216,6 @@ public abstract class Machine implements CanCheckIntact {
         if (material == outputPipeMaterial) {
             return;
         }
-        outputPipeMaterial = material;
 
         if (itemOutputPipe != null) {
             itemOutputPipe.getItemInputMachines().remove(this);
@@ -226,26 +225,32 @@ public abstract class Machine implements CanCheckIntact {
             powerOutputPipe = null;
         }
 
-        for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
-                BlockFace.NORTH, BlockFace.SOUTH)) {
-            Block glass = node.getBlock().getRelative(face);
-            if (glass.getType() == material) {
-                if (getOutputType() == TransferType.ITEMS) {
-                    if (Pipe.getPipesByBlock().containsKey(glass.getLocation())) {
-                        itemOutputPipe = Pipe.getPipesByBlock().get(glass.getLocation());
-                        itemOutputPipe.getItemInputMachines().add(this);
+        if (material == Material.GLASS) {
+            outputPipeMaterial = null;
+        } else {
+            outputPipeMaterial = material;
+
+            for (BlockFace face : Arrays.asList(BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.WEST,
+                    BlockFace.NORTH, BlockFace.SOUTH)) {
+                Block glass = node.getBlock().getRelative(face);
+                if (glass.getType() == material) {
+                    if (getOutputType() == TransferType.ITEMS) {
+                        if (Pipe.getPipesByBlock().containsKey(glass.getLocation())) {
+                            itemOutputPipe = Pipe.getPipesByBlock().get(glass.getLocation());
+                            itemOutputPipe.getItemInputMachines().add(this);
+                        } else {
+                            itemOutputPipe = new Pipe(glass.getLocation());
+                        }
                     } else {
-                        itemOutputPipe = new Pipe(glass.getLocation());
+                        if (Pipe.getPipesByBlock().containsKey(glass.getLocation())) {
+                            powerOutputPipe = Pipe.getPipesByBlock().get(glass.getLocation());
+                            powerOutputPipe.getPowerInputMachines().add(this);
+                        } else {
+                            powerOutputPipe = new Pipe(glass.getLocation());
+                        }
                     }
-                } else {
-                    if (Pipe.getPipesByBlock().containsKey(glass.getLocation())) {
-                        powerOutputPipe = Pipe.getPipesByBlock().get(glass.getLocation());
-                        powerOutputPipe.getPowerInputMachines().add(this);
-                    } else {
-                        powerOutputPipe = new Pipe(glass.getLocation());
-                    }
+                    return;
                 }
-                return;
             }
         }
     }
@@ -261,12 +266,6 @@ public abstract class Machine implements CanCheckIntact {
         if (enabledColors.contains(outputPipeMaterial)) {
             player.sendMessage(ChatColor.RED + outputPipeMaterial.toString() + " is already the output color for this machine!");
             return;
-        }
-        for (Material color : enabledColors) {
-            if (powerInputPipeMaterials.contains(color)) {
-                player.sendMessage(ChatColor.RED + color.toString() + " is already one of the power input colors for this machine!");
-                return;
-            }
         }
 
         itemInputPipeMaterials.clear();
@@ -300,12 +299,6 @@ public abstract class Machine implements CanCheckIntact {
         if (enabledColors.contains(outputPipeMaterial)) {
             player.sendMessage(ChatColor.RED + outputPipeMaterial.toString() + " is already the output color for this machine!");
             return;
-        }
-        for (Material color : enabledColors) {
-            if (itemInputPipeMaterials.contains(color)) {
-                player.sendMessage(ChatColor.RED + color.toString() + " is already one of the item input colors for this machine!");
-                return;
-            }
         }
 
         powerInputPipeMaterials.clear();
@@ -455,5 +448,13 @@ public abstract class Machine implements CanCheckIntact {
 
     public GUIItem getCustomOptionsGUIItem() {
         return null;
+    }
+
+    public abstract String getSignText();
+    public String getCustomSaveText() {
+        return "0";
+    }
+    public void loadCustomSaveText(String text) {
+
     }
 }

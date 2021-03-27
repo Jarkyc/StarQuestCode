@@ -67,4 +67,8 @@ public class SolarPanelMachine extends Machine {
     public TransferType getOutputType() {
         return TransferType.POWER;
     }
+
+    public String getSignText() {
+        return "[solar panel]";
+    }
 }

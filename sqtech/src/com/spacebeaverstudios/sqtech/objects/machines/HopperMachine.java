@@ -74,4 +74,8 @@ public class HopperMachine extends Machine {
     public TransferType getOutputType() {
         return TransferType.ITEMS;
     }
+
+    public String getSignText() {
+        return "[hopper]";
+    }
 }

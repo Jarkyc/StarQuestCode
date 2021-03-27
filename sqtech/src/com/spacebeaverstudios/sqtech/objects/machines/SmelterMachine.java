@@ -98,4 +98,8 @@ public class SmelterMachine extends Machine {
     public TransferType getOutputType() {
         return TransferType.ITEMS;
     }
+
+    public String getSignText() {
+        return "[smelter]";
+    }
 }
