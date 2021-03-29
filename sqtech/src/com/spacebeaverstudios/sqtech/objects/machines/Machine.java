@@ -63,6 +63,9 @@ public abstract class Machine implements CanCheckIntact {
             case "[autocrafter]":
                 new CrafterMachine(sign);
                 return true;
+            case "[replicator]":
+                new ReplicatorMachine(sign);
+                return true;
             default:
                 return false;
         }
@@ -241,7 +244,7 @@ public abstract class Machine implements CanCheckIntact {
                         } else {
                             itemOutputPipe = new Pipe(glass.getLocation());
                         }
-                    } else {
+                    } else if (getOutputType() == TransferType.POWER) {
                         if (Pipe.getPipesByBlock().containsKey(glass.getLocation())) {
                             powerOutputPipe = Pipe.getPipesByBlock().get(glass.getLocation());
                             powerOutputPipe.getPowerInputMachines().add(this);
@@ -426,13 +429,15 @@ public abstract class Machine implements CanCheckIntact {
         }
     }
 
-    public boolean canUsePower(Integer amount) {
+    public int getAvailablePower() {
+        int largest = 0;
         for (Pipe pipe : powerInputPipes) {
-            if (pipe.canUsePower(amount)) {
-                return true;
+            int available = pipe.getAvailablePower();
+            if (available > largest) {
+                largest = available;
             }
         }
-        return false;
+        return largest;
     }
     public boolean tryUsePower(Integer amount) {
         for (Pipe pipe : powerInputPipes) {

@@ -151,7 +151,7 @@ public class SQTech extends JavaPlugin {
                 scanner.close();
                 getLogger().info("Loaded SQTech/machines.txt");
             }
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             getLogger().warning(DiscordUtils.tag("blankman"));
             e.printStackTrace();
         }

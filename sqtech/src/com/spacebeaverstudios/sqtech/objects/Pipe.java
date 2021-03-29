@@ -108,12 +108,13 @@ public class Pipe implements CanCheckIntact {
                             if (machine.getOutputType() == Machine.TransferType.ITEMS) {
                                 machine.setItemOutputPipe(this);
                                 itemInputMachines.add(machine);
-                            } else {
+                            } else if (machine.getOutputType() == Machine.TransferType.POWER) {
                                 machine.setPowerOutputPipe(this);
                                 powerInputMachines.add(machine);
                             }
                         } else {
-                            if (machine.getItemInputPipeMaterials().contains(pipeMaterial) && !machine.getItemInputPipes().contains(this)) {
+                            if (machine.getItemInputPipeMaterials().contains(pipeMaterial)
+                                    && !machine.getItemInputPipes().contains(this)) {
                                 machine.getItemInputPipes().add(this);
                                 itemOutputMachines.add(machine);
                             }
@@ -190,18 +191,14 @@ public class Pipe implements CanCheckIntact {
         }
     }
 
-    public boolean canUsePower(Integer amount) {
+    public int getAvailablePower() {
+        int amount = 0;
         for (Machine machine : powerInputMachines) {
             if (machine instanceof BatteryMachine) {
-                BatteryMachine batteryMachine = (BatteryMachine) machine;
-                if (batteryMachine.getPower() >= amount) {
-                    return true;
-                } else if (batteryMachine.getPower() != 0) {
-                    amount -= batteryMachine.getPower();
-                }
+                amount += ((BatteryMachine) machine).getPower();
             }
         }
-        return false;
+        return amount;
     }
     public boolean tryUsePower(Integer amount) {
         HashMap<BatteryMachine, Integer> powerDeducted = new HashMap<>();

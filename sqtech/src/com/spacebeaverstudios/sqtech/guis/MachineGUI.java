@@ -41,13 +41,15 @@ public class MachineGUI extends GUI {
             this.getGuiItems().add(inventoryButtonItem);
         }
 
-        GUIItem chooseOutputItem = new GUIItem("Choose Output Pipe Color", ChatColor.GOLD + "Output Type: " + ChatColor.AQUA
-                + (machine.getOutputType() == Machine.TransferType.ITEMS ? "Items" : "BV") + "\n " + ChatColor.GOLD + "Selected Color: "
-                + getColorName(machine.getOutputPipeMaterial()),
-                (machine.getOutputPipeMaterial() == null ? Material.GLASS : machine.getOutputPipeMaterial()),
-                new OpenMachineGUIFunction(new ChooseOutputColorGUI(machine), machine));
-        inventory.addItem(chooseOutputItem.getItemStack());
-        this.getGuiItems().add(chooseOutputItem);
+        if (machine.getOutputType() != null) {
+            GUIItem chooseOutputItem = new GUIItem("Choose Output Pipe Color", ChatColor.GOLD + "Output Type: " + ChatColor.AQUA
+                    + (machine.getOutputType() == Machine.TransferType.ITEMS ? "Items" : "BV") + "\n " + ChatColor.GOLD + "Selected Color: "
+                    + getColorName(machine.getOutputPipeMaterial()),
+                    (machine.getOutputPipeMaterial() == null ? Material.GLASS : machine.getOutputPipeMaterial()),
+                    new OpenMachineGUIFunction(new ChooseOutputColorGUI(machine), machine));
+            inventory.addItem(chooseOutputItem.getItemStack());
+            this.getGuiItems().add(chooseOutputItem);
+        }
 
         if (machine.getInputTypes().contains(Machine.TransferType.ITEMS)) {
             StringBuilder chooseInputsLore = new StringBuilder(ChatColor.GOLD + "Selected Colors: ");
@@ -118,7 +120,7 @@ public class MachineGUI extends GUI {
             case MAGENTA_STAINED_GLASS:
                 return ChatColor.LIGHT_PURPLE + "Magenta";
             case LIGHT_BLUE_STAINED_GLASS:
-                return ChatColor.BLUE + "Light Blue";
+                return ChatColor.AQUA + "Light Blue";
             case YELLOW_STAINED_GLASS:
                 return ChatColor.YELLOW + "Yellow";
             case LIME_STAINED_GLASS:

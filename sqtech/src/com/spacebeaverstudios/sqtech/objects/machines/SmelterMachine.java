@@ -57,7 +57,7 @@ public class SmelterMachine extends Machine {
 
     public void tick() {
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
-        if (canUsePower(50)) {
+        if (getAvailablePower() >= 50) {
             ItemStack smeltable = null;
             for (ItemStack stack : getInventory()) {
                 if (recipes.containsKey(stack.getType())) {
