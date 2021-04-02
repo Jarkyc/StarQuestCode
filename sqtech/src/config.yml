@@ -1,0 +1,55 @@
+replicator:
+  blockstoitems:
+    # wall signs
+    OAK_WALL_SIGN: OAK_SIGN
+    BIRCH_WALL_SIGN: BIRCH_SIGN
+    DARK_OAK_WALL_SIGN: DARK_OAK_SIGN
+    JUNGLE_WALL_SIGN: JUNGLE_SIGN
+    ACACIA_WALL_SIGN: ACACIA_SIGN
+    SPRUCE_WALL_SIGN: SPRUCE_SIGN
+  halvecost:
+    # doors
+    - OAK_DOOR
+    - BIRCH_DOOR
+    - DARK_OAK_DOOR
+    - JUNGLE_DOOR
+    - ACACIA_DOOR
+    - SPRUCE_DOOR
+    - IRON_DOOR
+    # beds
+    - BLACK_BED
+    - BLUE_BED
+    - BROWN_BED
+    - CYAN_BED
+    - GRAY_BED
+    - GREEN_BED
+    - LIGHT_BLUE_BED
+    - LIGHT_GRAY_BED
+    - LIME_BED
+    - MAGENTA_BED
+    - ORANGE_BED
+    - PINK_BED
+    - PURPLE_BED
+    - RED_BED
+    - WHITE_BED
+    - YELLOW_BED
+    # banners
+    - BLACK_BANNER
+    - BLUE_BANNER
+    - BROWN_BANNER
+    - CYAN_BANNER
+    - GRAY_BANNER
+    - GREEN_BANNER
+    - LIGHT_BLUE_BANNER
+    - LIGHT_GRAY_BANNER
+    - LIME_BANNER
+    - MAGENTA_BANNER
+    - ORANGE_BANNER
+    - PINK_BANNER
+    - PURPLE_BANNER
+    - RED_BANNER
+    - WHITE_BANNER
+    - YELLOW_BANNER
+  ignore:
+    - AIR
+    - BEDROCK

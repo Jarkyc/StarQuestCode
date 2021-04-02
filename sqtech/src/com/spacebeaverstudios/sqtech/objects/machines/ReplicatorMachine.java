@@ -9,13 +9,9 @@ import com.spacebeaverstudios.sqtech.objects.BoxLocation;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Sign;
+import org.bukkit.block.*;
 import org.bukkit.block.data.Directional;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
@@ -48,7 +44,7 @@ public class ReplicatorMachine extends Machine {
     public void init() {
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
         sign.setLine(0, ChatColor.BLUE + "Replicator");
-        sign.setLine(1, ChatColor.RED + "<-- From");
+        sign.setLine(1, "<-- From");
         sign.setLine(2, "To -->");
         sign.setLine(3, "");
         sign.update();
@@ -95,7 +91,7 @@ public class ReplicatorMachine extends Machine {
         // height
         int height = 0;
         currentBlock = getSign().getBlock().getRelative(backwards).getLocation();
-        while (currentBlock.getBlock().getType() == Material.BRICKS && currentBlock.getBlockY() < 256) {
+        while (currentBlock.getBlock().getType() == Material.BRICKS) {
             height++;
             currentBlock.add(0, 1, 0);
         }
@@ -156,10 +152,10 @@ public class ReplicatorMachine extends Machine {
         copyFromLeft = !copyFromLeft;
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
         if (copyFromLeft) {
-            sign.setLine(1, ChatColor.RED + "<-- From");
+            sign.setLine(1, "<-- From");
             sign.setLine(2, " To  -->");
         } else {
-            sign.setLine(1, ChatColor.RED + "From -->");
+            sign.setLine(1, "From -->");
             sign.setLine(2, "<-- To");
         }
         sign.update();
@@ -177,15 +173,15 @@ public class ReplicatorMachine extends Machine {
     public void tick() {
         // do nothing, all the functionality is in GUI
     }
-    public void replicate(Player player) {
-        // TODO
-    }
 
-    public ArrayList<ItemStack> getBlocksToReplicate() {
-        // TODO
-    }
     public ArrayList<Inventory> getChestInventories() {
-        // TODO
+        Location checking = getSign().clone().subtract(0, 1, 0);
+        ArrayList<Inventory> inventories = new ArrayList<>();
+        while (checking.getBlock().getType() == Material.CHEST) {
+            inventories.add(((Chest) checking.getBlock().getState()).getInventory());
+            checking.subtract(0, 1, 0);
+        }
+        return inventories;
     }
 
     public List<TransferType> getInputTypes() {

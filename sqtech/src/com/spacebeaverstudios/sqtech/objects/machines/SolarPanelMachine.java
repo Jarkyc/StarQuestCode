@@ -43,14 +43,13 @@ public class SolarPanelMachine extends Machine {
     public void tick() {
         Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
         if (getPowerOutputPipe() != null && getPowerOutputPipe().connectedToBattery()) {
-            if (daylightDetector.getWorld().getTime() > 0 && daylightDetector.getWorld().getTime() < 12000) {
-                if (daylightDetector.getBlock().getLightFromSky() == 15) {
-                    getPowerOutputPipe().powerToBattery(2);
-                    sign.setLine(1, ChatColor.GREEN + "Sunlight");
-                    sign.setLine(2, "+2 BV/second");
-                    sign.update();
-                    return;
-                }
+            if (daylightDetector.getWorld().getTime() > 0 && daylightDetector.getWorld().getTime() < 12000
+                    && daylightDetector.getBlock().getLightFromSky() == 15) {
+                getPowerOutputPipe().powerToBattery(2);
+                sign.setLine(1, ChatColor.GREEN + "Sunlight");
+                sign.setLine(2, "+2 BV/second");
+                sign.update();
+                return;
             } else {
                 sign.setLine(1, ChatColor.RED + "No Sunlight");
             }

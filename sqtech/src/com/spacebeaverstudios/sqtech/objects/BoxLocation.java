@@ -24,4 +24,13 @@ public class BoxLocation {
     public void setPointTwo(Location pointTwo) {
         this.pointTwo = pointTwo;
     }
+
+    public Location getSortedPointOne() {
+        return new Location(pointOne.getWorld(), Math.min(pointOne.getX(), pointTwo.getX()),
+                Math.min(pointOne.getY(), pointTwo.getY()), Math.min(pointOne.getZ(), pointTwo.getZ()));
+    }
+    public Location getSortedPointTwo() {
+        return new Location(pointTwo.getWorld(), Math.max(pointOne.getX(), pointTwo.getX()),
+                Math.max(pointOne.getY(), pointTwo.getY()), Math.max(pointOne.getZ(), pointTwo.getZ()));
+    }
 }

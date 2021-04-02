@@ -2,6 +2,7 @@ package com.spacebeaverstudios.sqtech.guis.guifunctions;
 
 import com.spacebeaverstudios.sqcore.gui.guifunctions.GUIFunction;
 import com.spacebeaverstudios.sqtech.objects.machines.ReplicatorMachine;
+import com.spacebeaverstudios.sqtech.utils.ReplicatorUtils;
 import org.bukkit.entity.Player;
 
 public class ReplicateGUIFunction extends GUIFunction {
@@ -12,6 +13,6 @@ public class ReplicateGUIFunction extends GUIFunction {
     }
 
     public void run(Player player) {
-        machine.replicate(player);
+        ReplicatorUtils.replicate(machine, player);
     }
 }

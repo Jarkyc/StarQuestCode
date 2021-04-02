@@ -9,6 +9,7 @@ import com.spacebeaverstudios.sqtech.objects.Pipe;
 import com.spacebeaverstudios.sqtech.objects.machines.BatteryMachine;
 import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import com.spacebeaverstudios.sqtech.objects.machines.SmelterMachine;
+import com.spacebeaverstudios.sqtech.utils.ReplicatorUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -23,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class SQTech extends JavaPlugin {
+    // TODO: ownership of machines
+
 	private static SQTech instance;
 
     public static SQTech getInstance() {
@@ -45,6 +48,11 @@ public class SQTech extends JavaPlugin {
 
         SmelterMachine.initializeRecipes();
 
+        if (!(new File(getDataFolder().getAbsolutePath() + "/config.yml")).exists()) {
+            this.saveDefaultConfig();
+        }
+        ReplicatorUtils.initializeConfig();
+
         loadMachines();
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
@@ -57,14 +65,30 @@ public class SQTech extends JavaPlugin {
                     Location sign = machine.getSign();
                     if (sign.getWorld().isChunkLoaded((int) Math.floor(sign.getBlockX() / 16f),
                             (int) Math.floor(sign.getBlockZ() / 16f))) {
-                        machine.tick();
+                    	try {
+	                        machine.tick();
+	                    } catch (ClassCastException e) {
+                            getLogger().warning(DiscordUtils.tag("blankman") + " Sign Potentially Not Found: "
+                                    + machine.getSign().getWorld().getName() + ", " + machine.getSign().getBlockX() + ", "
+                                    + machine.getSign().getBlockY() + ", " + machine.getSign().getBlockZ());
+                            machine.checkIntact();
+	                    	e.printStackTrace();
+	                    }
                     }
                 }
             }
             for (Machine machine : batteryMachines) {
                 Location sign = machine.getSign();
                 if (sign.getWorld().isChunkLoaded((int) Math.floor(sign.getBlockX() / 16f), (int) Math.floor(sign.getBlockZ() / 16f))) {
-                    machine.tick();
+                    try {
+                        machine.tick();
+                    } catch (ClassCastException e) {
+                        getLogger().warning(DiscordUtils.tag("blankman") + " Sign Potentially Not Found: "
+                                + machine.getSign().getWorld().getName() + ", " + machine.getSign().getBlockX() + ", "
+                                + machine.getSign().getBlockY() + ", " + machine.getSign().getBlockZ());
+                        machine.checkIntact();
+                        e.printStackTrace();
+                    }
                 }
             }
 
