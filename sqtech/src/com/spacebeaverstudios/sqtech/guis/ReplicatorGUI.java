@@ -24,7 +24,6 @@ public class ReplicatorGUI extends GUI {
         Inventory inventory = Bukkit.createInventory(null, 9, getInventoryName());
 
         int blocks = 0;
-        // TODO: this isn't the proper amount of power due to halveCost and slabs
         for (Integer amount : ReplicatorUtils.getBlocksToReplicate(machine).values()) {
             blocks += amount;
         }
@@ -53,7 +52,6 @@ public class ReplicatorGUI extends GUI {
     @Override
     public void onClose() {
         super.onClose();
-        machine.setGUIPlayer(getPlayer());
-//        (new MachineGUI(machine)).open(getPlayer()); TODO
+        machine.setGUIPlayer(null);
     }
 }

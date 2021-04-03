@@ -98,7 +98,7 @@ public class ReplicatorMachine extends Machine {
 
         // boxes
         currentBlock = getSign().getBlock().getRelative(backwards).getLocation();
-        int xMod, zMod; // referring to left direction
+        int xMod, zMod; // referring to right direction
         switch(backwards) {
             case NORTH:
                 xMod = 1;
@@ -133,15 +133,15 @@ public class ReplicatorMachine extends Machine {
                 .getRelative(backwards, length).getLocation();
 
         if (copyFromLeft) {
-            copyFromBox.setPointOne(leftPointOne);
-            copyFromBox.setPointTwo(leftPointTwo);
-            copyToBox.setPointOne(rightPointOne);
-            copyToBox.setPointTwo(rightPointTwo);
-        } else {
             copyFromBox.setPointOne(rightPointOne);
             copyFromBox.setPointTwo(rightPointTwo);
             copyToBox.setPointOne(leftPointOne);
             copyToBox.setPointTwo(leftPointTwo);
+        } else {
+            copyFromBox.setPointOne(leftPointOne);
+            copyFromBox.setPointTwo(leftPointTwo);
+            copyToBox.setPointOne(rightPointOne);
+            copyToBox.setPointTwo(rightPointTwo);
         }
     }
 

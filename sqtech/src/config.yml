@@ -33,23 +33,19 @@ replicator:
     - RED_BED
     - WHITE_BED
     - YELLOW_BED
-    # banners
-    - BLACK_BANNER
-    - BLUE_BANNER
-    - BROWN_BANNER
-    - CYAN_BANNER
-    - GRAY_BANNER
-    - GREEN_BANNER
-    - LIGHT_BLUE_BANNER
-    - LIGHT_GRAY_BANNER
-    - LIME_BANNER
-    - MAGENTA_BANNER
-    - ORANGE_BANNER
-    - PINK_BANNER
-    - PURPLE_BANNER
-    - RED_BANNER
-    - WHITE_BANNER
-    - YELLOW_BANNER
   ignore:
     - AIR
     - BEDROCK
+    # piston heads
+    - MOVING_PISTON
+    - PISTON_HEAD
+    # multi-block plants because fuck that
+    - BAMBOO
+    - BAMBOO_SAPLING
+    - LARGE_FERN
+    - LILAC
+    - PETRIFIED_OAK_SLAB # dunno what this is but it's labelled Bisectable
+    - ROSE_BUSH
+    - SUNFLOWER
+    - TALL_GRASS
+    - TALL_SEAGRASS

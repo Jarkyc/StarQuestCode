@@ -11,10 +11,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class BlocksToReplicateGUI extends ListGUI {
     private final ReplicatorMachine machine;
@@ -29,7 +26,10 @@ public class BlocksToReplicateGUI extends ListGUI {
     public List<Object> getObjectList() {
         chestInventories = machine.getChestInventories(); // done here so I don't call it a bunch
         blocksToReplicate = ReplicatorUtils.getBlocksToReplicate(machine);
-        return new ArrayList<>(blocksToReplicate.keySet());
+        ArrayList<Object> toReturn = new ArrayList<>(blocksToReplicate.keySet());
+        toReturn.sort(Comparator.comparingInt(o -> blocksToReplicate.get((Material) o)));
+        Collections.reverse(toReturn);
+        return toReturn;
     }
 
     public GUIItem getObjectItem(Object obj) {
