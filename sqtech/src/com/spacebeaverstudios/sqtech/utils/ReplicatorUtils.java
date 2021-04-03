@@ -5,12 +5,10 @@ import com.spacebeaverstudios.sqtech.objects.machines.ReplicatorMachine;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.block.data.*;
-import org.bukkit.block.data.type.Bed;
-import org.bukkit.block.data.type.Door;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Slab;
-import org.bukkit.block.data.type.Stairs;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -82,60 +80,6 @@ public class ReplicatorUtils {
         return blocksToReplicate;
     }
 
-    private static void copyRelevantBlockData(Block block, Block newBlock) {
-        // doing this manually to prevent accidentally copying the wrong things, fuck me
-        BlockData blockData = block.getBlockData();
-        BlockData newBlockData = newBlock.getBlockData();
-
-        // have to do this manually to prevent bugs
-        if (blockData instanceof Bed) {
-            newBlock.setBlockData(Bukkit.createBlockData(block.getType(), (data) -> {
-                Bed bed = (Bed) blockData;
-                Bed newBed = (Bed) data;
-
-                newBed.setPart(bed.getPart());
-                newBed.setFacing(bed.getFacing());
-            }));
-            return;
-        }
-        if (blockData instanceof Door) {
-            newBlock.setBlockData(Bukkit.createBlockData(block.getType()), false);
-            Door door = (Door) blockData;
-            Door newDoor = (Door) newBlock.getBlockData();
-
-            newDoor.setHinge(door.getHinge());
-            newDoor.setHalf(door.getHalf());
-            newDoor.setOpen(door.isOpen());
-            newDoor.setFacing(door.getFacing());
-
-            newBlock.setBlockData(newDoor);
-            return;
-        }
-
-        // normal block data stuff
-        if (blockData instanceof Directional) {
-            ((Directional) newBlockData).setFacing(((Directional) blockData).getFacing());
-        }
-        if (blockData instanceof Rotatable) {
-            ((Rotatable) newBlockData).setRotation(((Rotatable) blockData).getRotation());
-        }
-        if (blockData instanceof FaceAttachable) {
-            ((FaceAttachable) newBlockData).setAttachedFace(((FaceAttachable) blockData).getAttachedFace());
-        }
-        if (blockData instanceof Openable) {
-            ((Openable) newBlockData).setOpen(((Openable) blockData).isOpen());
-        }
-        if (blockData instanceof Orientable) {
-            ((Orientable) newBlockData).setAxis(((Orientable) blockData).getAxis());
-        }
-        if (blockData instanceof Stairs) {
-            ((Stairs) newBlockData).setShape(((Stairs) blockData).getShape());
-            ((Stairs) newBlockData).setHalf(((Stairs) blockData).getHalf());
-        }
-
-        newBlock.setBlockData(newBlockData);
-    }
-
     public static void replicate(ReplicatorMachine machine, Player player) {
         Location scanFromPointOne = machine.getCopyFromBox().getSortedPointOne();
         Location scanFromPointTwo = machine.getCopyFromBox().getSortedPointTwo();
@@ -203,11 +147,12 @@ public class ReplicatorUtils {
 
                         // copy the block
                         if (paid) {
-                            // have to do this manually to prevent bugs
-                            if (!block.getType().toString().endsWith("_BED") && !block.getType().toString().endsWith("_DOOR")) {
-                                newBlock.setType(block.getType());
+                            BlockData newBlockData = block.getBlockData().clone();
+                            // prevent exploits
+                            if (newBlockData instanceof Ageable) {
+                                ((Ageable) newBlockData).setAge(0);
                             }
-                            copyRelevantBlockData(block, newBlock);
+                            newBlock.setBlockData(newBlockData, false);
 
                             // copy sign text
                             if (block.getState() instanceof Sign) {
