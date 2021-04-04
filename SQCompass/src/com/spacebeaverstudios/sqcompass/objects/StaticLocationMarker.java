@@ -23,8 +23,8 @@ public class StaticLocationMarker implements CompassMarker {
     }
 
     public int getYaw(Player player) {
-        return (int) Math.round(Math.toDegrees(
-                Math.atan2(player.getLocation().getX()-location.getX(), location.getZ()-player.getLocation().getZ())));
+        return (int) Math.round(Math.toDegrees(Math.atan2(player.getLocation().getX()-location.getX(),
+                location.getZ()-player.getLocation().getZ())));
     }
 
     public char getMarker() {

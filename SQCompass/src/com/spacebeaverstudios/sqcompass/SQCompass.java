@@ -17,12 +17,13 @@ public class SQCompass extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        if (!(new File(getDataFolder().getAbsolutePath() + "/config.yml")).exists()) this.saveDefaultConfig();
+        if (!(new File(getDataFolder().getAbsolutePath() + "/config.yml")).exists()) {
+            this.saveDefaultConfig();
+        }
         CompassUtils.loadCommonMarkers();
         CompassUtils.loadShowCompassHashMap();
         CompassUtils.loadCustomMarkers();
         CompassUtils.loadCommonMarkersEnabled();
-        this.reloadConfig();
 
         getServer().getPluginManager().registerEvents(new PlayerJoinQuitListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerMoveListener(), this);

@@ -51,8 +51,7 @@ public class CompassUtils {
     public static void loadCommonMarkers() {
         for (String key : SQCompass.getInstance().getConfig().getConfigurationSection("commonmarkers").getKeys(false)) {
             try {
-                ConfigurationSection configSection = SQCompass.getInstance().getConfig()
-                        .getConfigurationSection("commonmarkers." + key);
+                ConfigurationSection configSection = SQCompass.getInstance().getConfig().getConfigurationSection("commonmarkers." + key);
                 commonMarkers.put(key, new StaticLocationMarker(
                         new Location(Bukkit.getWorld( configSection.getString("world")), configSection.getInt("x"), 0,
                                 configSection.getInt("z")),
@@ -89,16 +88,16 @@ public class CompassUtils {
     public static void saveShowCompassHashMap() {
         try {
             FileWriter writer = new FileWriter(SQCompass.getInstance().getDataFolder().getAbsolutePath() + "/hidden.txt");
-            for (UUID uuid : showCompassHashMap.keySet())
-                if (!showCompassHashMap.get(uuid))
+            for (UUID uuid : showCompassHashMap.keySet()) {
+                if (!showCompassHashMap.get(uuid)) {
                     writer.write(uuid.toString() + "\n");
+                }
+            }
             writer.close();
         } catch (IOException e) {
             SQCompass.getInstance().getLogger().warning(DiscordUtils.tag("blankman") + " Error saving SQCompass/hidden.txt");
             e.printStackTrace();
         }
-
-        SQCompass.getInstance().getLogger().info("Saved SQCompass/hidden.txt");
     }
 
     public static void loadCustomMarkers() {
@@ -142,8 +141,6 @@ public class CompassUtils {
                     + " Error saving SQCompass/custommarkers.txt");
             e.printStackTrace();
         }
-
-        SQCompass.getInstance().getLogger().info("Saved SQCompass/custommarkers.txt");
     }
 
     public static void loadCommonMarkersEnabled() {
@@ -192,13 +189,17 @@ public class CompassUtils {
             for (String name : commonMarkersEnabled.get(player.getUniqueId())) {
                 markers.get(player).add(commonMarkers.get(name));
             }
-        } else commonMarkersEnabled.put(player.getUniqueId(), new ArrayList<>());
+        } else {
+            commonMarkersEnabled.put(player.getUniqueId(), new ArrayList<>());
+        }
 
         if (customMarkers.containsKey(player.getUniqueId())) {
             for (CompassMarker marker : customMarkers.get(player.getUniqueId()).values()) {
                 markers.get(player).add(marker);
             }
-        } else customMarkers.put(player.getUniqueId(), new HashMap<>());
+        } else {
+            customMarkers.put(player.getUniqueId(), new HashMap<>());
+        }
 
         bossBars.put(player, Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID));
         if (!showCompassHashMap.containsKey(player.getUniqueId())) {
@@ -215,34 +216,48 @@ public class CompassUtils {
     }
 
     public static void render(Player player) {
-        if (!showCompassHashMap.get(player.getUniqueId())) return;
+        if (!showCompassHashMap.get(player.getUniqueId())) {
+            return;
+        }
 
         HashMap<Integer, CompassMarker> fovPositions = new HashMap<>();
         for (CompassMarker marker : markers.get(player)) {
-            if (marker.isWorldSpecific() && !player.getLocation().getWorld().equals(marker.getWorld())) continue;
+            if (marker.isWorldSpecific() && !player.getLocation().getWorld().equals(marker.getWorld())) {
+                continue;
+            }
 
             int markerYaw = marker.getYaw(player);
             int yawDiff = Math.round(markerYaw-player.getLocation().getYaw()) % 360;
-            if (yawDiff < -180) yawDiff += 360;
-            else if (yawDiff > 180) yawDiff -= 360;
+            if (yawDiff < -180) {
+                yawDiff += 360;
+            } else if (yawDiff > 180) {
+                yawDiff -= 360;
+            }
 
             if (Math.abs(yawDiff) <= 60) {
                 int index = (yawDiff/4)+16;
-                if (!fovPositions.containsKey(index)) fovPositions.put(index, marker);
-                else if (fovPositions.get(index).getImportance() < marker.getImportance()) fovPositions.put(index, marker);
+                if (!fovPositions.containsKey(index)) {
+                    fovPositions.put(index, marker);
+                } else if (fovPositions.get(index).getImportance() < marker.getImportance()) {
+                    fovPositions.put(index, marker);
+                }
             }
         }
 
         StringBuilder compassText = new StringBuilder();
         for (int i = 0; i <= 31; i++) {
             if (i == 16) {
-                if (fovPositions.containsKey(i)) compassText.append(fovPositions.get(i).getColor()).append(ChatColor.UNDERLINE)
-                        .append(fovPositions.get(i).getMarker());
-                else compassText.append(ChatColor.GRAY).append(ChatColor.UNDERLINE).append("-");
+                if (fovPositions.containsKey(i)) {
+                    compassText.append(fovPositions.get(i).getColor()).append(ChatColor.UNDERLINE).append(fovPositions.get(i).getMarker());
+                } else {
+                    compassText.append(ChatColor.GRAY).append(ChatColor.UNDERLINE).append("-");
+                }
             } else {
-                if (fovPositions.containsKey(i)) compassText.append(fovPositions.get(i).getColor())
-                        .append(fovPositions.get(i).getMarker());
-                else compassText.append(ChatColor.GRAY).append("-");
+                if (fovPositions.containsKey(i)) {
+                    compassText.append(fovPositions.get(i).getColor()).append(fovPositions.get(i).getMarker());
+                } else {
+                    compassText.append(ChatColor.GRAY).append("-");
+                }
             }
         }
         bossBars.get(player).setTitle(compassText.toString());

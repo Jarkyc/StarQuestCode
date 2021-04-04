@@ -51,9 +51,12 @@ public class AddMarkerCmd extends SQCmd {
             return;
         }
 
-        if (args.length == 6) marker = new StaticLocationMarker(new Location((World) args[3], (int) args[4], 0, (int) args[5]),
+        if (args.length == 6) {
+            marker = new StaticLocationMarker(new Location((World) args[3], (int) args[4], 0, (int) args[5]),
                     (char) args[1], (ChatColor) args[2], 10);
-        else marker = new StaticLocationMarker(player.getLocation(), (char) args[1], (ChatColor) args[2], 10);
+        } else {
+            marker = new StaticLocationMarker(player.getLocation(), (char) args[1], (ChatColor) args[2], 10);
+        }
 
         CompassUtils.getMarkers().get(player).add(marker);
         CompassUtils.getCustomMarkers().get(player.getUniqueId()).put(args[0].toString(), marker);

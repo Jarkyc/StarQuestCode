@@ -18,6 +18,8 @@ public class HideCompassCmd extends SQCmd {
             CompassUtils.getShowCompassHashMap().put(player.getUniqueId(), false);
             CompassUtils.getBossBars().get(player).removeAll();
             player.sendMessage(ChatColor.GREEN + "The compass has been hidden from you.");
-        } else player.sendMessage(ChatColor.RED + "The compass is already hidden from you!");
+        } else {
+            player.sendMessage(ChatColor.RED + "The compass is already hidden from you!");
+        }
     }
 }

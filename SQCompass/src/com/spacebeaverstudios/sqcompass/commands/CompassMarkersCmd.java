@@ -22,9 +22,11 @@ public class CompassMarkersCmd extends SQCmd {
         HashMap<String, StaticLocationMarker> commonMarkers = CompassUtils.getCommonMarkers();
         HashMap<String, StaticLocationMarker> theirCommonMarkers = new HashMap<>();
 
-        for (String name : commonMarkers.keySet())
-            if (CompassUtils.getMarkers().get(player).contains(commonMarkers.get(name)))
+        for (String name : commonMarkers.keySet()) {
+            if (CompassUtils.getMarkers().get(player).contains(commonMarkers.get(name))) {
                 theirCommonMarkers.put(name, commonMarkers.get(name));
+            }
+        }
 
         if (customMarkers.get(player.getUniqueId()).size() != 0 || theirCommonMarkers.size() != 0) {
             if (customMarkers.get(player.getUniqueId()).size() != 0) {
@@ -45,6 +47,8 @@ public class CompassMarkersCmd extends SQCmd {
                             + marker.getWorld().getName());
                 }
             }
-        } else player.sendMessage(ChatColor.RED + "You have no custom or common compass markers enabled!");
+        } else {
+            player.sendMessage(ChatColor.RED + "You have no custom or common compass markers enabled!");
+        }
     }
 }
