@@ -29,8 +29,8 @@ public class ChatUtils {
     private static final HashMap<Player, ChatUtils.Channel> playerChannels = new HashMap<>();
     private static final HashMap<UUID, Integer> mutedPlayers = new HashMap<>();
     private static final HashMap<Player, Player> replies = new HashMap<>();
-    private static final ArrayList<Player> spies = new ArrayList<>();
-    private static final ArrayList<Player> superSpies = new ArrayList<>();
+    private static final ArrayList<Player> channelSpies = new ArrayList<>();
+    private static final ArrayList<Player> msgSpies = new ArrayList<>();
     private static Chat chat = null;
 
     public static HashMap<Player, Channel> getPlayerChannels() {
@@ -42,17 +42,22 @@ public class ChatUtils {
     public static HashMap<Player, Player> getReplies() {
         return replies;
     }
-    public static ArrayList<Player> getSpies() {
-        return spies;
+    public static ArrayList<Player> getChannelSpies() {
+        return channelSpies;
     }
-    public static ArrayList<Player> getSuperSpies() {
-        return superSpies;
+    public static ArrayList<Player> getMsgSpies() {
+        return msgSpies;
     }
 
     public static String getRankString(Player player) {
-        if (chat.getGroupPrefix("world", chat.getPrimaryGroup(player)).equals("")) return "";
-        else return ChatColor.translateAlternateColorCodes('&',
-                chat.getGroupPrefix("world", chat.getPrimaryGroup(player)));
+        if (chat == null) {
+            SQChat.getInstance().getLogger().warning(DiscordUtils.tag("blankman") + " chat == null");
+            return "";
+        } else if (chat.getGroupPrefix("world", chat.getPrimaryGroup(player)).equals("")) {
+            return "";
+        } else {
+            return ChatColor.translateAlternateColorCodes('&', chat.getGroupPrefix("world", chat.getPrimaryGroup(player)));
+        }
     }
 
     public static void loadMutedPlayers() {
@@ -77,20 +82,26 @@ public class ChatUtils {
         File file = new File(SQChat.getInstance().getDataFolder().getAbsolutePath() + "/muted.txt");
         try {
             FileWriter writer = new FileWriter(file);
-            for (UUID uuid : mutedPlayers.keySet()) writer.write(uuid.toString() + "," + mutedPlayers.get(uuid).toString() + "\n");
+            for (UUID uuid : mutedPlayers.keySet()) {
+                writer.write(uuid.toString() + "," + mutedPlayers.get(uuid).toString() + "\n");
+            }
             writer.close();
         } catch (IOException e) {
             SQChat.getInstance().getLogger().warning(DiscordUtils.tag("blankman") + " File saving error from SQChat!");
             e.printStackTrace();
         }
-
-        SQChat.getInstance().getLogger().info("Saved muted players");
     }
 
     public static void setupChat() {
         RegisteredServiceProvider<Chat> chatProvider = Bukkit.getServer().getServicesManager().getRegistration(net.milkbowl.vault.chat.Chat.class);
         if (chatProvider == null) {
             SQChat.getInstance().getLogger().warning(DiscordUtils.tag("blankman") + " chatProvider == null");
-        } else chat = chatProvider.getProvider();
+        } else {
+            chat = chatProvider.getProvider();
+        }
+    }
+
+    public static String getSocialSpyPrefix() {
+        return ChatColor.DARK_BLUE + "[" + ChatColor.BLUE + "SocialSpy" + ChatColor.DARK_BLUE + "] ";
     }
 }

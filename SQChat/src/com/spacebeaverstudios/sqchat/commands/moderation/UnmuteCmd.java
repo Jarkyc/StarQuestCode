@@ -1,4 +1,4 @@
-package com.spacebeaverstudios.sqchat.commands;
+package com.spacebeaverstudios.sqchat.commands.moderation;
 
 import com.spacebeaverstudios.sqchat.utils.ChatUtils;
 import com.spacebeaverstudios.sqcore.commands.SQCmd;

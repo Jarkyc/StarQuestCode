@@ -1,12 +1,18 @@
 package com.spacebeaverstudios.sqchat;
 
-import com.spacebeaverstudios.sqchat.commands.*;
+import com.spacebeaverstudios.sqchat.commands.channel.*;
+import com.spacebeaverstudios.sqchat.commands.moderation.*;
+import com.spacebeaverstudios.sqchat.commands.moderation.jane.JaneCmd;
+import com.spacebeaverstudios.sqchat.commands.msg.*;
 import com.spacebeaverstudios.sqchat.listeners.*;
 import com.spacebeaverstudios.sqchat.utils.ChatUtils;
+import com.spacebeaverstudios.sqchat.utils.JaneUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.UUID;
 
 public class SQChat extends JavaPlugin {
@@ -22,6 +28,13 @@ public class SQChat extends JavaPlugin {
 
         ChatUtils.setupChat();
         ChatUtils.loadMutedPlayers();
+
+        if (!(new File(getDataFolder().getAbsolutePath() + "/config.yml")).exists()) {
+            this.saveDefaultConfig();
+        }
+        JaneUtils.loadConfig();
+        JaneUtils.loadBannedPlayers();
+        JaneUtils.beginAnnouncing();
 
         getServer().getPluginManager().registerEvents(new ChatListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerLogInOutListener(), this);
@@ -51,17 +64,25 @@ public class SQChat extends JavaPlugin {
         getCommand("unmute").setExecutor(unmuteCmd);
         getCommand("unmute").setTabCompleter(unmuteCmd);
 
-        getCommand("socialspy").setExecutor(new SocialSpyCmd());
-        getCommand("supersocialspy").setExecutor(new SuperSocialSpyCmd());
+        SocialSpyCmd socialSpyCmd = new SocialSpyCmd();
+        getCommand("socialspy").setExecutor(socialSpyCmd);
+        getCommand("socialspy").setTabCompleter(socialSpyCmd);
+
+        JaneCmd janeCmd = new JaneCmd();
+        getCommand("jane").setExecutor(janeCmd);
+        getCommand("jane").setTabCompleter(janeCmd);
 
         // script to unmute people
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             for (UUID uuid : ChatUtils.getMutedPlayers().keySet()) {
-                int newValue = ChatUtils.getMutedPlayers().get(uuid)-1;
-                if (newValue == 0) {
+                ChatUtils.getMutedPlayers().put(uuid, ChatUtils.getMutedPlayers().get(uuid)-1);
+                if (ChatUtils.getMutedPlayers().get(uuid) == 0) {
                     ChatUtils.getMutedPlayers().remove(uuid);
-                    Bukkit.getPlayer(uuid).sendMessage(ChatColor.GREEN + "You have been unmuted!");
-                } else ChatUtils.getMutedPlayers().put(uuid, newValue);
+                    Player player = Bukkit.getPlayer(uuid);
+                    if (player != null) {
+                        player.sendMessage(ChatColor.GREEN + "You have been unmuted!");
+                    }
+                }
             }
         }, 1200, 1200);
     }
@@ -69,5 +90,6 @@ public class SQChat extends JavaPlugin {
     @Override
     public void onDisable() {
         ChatUtils.saveMutedPlayers();
+        JaneUtils.saveBannedPlayers();
     }
 }

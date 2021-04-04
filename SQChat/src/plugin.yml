@@ -35,9 +35,9 @@ commands:
     description: Sets a player in or out of social spy mode.
     permission: SQChat.socialspy
     permission-message: You do not have permission to use this command!
-  supersocialspy:
-    description: Sets a player in or out of super social spy mode.
-    permission: SQChat.supersocialspy
+  jane:
+    description: Supercommand for Jane.
+    permission: SQChat.jane
     permission-message: You do not have permission to use this command!
 permissions:
   SQChat.staff:
@@ -46,5 +46,5 @@ permissions:
     default: op
   SQChat.socialspy:
     default: op
-  SQChat.supersocialspy:
+  SQChat.jane:
     default: op

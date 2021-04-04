@@ -1,4 +1,4 @@
-package com.spacebeaverstudios.sqchat.commands;
+package com.spacebeaverstudios.sqchat.commands.msg;
 
 import com.spacebeaverstudios.sqchat.utils.ChatUtils;
 import com.spacebeaverstudios.sqcore.commands.SQCmd;
@@ -39,7 +39,9 @@ public class MessageCmd extends SQCmd {
 
         StringBuilder message = new StringBuilder();
         message.append(args[1]);
-        for (int i = 2; i < args.length; i++) message.append(" ").append(args[i]);
+        for (int i = 2; i < args.length; i++) {
+            message.append(" ").append(args[i]);
+        }
 
         player.sendMessage(ChatColor.BLUE + "[" + ChatColor.AQUA + "You -> " + target.getDisplayName()
                 + ChatColor.BLUE + "] " + ChatColor.WHITE + message);
@@ -48,11 +50,11 @@ public class MessageCmd extends SQCmd {
 
         target.playSound(target.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
 
-        for (Player spy : ChatUtils.getSpies()) {
-            if (!spy.equals(player) && !spy.equals(target))
-                spy.sendMessage(ChatColor.DARK_BLUE + "[" + ChatColor.BLUE + "SocialSpy" + ChatColor.DARK_BLUE + "] "
-                    + ChatColor.BLUE + "[" + ChatColor.AQUA + player.getDisplayName() + " -> " + target.getDisplayName()
-                    + ChatColor.BLUE + "] " + ChatColor.WHITE + message);
+        for (Player spy : ChatUtils.getMsgSpies()) {
+            if (!spy.equals(player) && !spy.equals(target)) {
+                spy.sendMessage(ChatUtils.getSocialSpyPrefix() + ChatColor.BLUE + "[" + ChatColor.AQUA + player.getDisplayName()
+                        + " -> " + target.getDisplayName() + ChatColor.BLUE + "] " + ChatColor.WHITE + message);
+            }
         }
     }
 }

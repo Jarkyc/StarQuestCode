@@ -18,7 +18,7 @@ public class PlayerLogInOutListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         ChatUtils.getPlayerChannels().remove(event.getPlayer());
         ChatUtils.getReplies().remove(event.getPlayer());
-        ChatUtils.getSpies().remove(event.getPlayer());
-        ChatUtils.getSuperSpies().remove(event.getPlayer());
+        ChatUtils.getChannelSpies().remove(event.getPlayer());
+        ChatUtils.getMsgSpies().remove(event.getPlayer());
     }
 }

@@ -1,6 +1,8 @@
 package com.spacebeaverstudios.sqchat.listeners;
 
+import com.spacebeaverstudios.sqchat.SQChat;
 import com.spacebeaverstudios.sqchat.utils.ChatUtils;
+import com.spacebeaverstudios.sqchat.utils.JaneUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -30,6 +32,8 @@ public class ChatListener implements Listener {
                 event.setFormat(ChatColor.GRAY + "[" + ChatColor.GREEN + "G" + ChatColor.GRAY + "] "
                         + ChatUtils.getRankString(player) + ChatColor.WHITE + player.getDisplayName() + ": " + event.getMessage());
                 event.setCancelled(false);
+                SQChat.getInstance().getServer().getScheduler().scheduleSyncDelayedTask(SQChat.getInstance(),
+                        () -> JaneUtils.maybeReply(event.getMessage(), event.getPlayer()), 1);
                 break;
             case PLANET:
                 for (Player p : player.getLocation().getWorld().getPlayers()) {
@@ -37,11 +41,11 @@ public class ChatListener implements Listener {
                     p.sendMessage(ChatColor.GRAY + "[" + ChatColor.BLUE + "P" + ChatColor.GRAY + "] "
                             + ChatUtils.getRankString(player) + ChatColor.WHITE + player.getDisplayName() + ": " + event.getMessage());
                 }
-                for (Player spy : ChatUtils.getSuperSpies()) {
-                    if (!inMessage.contains(spy))
-                        spy.sendMessage(ChatColor.DARK_BLUE + "[" + ChatColor.BLUE + "SocialSpy" + ChatColor.DARK_BLUE + "] "
-                            + ChatColor.GRAY + "[" + ChatColor.BLUE + "P" + ChatColor.GRAY + "] "
-                            + ChatUtils.getRankString(player) + ChatColor.WHITE + player.getDisplayName() + ": " + event.getMessage());
+                for (Player spy : ChatUtils.getChannelSpies()) {
+                    if (!inMessage.contains(spy)) {
+                        spy.sendMessage(ChatUtils.getSocialSpyPrefix() + ChatColor.GRAY + "[" + ChatColor.BLUE + "P" + ChatColor.GRAY + "] "
+                                + ChatUtils.getRankString(player) + ChatColor.WHITE + player.getDisplayName() + ": " + event.getMessage());
+                    }
                 }
                 break;
             case LOCAL:
@@ -53,11 +57,11 @@ public class ChatListener implements Listener {
                                 + ChatUtils.getRankString(player) + ChatColor.WHITE + player.getDisplayName() + ": " + event.getMessage());
                     }
                 }
-                for (Player spy : ChatUtils.getSuperSpies()) {
-                    if (!inMessage.contains(spy))
-                        spy.sendMessage(ChatColor.DARK_BLUE + "[" + ChatColor.BLUE + "SocialSpy" + ChatColor.DARK_BLUE + "] "
-                                + ChatColor.GRAY + "[" + ChatColor.YELLOW + "L" + ChatColor.GRAY + "] "
+                for (Player spy : ChatUtils.getChannelSpies()) {
+                    if (!inMessage.contains(spy)) {
+                        spy.sendMessage(ChatUtils.getSocialSpyPrefix() + ChatColor.GRAY + "[" + ChatColor.YELLOW + "L" + ChatColor.GRAY + "] "
                                 + ChatUtils.getRankString(player) + ChatColor.WHITE + player.getDisplayName() + ": " + event.getMessage());
+                    }
                 }
                 break;
             case TOWN:
