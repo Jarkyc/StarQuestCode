@@ -1,0 +1,5 @@
+name: SQSpace
+main: com.spacebeaverstudios.sqspace.SQSpace
+version: 1.0
+api-version: 1.13
+commands:
