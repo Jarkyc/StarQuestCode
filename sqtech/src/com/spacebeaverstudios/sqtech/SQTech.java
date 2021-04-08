@@ -47,13 +47,15 @@ public class SQTech extends JavaPlugin {
         getCommand("pipe").setExecutor(new PipeCmd());
 
         SmelterMachine.initializeRecipes();
+        Machine.initializeSignTexts();
 
         if (!(new File(getDataFolder().getAbsolutePath() + "/config.yml")).exists()) {
             this.saveDefaultConfig();
         }
         ReplicatorUtils.initializeConfig();
 
-        loadMachines();
+        // should run it after all plugins initialize their sign texts
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this, this::loadMachines, 1);
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             ArrayList<Machine> batteryMachines = new ArrayList<>();
@@ -67,8 +69,8 @@ public class SQTech extends JavaPlugin {
                             (int) Math.floor(sign.getBlockZ() / 16f))) {
                     	try {
 	                        machine.tick();
-	                    } catch (ClassCastException e) {
-                            getLogger().warning(DiscordUtils.tag("blankman") + " Sign Potentially Not Found: "
+	                    } catch (Exception e) {
+                            getLogger().warning(DiscordUtils.tag("blankman") + " Error at machine with sign location: "
                                     + machine.getSign().getWorld().getName() + ", " + machine.getSign().getBlockX() + ", "
                                     + machine.getSign().getBlockY() + ", " + machine.getSign().getBlockZ());
                             machine.checkIntact();
@@ -82,8 +84,8 @@ public class SQTech extends JavaPlugin {
                 if (sign.getWorld().isChunkLoaded((int) Math.floor(sign.getBlockX() / 16f), (int) Math.floor(sign.getBlockZ() / 16f))) {
                     try {
                         machine.tick();
-                    } catch (ClassCastException e) {
-                        getLogger().warning(DiscordUtils.tag("blankman") + " Sign Potentially Not Found: "
+                    } catch (Exception e) {
+                        getLogger().warning(DiscordUtils.tag("blankman") + " Error at machine with sign location: "
                                 + machine.getSign().getWorld().getName() + ", " + machine.getSign().getBlockX() + ", "
                                 + machine.getSign().getBlockY() + ", " + machine.getSign().getBlockZ());
                         machine.checkIntact();
@@ -219,7 +221,6 @@ public class SQTech extends JavaPlugin {
                 writer.write(text.toString() + "," + machine.getCustomSaveText() + "\n");
             }
             writer.close();
-            getLogger().info("Saved SQTech/machines.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }

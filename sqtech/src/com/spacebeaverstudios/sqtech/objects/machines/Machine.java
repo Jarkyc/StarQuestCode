@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Function;
 
 public abstract class Machine implements CanCheckIntact {
     public enum TransferType {
@@ -31,6 +32,7 @@ public abstract class Machine implements CanCheckIntact {
     // static
     private static final ArrayList<Machine> machines = new ArrayList<>();
     private static final HashMap<Location, Machine> machinesByBlock = new HashMap<>();
+    private static final HashMap<String, Function<? super Block, ? extends Machine>> signTexts = new HashMap<>();
 
     public static ArrayList<Machine> getMachines() {
         return machines;
@@ -39,35 +41,31 @@ public abstract class Machine implements CanCheckIntact {
         return machinesByBlock;
     }
 
+    public static void addSignText(String text, Function<? super Block, ? extends Machine> function) {
+        signTexts.put(text, function);
+    }
+    public static void initializeSignTexts() {
+        // can only initialize the machines in this plugin, which is why it's done like this
+        addSignText("[battery]", BatteryMachine::new);
+        addSignText("[crafter]", CrafterMachine::new);
+        addSignText("[autocrafter]", CrafterMachine::new);
+        addSignText("[auto crafter]", CrafterMachine::new);
+        addSignText("[replicator]", ReplicatorMachine::new);
+        addSignText("[bottlefiller]", BottleFillerMachine::new);
+        addSignText("[bottle filler]", BottleFillerMachine::new);
+        addSignText("[solarpanel]", SolarPanelMachine::new);
+        addSignText("[solar panel]", SolarPanelMachine::new);
+        addSignText("[coalgenerator]", CoalGeneratorMachine::new);
+        addSignText("[coal generator]", CoalGeneratorMachine::new);
+        addSignText("[hopper]", HopperMachine::new);
+    }
     public static boolean createFromSign(Block sign) {
-        switch(((Sign) sign.getState()).getLine(0).toLowerCase()) {
-            case "[smelter]":
-                new SmelterMachine(sign);
-                return true;
-            case "[hopper]":
-                new HopperMachine(sign);
-                return true;
-            case "[coal generator]":
-            case "[coalgenerator]":
-                new CoalGeneratorMachine(sign);
-                return true;
-            case "[solar panel]":
-            case "[solarpanel]":
-                new SolarPanelMachine(sign);
-                return true;
-            case "[battery]":
-                new BatteryMachine(sign);
-                return true;
-            case "[crafter]":
-            case "[auto crafter]":
-            case "[autocrafter]":
-                new CrafterMachine(sign);
-                return true;
-            case "[replicator]":
-                new ReplicatorMachine(sign);
-                return true;
-            default:
-                return false;
+        String text = ((Sign) sign.getState()).getLine(0).toLowerCase();
+        if (signTexts.containsKey(text)) {
+            signTexts.get(text).apply(sign);
+            return true;
+        } else {
+            return false;
         }
     }
 

@@ -32,11 +32,16 @@ public class SmelterMachine extends Machine {
         }
     }
 
+    static {
+        addSignText("[smelter]", SmelterMachine::new);
+    }
+
     // instance
     private int smeltCooldown = 0;
 
     public SmelterMachine(Block sign) {
-        super(sign, "Smelter", "Smelts items like a furnace.");
+        super(sign, "Smelter", "Smelts items like a furnace.\n " + ChatColor.GOLD + "Speed: "
+                + ChatColor.GRAY + "1 item/5 second\n " + ChatColor.GOLD + "Power Cost: " + ChatColor.GRAY + "50 BV/item");
     }
 
     public HashMap<Vector, Material> getSchema() {
@@ -67,9 +72,11 @@ public class SmelterMachine extends Machine {
             }
 
             if (smeltable != null) {
+                smeltCooldown++;
                 sign.setLine(1, ChatColor.GREEN + "Active");
                 sign.setLine(2, "-50 BV/5 seconds");
-                smeltCooldown++;
+                sign.setLine(3, "[" + (new String(new char[smeltCooldown])).replace("\0", "|")
+                        + (new String(new char[5 - smeltCooldown])).replace("\0", ".") + "]");
                 if (smeltCooldown == 5) {
                     smeltCooldown = 0;
                     tryUsePower(50);
@@ -84,10 +91,12 @@ public class SmelterMachine extends Machine {
                 smeltCooldown = 0;
                 sign.setLine(1, ChatColor.RED + "Inactive");
                 sign.setLine(2, "0 BV/second");
+                sign.setLine(3, "");
             }
         } else {
             sign.setLine(1, ChatColor.RED + "No Power");
             sign.setLine(2, "0 BV/second");
+            sign.setLine(3, "");
         }
         sign.update();
     }
