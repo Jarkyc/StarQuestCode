@@ -17,8 +17,7 @@ public class SolarPanelMachine extends Machine {
     private Location daylightDetector;
 
     public SolarPanelMachine(Block sign) {
-        super(sign, "Solar Panel", "Generates BV from sunlight.\n " + ChatColor.GOLD + "Power Generation: "
-                + ChatColor.GRAY + "2 BV/second");
+        super(sign);
     }
 
     public HashMap<Vector, Material> getSchema() {
@@ -29,7 +28,7 @@ public class SolarPanelMachine extends Machine {
     }
 
     public void init() {
-        Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
+        Sign sign = (Sign) getSign().getBlock().getState();
         sign.setLine(0, ChatColor.BLUE + "Solar Panel");
         sign.setLine(1, ChatColor.RED + "Inactive");
         sign.setLine(2, "0 BV/second");
@@ -41,7 +40,7 @@ public class SolarPanelMachine extends Machine {
     }
 
     public void tick() {
-        Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
+        Sign sign = (Sign) getSign().getBlock().getState();
         if (getPowerOutputPipe() != null && getPowerOutputPipe().connectedToBattery()) {
             if (daylightDetector.getWorld().getTime() > 0 && daylightDetector.getWorld().getTime() < 12000
                     && daylightDetector.getBlock().getLightFromSky() == 15) {
@@ -65,6 +64,12 @@ public class SolarPanelMachine extends Machine {
     }
     public TransferType getOutputType() {
         return TransferType.POWER;
+    }
+    public String getMachineName() {
+        return "Solar Panel";
+    }
+    public String getMachineInfo() {
+        return "Generates BV from sunlight.\n " + ChatColor.GOLD + "Power Generation: " + ChatColor.GRAY + "2 BV/second";
     }
 
     public String getSignText() {

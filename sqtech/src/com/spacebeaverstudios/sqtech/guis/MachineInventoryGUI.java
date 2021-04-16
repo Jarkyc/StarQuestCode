@@ -43,7 +43,7 @@ public class MachineInventoryGUI extends GUI {
     }
 
     public Inventory createInventory() {
-        Inventory inventory = Bukkit.createInventory(null, 27, this.getInventoryName());
+        Inventory inventory = Bukkit.createInventory(null, 27, getInventoryName());
 
         List<Integer> ironBarSlots = Arrays.asList(0, 1, 2, 6, 7, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20, 24, 25);
         for (Integer slot : ironBarSlots) {

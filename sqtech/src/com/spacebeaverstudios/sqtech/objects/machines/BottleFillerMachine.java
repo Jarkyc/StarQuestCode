@@ -18,8 +18,7 @@ import java.util.List;
 
 public class BottleFillerMachine extends Machine {
     public BottleFillerMachine(Block sign) {
-        super(sign, "Bottle Filler", "Fills glass bottles with water.\n " + ChatColor.GOLD + "Speed: "
-                + ChatColor.GRAY + "1 item/second\n " + ChatColor.GOLD + "Power Cost: " + ChatColor.GRAY + "10 BV/item");
+        super(sign);
     }
 
     public HashMap<Vector, Material> getSchema() {
@@ -30,7 +29,7 @@ public class BottleFillerMachine extends Machine {
     }
 
     public void init() {
-        Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
+        Sign sign = (Sign) getSign().getBlock().getState();
         sign.setLine(0, ChatColor.BLUE + "Bottle Filler");
         sign.setLine(1, ChatColor.RED + "Inactive");
         sign.setLine(2, "0 BV/second");
@@ -39,7 +38,7 @@ public class BottleFillerMachine extends Machine {
     }
 
     public void tick() {
-        Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
+        Sign sign = (Sign) getSign().getBlock().getState();
         Levelled cauldron = (Levelled) getSign().getBlock().getRelative(
                 ((Directional) getSign().getBlock().getBlockData()).getFacing().getOppositeFace()).getBlockData();
         if (cauldron.getLevel() == cauldron.getMaximumLevel()) {
@@ -81,6 +80,13 @@ public class BottleFillerMachine extends Machine {
     }
     public TransferType getOutputType() {
         return TransferType.ITEMS;
+    }
+    public String getMachineName() {
+        return "Bottle Filler";
+    }
+    public String getMachineInfo() {
+        return "Fills glass bottles with water.\n " + ChatColor.GOLD + "Speed: " + ChatColor.GRAY + "1 item/second\n "
+                + ChatColor.GOLD + "Power Cost: " + ChatColor.GRAY + "10 BV/item";
     }
 
     public String getSignText() {

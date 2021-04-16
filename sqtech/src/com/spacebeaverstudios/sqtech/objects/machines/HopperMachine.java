@@ -22,7 +22,7 @@ public class HopperMachine extends Machine {
     }
 
     public HopperMachine(Block sign) {
-        super(sign, "Hopper Input/Output", "Allows pipe input/output to and from the attached hopper.");
+        super(sign);
     }
 
     public HashMap<Vector, Material> getSchema() {
@@ -33,7 +33,7 @@ public class HopperMachine extends Machine {
     }
 
     public void init() {
-        Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
+        Sign sign = (Sign) getSign().getBlock().getState();
         sign.setLine(0, ChatColor.BLUE + "Hopper Input/Output");
         sign.setLine(1, "");
         sign.setLine(2, "");
@@ -73,6 +73,12 @@ public class HopperMachine extends Machine {
     }
     public TransferType getOutputType() {
         return TransferType.ITEMS;
+    }
+    public String getMachineName() {
+        return "Hopper Input/Output";
+    }
+    public String getMachineInfo() {
+        return "Allows pipe input/output to and from the attached hopper.";
     }
 
     public String getSignText() {

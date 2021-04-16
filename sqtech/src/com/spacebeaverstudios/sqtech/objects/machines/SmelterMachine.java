@@ -5,6 +5,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.Lightable;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
@@ -32,16 +34,11 @@ public class SmelterMachine extends Machine {
         }
     }
 
-    static {
-        addSignText("[smelter]", SmelterMachine::new);
-    }
-
     // instance
     private int smeltCooldown = 0;
 
     public SmelterMachine(Block sign) {
-        super(sign, "Smelter", "Smelts items like a furnace.\n " + ChatColor.GOLD + "Speed: "
-                + ChatColor.GRAY + "1 item/5 second\n " + ChatColor.GOLD + "Power Cost: " + ChatColor.GRAY + "50 BV/item");
+        super(sign);
     }
 
     public HashMap<Vector, Material> getSchema() {
@@ -52,7 +49,7 @@ public class SmelterMachine extends Machine {
     }
 
     public void init() {
-        Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
+        Sign sign = (Sign) getSign().getBlock().getState();
         sign.setLine(0, ChatColor.BLUE + "Smelter");
         sign.setLine(1, ChatColor.RED + "Inactive");
         sign.setLine(2, "0 BV/second");
@@ -61,7 +58,10 @@ public class SmelterMachine extends Machine {
     }
 
     public void tick() {
-        Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
+        Sign sign = (Sign) getSign().getBlock().getState();
+        Lightable furnace = (Lightable) getSign().getBlock()
+                .getRelative(((Directional) getSign().getBlock().getBlockData()).getFacing().getOppositeFace()).getBlockData();
+
         if (getAvailablePower() >= 50) {
             ItemStack smeltable = null;
             for (ItemStack stack : getInventory()) {
@@ -77,6 +77,7 @@ public class SmelterMachine extends Machine {
                 sign.setLine(2, "-50 BV/5 seconds");
                 sign.setLine(3, "[" + (new String(new char[smeltCooldown])).replace("\0", "|")
                         + (new String(new char[5 - smeltCooldown])).replace("\0", ".") + "]");
+                furnace.setLit(true);
                 if (smeltCooldown == 5) {
                     smeltCooldown = 0;
                     tryUsePower(50);
@@ -92,13 +93,18 @@ public class SmelterMachine extends Machine {
                 sign.setLine(1, ChatColor.RED + "Inactive");
                 sign.setLine(2, "0 BV/second");
                 sign.setLine(3, "");
+                furnace.setLit(false);
             }
         } else {
+            smeltCooldown = 0;
             sign.setLine(1, ChatColor.RED + "No Power");
             sign.setLine(2, "0 BV/second");
             sign.setLine(3, "");
+            furnace.setLit(false);
         }
         sign.update();
+        getSign().getBlock().getRelative(((Directional) getSign().getBlock().getBlockData()).getFacing().getOppositeFace())
+                .setBlockData(furnace);
     }
 
     public List<TransferType> getInputTypes() {
@@ -106,6 +112,13 @@ public class SmelterMachine extends Machine {
     }
     public TransferType getOutputType() {
         return TransferType.ITEMS;
+    }
+    public String getMachineName() {
+        return "Smelter";
+    }
+    public String getMachineInfo() {
+        return "Smelts items like a furnace.\n " + ChatColor.GOLD + "Speed: " + ChatColor.GRAY + "1 item/5 second\n "
+                + ChatColor.GOLD + "Power Cost: " + ChatColor.GRAY + "50 BV/item";
     }
 
     public String getSignText() {

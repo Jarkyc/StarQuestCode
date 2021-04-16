@@ -25,8 +25,7 @@ public class ReplicatorMachine extends Machine {
     private BoxLocation copyToBox;
 
     public ReplicatorMachine(Block sign) {
-        super(sign, "Replicator", "Replicates ships.\n "
-                + ChatColor.GOLD + "BV / block replicated: " + ChatColor.AQUA + "5");
+        super(sign);
     }
 
     public HashMap<Vector, Material> getSchema() {
@@ -42,7 +41,7 @@ public class ReplicatorMachine extends Machine {
     }
 
     public void init() {
-        Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
+        Sign sign = (Sign) getSign().getBlock().getState();
         sign.setLine(0, ChatColor.BLUE + "Replicator");
         sign.setLine(1, "<-- From");
         sign.setLine(2, "To -->");
@@ -121,7 +120,7 @@ public class ReplicatorMachine extends Machine {
                 xMod = 0;
                 zMod = 0;
                 SQTech.getInstance().getLogger().warning(DiscordUtils.tag("blankman")
-                        + " goddammit the default in switch(backwards) happened wtf");
+                        + " goddammit the default in switch(backwards) in ReplicatorMachine#recalcalateBoxes happened wtf");
                 break;
         }
 
@@ -150,7 +149,7 @@ public class ReplicatorMachine extends Machine {
     }
     public void swapReplicationSide() {
         copyFromLeft = !copyFromLeft;
-        Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
+        Sign sign = (Sign) getSign().getBlock().getState();
         if (copyFromLeft) {
             sign.setLine(1, "<-- From");
             sign.setLine(2, " To  -->");
@@ -190,6 +189,12 @@ public class ReplicatorMachine extends Machine {
     public TransferType getOutputType() {
         return null;
     }
+    public String getMachineName() {
+        return "Replicator";
+    }
+    public String getMachineInfo() {
+        return "Replicates ships.\n " + ChatColor.GOLD + "BV / block replicated: " + ChatColor.AQUA + "5";
+    }
 
     @Override
     public GUIItem getCustomOptionsGUIItem() {
@@ -200,11 +205,9 @@ public class ReplicatorMachine extends Machine {
     public String getSignText() {
         return "[replicator]";
     }
-    @Override
     public String getCustomSaveText() {
         return String.valueOf(copyFromLeft);
     }
-    @Override
     public void loadCustomSaveText(String text) {
         copyFromLeft = text.equals("true");
     }

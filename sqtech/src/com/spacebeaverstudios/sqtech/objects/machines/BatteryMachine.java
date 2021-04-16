@@ -23,7 +23,7 @@ public class BatteryMachine extends Machine {
     }
 
     public BatteryMachine(Block sign) {
-        super(sign, "Battery", "Stores BV.");
+        super(sign);
     }
 
     public HashMap<Vector, Material> getSchema() {
@@ -34,7 +34,7 @@ public class BatteryMachine extends Machine {
     }
 
     public void init() {
-        Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
+        Sign sign = (Sign) getSign().getBlock().getState();
         sign.setLine(0, ChatColor.BLUE + "Battery");
         sign.setLine(1, "");
         sign.setLine(2, "0 BV");
@@ -43,7 +43,7 @@ public class BatteryMachine extends Machine {
     }
 
     public void tick() {
-        Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
+        Sign sign = (Sign) getSign().getBlock().getState();
         sign.setLine(2, power + " BV");
         sign.update();
     }
@@ -53,6 +53,12 @@ public class BatteryMachine extends Machine {
     }
     public TransferType getOutputType() {
         return TransferType.POWER;
+    }
+    public String getMachineName() {
+        return "Battery";
+    }
+    public String getMachineInfo() {
+        return "Stores BV.";
     }
 
     public String getSignText() {

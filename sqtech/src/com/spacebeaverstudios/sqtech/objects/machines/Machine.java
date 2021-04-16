@@ -58,6 +58,12 @@ public abstract class Machine implements CanCheckIntact {
         addSignText("[coalgenerator]", CoalGeneratorMachine::new);
         addSignText("[coal generator]", CoalGeneratorMachine::new);
         addSignText("[hopper]", HopperMachine::new);
+        addSignText("[brewer]", BrewerMachine::new);
+        addSignText("[autobrewer]", BrewerMachine::new);
+        addSignText("[auto brewer]", BrewerMachine::new);
+        addSignText("[smelter]", SmelterMachine::new);
+        addSignText("[autosmelter]", SmelterMachine::new);
+        addSignText("[auto smelter]", SmelterMachine::new);
     }
     public static boolean createFromSign(Block sign) {
         String text = ((Sign) sign.getState()).getLine(0).toLowerCase();
@@ -73,8 +79,6 @@ public abstract class Machine implements CanCheckIntact {
     private final Location sign;
     private final ArrayList<ItemStack> inventory = new ArrayList<>();
     private Player guiPlayer = null;
-    private final String machineName;
-    private final String machineInfo;
     private final ArrayList<Material> itemInputPipeMaterials = new ArrayList<>();
     private final ArrayList<Material> powerInputPipeMaterials = new ArrayList<>();
     private final ArrayList<Pipe> itemInputPipes = new ArrayList<>();
@@ -85,11 +89,9 @@ public abstract class Machine implements CanCheckIntact {
     private Location node = null;
     private final HashMap<Location, Material> blocks = new HashMap<>();
 
-    public Machine(Block sign, String machineName, String machineInfo) {
+    public Machine(Block sign) {
         blocks.put(sign.getLocation(), sign.getType());
         this.sign = sign.getLocation();
-        this.machineName = machineName;
-        this.machineInfo = machineInfo;
         if (detect(sign)) {
             machines.add(this);
             for (Location loc : blocks.keySet()) {
@@ -101,12 +103,6 @@ public abstract class Machine implements CanCheckIntact {
 
     public Location getSign() {
         return sign;
-    }
-    public String getMachineName() {
-        return machineName;
-    }
-    public String getMachineInfo() {
-        return machineInfo;
     }
     public ArrayList<ItemStack> getInventory() {
         return inventory;
@@ -404,7 +400,7 @@ public abstract class Machine implements CanCheckIntact {
             guiPlayer.closeInventory();
         }
         if (sign.getBlock().getType().toString().endsWith("_SIGN")) {
-            Sign signBlock = (Sign) sign.getWorld().getBlockAt(this.getSign()).getState();
+            Sign signBlock = (Sign) sign.getBlock().getState();
             signBlock.setLine(2, ChatColor.RED + "Broken");
             signBlock.update();
         }
@@ -448,6 +444,8 @@ public abstract class Machine implements CanCheckIntact {
 
     public abstract List<TransferType> getInputTypes();
     public abstract TransferType getOutputType();
+    public abstract String getMachineName();
+    public abstract String getMachineInfo();
 
     public GUIItem getCustomOptionsGUIItem() {
         return null;
@@ -458,6 +456,5 @@ public abstract class Machine implements CanCheckIntact {
         return "0";
     }
     public void loadCustomSaveText(String text) {
-
     }
 }

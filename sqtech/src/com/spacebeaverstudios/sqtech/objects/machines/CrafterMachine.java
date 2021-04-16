@@ -21,8 +21,7 @@ public class CrafterMachine extends Machine {
     private ItemStack outputItemStack = null;
 
     public CrafterMachine(Block sign) {
-        super(sign, "Auto Crafter", "Automatically crafts items.\n " + ChatColor.GOLD + "Speed: "
-                + ChatColor.GRAY + "1 craft/second\n " + ChatColor.GOLD + "Power Usage: " + ChatColor.GRAY + "10 BV/craft");
+        super(sign);
     }
 
     public HashMap<Vector, Material> getSchema() {
@@ -33,7 +32,7 @@ public class CrafterMachine extends Machine {
     }
 
     public void init() {
-        Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
+        Sign sign = (Sign) getSign().getBlock().getState();
         sign.setLine(0, ChatColor.BLUE + "Auto Crafter");
         sign.setLine(1, ChatColor.RED + "Inactive");
         sign.setLine(2, "0 BV/second");
@@ -42,7 +41,7 @@ public class CrafterMachine extends Machine {
     }
 
     public void tick() {
-        Sign sign = (Sign) getSign().getWorld().getBlockAt(this.getSign()).getState();
+        Sign sign = (Sign) getSign().getBlock().getState();
         if (outputItemStack != null) {
             @SuppressWarnings("unchecked")
             HashMap<Material, Integer> deductibleInputs = (HashMap<Material, Integer>) inputItems.clone();
@@ -117,8 +116,14 @@ public class CrafterMachine extends Machine {
     public TransferType getOutputType() {
         return TransferType.ITEMS;
     }
+    public String getMachineName() {
+        return "Auto Crafter";
+    }
+    public String getMachineInfo() {
+        return "Automatically crafts items.\n " + ChatColor.GOLD + "Speed: " + ChatColor.GRAY + "1 craft/second\n "
+                + ChatColor.GOLD + "Power Usage: " + ChatColor.GRAY + "10 BV/craft";
+    }
 
-    @Override
     public GUIItem getCustomOptionsGUIItem() {
         return new GUIItem("Choose Crafting Recipe", ChatColor.GRAY + "Craft the item you want the machine to craft.\n "
                 + ChatColor.GOLD + "Current Recipe: " + (outputItemStack == null ? ChatColor.GRAY + "None"
@@ -129,7 +134,6 @@ public class CrafterMachine extends Machine {
     public String getSignText() {
         return "[crafter]";
     }
-    @Override
     public String getCustomSaveText() {
         if (outputItemStack == null) {
             return "0";
@@ -141,7 +145,6 @@ public class CrafterMachine extends Machine {
             return text.toString();
         }
     }
-    @Override
     public void loadCustomSaveText(String text) {
         String[] textSplit = text.split(";");
 
