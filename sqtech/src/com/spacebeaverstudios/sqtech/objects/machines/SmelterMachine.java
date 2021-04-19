@@ -74,10 +74,11 @@ public class SmelterMachine extends Machine {
             if (smeltable != null) {
                 smeltCooldown++;
                 sign.setLine(1, ChatColor.GREEN + "Active");
-                sign.setLine(2, "-50 BV/5 seconds");
+                sign.setLine(2, "-10 BV/second");
                 sign.setLine(3, "[" + (new String(new char[smeltCooldown])).replace("\0", "|")
                         + (new String(new char[5 - smeltCooldown])).replace("\0", ".") + "]");
                 furnace.setLit(true);
+
                 if (smeltCooldown == 5) {
                     smeltCooldown = 0;
                     tryUsePower(50);

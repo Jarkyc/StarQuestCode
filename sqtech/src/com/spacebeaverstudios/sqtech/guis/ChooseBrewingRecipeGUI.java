@@ -44,7 +44,7 @@ public class ChooseBrewingRecipeGUI extends GUI {
             ingredientChosen = itemStack.getType();
             refreshInventory();
         } else {
-            machine.trySetRecipe(ingredientChosen, itemStack);
+            machine.trySetRecipe(ingredientChosen, itemStack, getPlayer());
             getPlayer().closeInventory();
         }
     }
