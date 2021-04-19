@@ -14,7 +14,6 @@ public class GravityUtils {
     static{
         noGravityWorld.add("space");
         noGravityWorld.add("slipspace");
-        noGravityWorld.add("world");
     }
 
     public static boolean hasNoGravity(String world){

@@ -1,0 +1,9 @@
+systems:
+  test:
+    x: 100
+    z: 100
+    planets:
+      testPlanet:
+        radius: 100
+        orbitRadius: 500
+        storedAngle: 0

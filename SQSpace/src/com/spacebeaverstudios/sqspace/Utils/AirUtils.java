@@ -14,7 +14,6 @@ public class AirUtils {
     static{
         noAirPlanets.add("space");
         noAirPlanets.add("slipspace");
-        noAirPlanets.add("world");
     }
 
     public static boolean hasSpaceSuit(Player player){
