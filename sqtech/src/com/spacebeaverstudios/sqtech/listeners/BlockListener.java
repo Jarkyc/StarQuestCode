@@ -2,12 +2,15 @@ package com.spacebeaverstudios.sqtech.listeners;
 
 import com.spacebeaverstudios.sqtech.objects.Pipe;
 import com.spacebeaverstudios.sqtech.objects.machines.Machine;
+import com.spacebeaverstudios.sqtech.objects.machines.PlanterMachine;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;

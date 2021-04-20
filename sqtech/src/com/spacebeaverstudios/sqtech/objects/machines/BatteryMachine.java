@@ -6,6 +6,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,11 +27,11 @@ public class BatteryMachine extends Machine {
         super(sign);
     }
 
-    public HashMap<Vector, Material> getSchema() {
+    public ArrayList<HashMap<Vector, Material>> getSchemas() {
         HashMap<Vector, Material> schema = new HashMap<>();
         schema.put(new Vector(1, 0, 0), Material.REDSTONE_BLOCK);
         schema.put(new Vector(2, 0, 0), Material.LAPIS_BLOCK);
-        return schema;
+        return new ArrayList<>(Collections.singletonList(schema));
     }
 
     public void init() {

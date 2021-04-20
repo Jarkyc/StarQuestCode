@@ -64,6 +64,7 @@ public abstract class Machine implements CanCheckIntact {
         addSignText("[smelter]", SmelterMachine::new);
         addSignText("[autosmelter]", SmelterMachine::new);
         addSignText("[auto smelter]", SmelterMachine::new);
+        addSignText("[planter]", PlanterMachine::new);
     }
     public static boolean createFromSign(Block sign) {
         String text = ((Sign) sign.getState()).getLine(0).toLowerCase();
@@ -90,14 +91,18 @@ public abstract class Machine implements CanCheckIntact {
     private final HashMap<Location, Material> blocks = new HashMap<>();
 
     public Machine(Block sign) {
-        blocks.put(sign.getLocation(), sign.getType());
         this.sign = sign.getLocation();
-        if (detect(sign)) {
-            machines.add(this);
-            for (Location loc : blocks.keySet()) {
-                machinesByBlock.put(loc, this);
+        for (HashMap<Vector, Material> schema : getSchemas()) {
+            blocks.clear();
+            blocks.put(sign.getLocation(), sign.getType());
+            if (detect(sign, schema)) {
+                machines.add(this);
+                for (Location loc : blocks.keySet()) {
+                    machinesByBlock.put(loc, this);
+                }
+                init();
+                break;
             }
-            init();
         }
     }
 
@@ -134,6 +139,9 @@ public abstract class Machine implements CanCheckIntact {
     public Location getNode() {
         return node;
     }
+    public HashMap<Location, Material> getBlocks() {
+        return blocks;
+    }
 
     public void setGUIPlayer(Player guiPlayer) {
         this.guiPlayer = guiPlayer;
@@ -147,10 +155,9 @@ public abstract class Machine implements CanCheckIntact {
 
     // schema is oriented so that positive x points to behind the sign, and positive z to the right
     // schemas MUST include a single node block (Material.LAPIS_BLOCK)
-    public abstract HashMap<Vector, Material> getSchema();
+    public abstract ArrayList<HashMap<Vector, Material>> getSchemas();
 
-    public boolean detect(Block sign) {
-        HashMap<Vector, Material> schema = getSchema();
+    public boolean detect(Block sign, HashMap<Vector, Material> schema) {
         Directional dir = (Directional) sign.getBlockData();
         for (Vector vec : schema.keySet()) {
             Block block = sign;
@@ -175,15 +182,12 @@ public abstract class Machine implements CanCheckIntact {
 
             if (block.getType() != schema.get(vec)) {
                 return false;
+            } else if (machinesByBlock.containsKey(block.getLocation()) && machinesByBlock.get(block.getLocation()) != this) {
+                return false;
             }
             blocks.put(block.getLocation(), block.getType());
             if (block.getType() == Material.LAPIS_BLOCK) {
                 node = block.getLocation();
-                if (machinesByBlock.containsKey(node)) {
-                    if (machinesByBlock.get(node) != this && machinesByBlock.get(node).getNode().equals(node)) {
-                        return false;
-                    }
-                }
             }
         }
 

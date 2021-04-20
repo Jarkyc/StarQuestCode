@@ -35,11 +35,11 @@ public class BrewerMachine extends Machine {
         super(sign);
     }
 
-    public HashMap<Vector, Material> getSchema() {
+    public ArrayList<HashMap<Vector, Material>> getSchemas() {
         HashMap<Vector, Material> schema = new HashMap<>();
         schema.put(new org.bukkit.util.Vector(1, 0, 0), Material.BREWING_STAND);
         schema.put(new org.bukkit.util.Vector(2, 0, 0), Material.LAPIS_BLOCK);
-        return schema;
+        return new ArrayList<>(Collections.singletonList(schema));
     }
 
     public void init() {

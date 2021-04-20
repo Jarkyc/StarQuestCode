@@ -28,7 +28,7 @@ public class ReplicatorMachine extends Machine {
         super(sign);
     }
 
-    public HashMap<Vector, Material> getSchema() {
+    public ArrayList<HashMap<Vector, Material>> getSchemas() {
         // to make things easier, only these count as the "core"
         // everything else can be added or removed later, and just gets recalculated
         HashMap<Vector, Material> schema = new HashMap<>();
@@ -37,7 +37,7 @@ public class ReplicatorMachine extends Machine {
         schema.put(new Vector(1, 0, 1), Material.BRICKS);
         schema.put(new Vector(1, 0, -1), Material.BRICKS);
         schema.put(new Vector(1, -1, 0), Material.LAPIS_BLOCK);
-        return schema;
+        return new ArrayList<>(Collections.singletonList(schema));
     }
 
     public void init() {

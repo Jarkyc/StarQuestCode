@@ -12,20 +12,18 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class BottleFillerMachine extends Machine {
     public BottleFillerMachine(Block sign) {
         super(sign);
     }
 
-    public HashMap<Vector, Material> getSchema() {
+    public ArrayList<HashMap<Vector, Material>> getSchemas() {
         HashMap<Vector, Material> schema = new HashMap<>();
         schema.put(new Vector(1, 0, 0), Material.CAULDRON);
         schema.put(new Vector(2, 0, 0), Material.LAPIS_BLOCK);
-        return schema;
+        return new ArrayList<>(Collections.singletonList(schema));
     }
 
     public void init() {

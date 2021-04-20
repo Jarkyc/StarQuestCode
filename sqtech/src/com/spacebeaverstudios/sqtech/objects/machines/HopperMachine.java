@@ -10,6 +10,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -25,11 +26,11 @@ public class HopperMachine extends Machine {
         super(sign);
     }
 
-    public HashMap<Vector, Material> getSchema() {
+    public ArrayList<HashMap<Vector, Material>> getSchemas() {
         HashMap<Vector, Material> schema = new HashMap<>();
         schema.put(new Vector(1, 0, 0), Material.HOPPER);
         schema.put(new Vector(2, 0, 0), Material.LAPIS_BLOCK);
-        return schema;
+        return new ArrayList<>(Collections.singletonList(schema));
     }
 
     public void init() {

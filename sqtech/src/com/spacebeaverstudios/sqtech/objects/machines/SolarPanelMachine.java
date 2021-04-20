@@ -10,6 +10,7 @@ import org.bukkit.block.data.Directional;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -20,11 +21,11 @@ public class SolarPanelMachine extends Machine {
         super(sign);
     }
 
-    public HashMap<Vector, Material> getSchema() {
+    public ArrayList<HashMap<Vector, Material>> getSchemas() {
         HashMap<Vector, Material> schema = new HashMap<>();
         schema.put(new Vector(1, 0, 0), Material.LAPIS_BLOCK);
         schema.put(new Vector(1, 1, 0), Material.DAYLIGHT_DETECTOR);
-        return schema;
+        return new ArrayList<>(Collections.singletonList(schema));
     }
 
     public void init() {

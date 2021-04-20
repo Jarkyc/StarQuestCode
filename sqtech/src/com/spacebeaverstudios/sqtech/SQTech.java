@@ -8,6 +8,7 @@ import com.spacebeaverstudios.sqtech.objects.CanCheckIntact;
 import com.spacebeaverstudios.sqtech.objects.Pipe;
 import com.spacebeaverstudios.sqtech.objects.machines.BatteryMachine;
 import com.spacebeaverstudios.sqtech.objects.machines.Machine;
+import com.spacebeaverstudios.sqtech.objects.machines.PlanterMachine;
 import com.spacebeaverstudios.sqtech.objects.machines.SmelterMachine;
 import com.spacebeaverstudios.sqtech.utils.ReplicatorUtils;
 import org.bukkit.Bukkit;
@@ -53,6 +54,7 @@ public class SQTech extends JavaPlugin {
             this.saveDefaultConfig();
         }
         ReplicatorUtils.initializeConfig();
+        PlanterMachine.initializePlants();
 
         // should run it after all plugins initialize their sign texts
         Bukkit.getScheduler().scheduleSyncDelayedTask(this, this::loadMachines, 1);
@@ -115,6 +117,7 @@ public class SQTech extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        PlanterMachine.sweepersToDefaultPosition();
         saveMachines();
     }
 
@@ -127,58 +130,64 @@ public class SQTech extends JavaPlugin {
 
                 while (scanner.hasNextLine()) {
                     String nextLine = scanner.nextLine();
-                    String[] line = nextLine.split(",");
+                    try {
+                        String[] line = nextLine.split(",");
 
-                    Sign sign = (Sign) (new Location(Bukkit.getWorld(line[1]), Integer.parseInt(line[2]),
-                            Integer.parseInt(line[3]), Integer.parseInt(line[4]))).getBlock().getState();
-                    sign.setLine(0, line[0]);
-                    sign.update();
-                    if (!Machine.createFromSign(sign.getBlock())) {
+                        Sign sign = (Sign) (new Location(Bukkit.getWorld(line[1]), Integer.parseInt(line[2]),
+                                Integer.parseInt(line[3]), Integer.parseInt(line[4]))).getBlock().getState();
+                        sign.setLine(0, line[0]);
+                        sign.update();
+                        if (!Machine.createFromSign(sign.getBlock())) {
+                            getLogger().warning(DiscordUtils.tag("blankman")
+                                    + " Failed to load machine: no machine from sign text. Line in file: " + nextLine);
+                            continue;
+                        }
+
+                        Machine machine = Machine.getMachinesByBlock().get(sign.getLocation());
+
+                        // pipe materials
+                        if (!line[5].equals("0")) {
+                            machine.setOutputPipeMaterial(Material.getMaterial(line[5]), null);
+                        }
+                        if (!line[6].equals("0")) {
+                            ArrayList<Material> materials = new ArrayList<>();
+                            for (String material : line[6].split(";")) {
+                                materials.add(Material.getMaterial(material));
+                            }
+                            machine.setItemInputPipeMaterials(materials, null);
+                        }
+                        if (!line[7].equals("0")) {
+                            ArrayList<Material> materials = new ArrayList<>();
+                            for (String material : line[7].split(";")) {
+                                materials.add(Material.getMaterial(material));
+                            }
+                            machine.setPowerInputPipeMaterials(materials, null);
+                        }
+
+                        // inventory
+                        if (!line[8].equals("0")) {
+                            for (String item : line[8].split(";")) {
+                                String[] itemSplit = item.split(":");
+                                machine.tryAddItemStack(new ItemStack(Material.getMaterial(itemSplit[0]), Integer.parseInt(itemSplit[1])));
+                            }
+                        }
+
+                        // custom options
+                        if (!line[9].equals("0")) {
+                            machine.loadCustomSaveText(line[9]);
+                        }
+                    } catch (Exception e) {
                         getLogger().warning(DiscordUtils.tag("blankman")
-                                + " Failed to load machine: no machine from sign text. Line in file: " + nextLine);
-                        continue;
-                    }
-
-                    Machine machine = Machine.getMachinesByBlock().get(sign.getLocation());
-
-                    // pipe materials
-                    if (!line[5].equals("0")) {
-                        machine.setOutputPipeMaterial(Material.getMaterial(line[5]), null);
-                    }
-                    if (!line[6].equals("0")) {
-                        ArrayList<Material> materials = new ArrayList<>();
-                        for (String material : line[6].split(";")) {
-                            materials.add(Material.getMaterial(material));
-                        }
-                        machine.setItemInputPipeMaterials(materials, null);
-                    }
-                    if (!line[7].equals("0")) {
-                        ArrayList<Material> materials = new ArrayList<>();
-                        for (String material : line[7].split(";")) {
-                            materials.add(Material.getMaterial(material));
-                        }
-                        machine.setPowerInputPipeMaterials(materials, null);
-                    }
-
-                    // inventory
-                    if (!line[8].equals("0")) {
-                        for (String item : line[8].split(";")) {
-                            String[] itemSplit = item.split(":");
-                            machine.tryAddItemStack(new ItemStack(Material.getMaterial(itemSplit[0]), Integer.parseInt(itemSplit[1])));
-                        }
-                    }
-
-                    // custom options
-                    if (!line[9].equals("0")) {
-                        machine.loadCustomSaveText(line[9]);
+                                + "Exception when loading a machine! Line: " + nextLine);
+                        e.printStackTrace();
                     }
                 }
 
                 scanner.close();
                 getLogger().info("Loaded SQTech/machines.txt");
             }
-        } catch (IOException | NullPointerException e) {
-            getLogger().warning(DiscordUtils.tag("blankman"));
+        } catch (IOException e) {
+            getLogger().warning(DiscordUtils.tag("blankman") + "IOException when loading SQTech/machines.txt");
             e.printStackTrace();
         }
     }
