@@ -3,7 +3,7 @@ systems:
     x: 100
     z: 100
     planets:
-      testPlanet:
-        radius: 100
+      world:
+        radius: 1000
         orbitRadius: 500
         storedAngle: 0

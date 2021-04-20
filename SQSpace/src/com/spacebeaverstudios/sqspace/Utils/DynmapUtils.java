@@ -2,12 +2,10 @@ package com.spacebeaverstudios.sqspace.Utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.dynmap.DynmapAPI;
-import org.dynmap.markers.CircleMarker;
-import org.dynmap.markers.Marker;
-import org.dynmap.markers.MarkerAPI;
-import org.dynmap.markers.MarkerSet;
+import org.dynmap.markers.*;
 
 public class DynmapUtils {
 
@@ -33,7 +31,7 @@ public class DynmapUtils {
 
     }
 
-    public static void createCircleMarker(String name, Location location, int radius){
+    public static void createCircleMarker(String name, Location location, int radius, String color){
         MarkerAPI api = dapi.getMarkerAPI();
         MarkerSet planets = api.getMarkerSet("planets");
 
@@ -41,17 +39,42 @@ public class DynmapUtils {
             planets = api.createMarkerSet("planets", "Planets", null, false);
         }
 
-        CircleMarker marker = planets.findCircleMarker(name + "'s Orbit");
+        CircleMarker marker = planets.findCircleMarker(name);
 
         if(marker != null){
             marker.deleteMarker();
             marker = null;
         }
 
-        marker = planets.createCircleMarker(name + "'s Orbit", name + "'s Orbit", false, location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), radius, radius, false);
+        marker = planets.createCircleMarker(name, name, false, location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), radius, radius, false);
 
         marker.setFillStyle(0, 0);
-        marker.setLineStyle(3, 1, Integer.parseInt("ffff00", 16));
+        marker.setLineStyle(3, 1, Integer.parseInt(color, 16));
+    }
+
+    public static void createLineMarker(String markerSetName, String lineLabel, String lineName, World world, double[] xCoords, double[] yCoords, double[] zCoords, String description, int lineWidth, double lineOpacity, String lineColorHex){
+        MarkerAPI markerAPI = dapi.getMarkerAPI();
+        MarkerSet markerSet = markerAPI.getMarkerSet(markerSetName);
+
+        if (markerSet == null) {
+
+            markerSet = markerAPI.createMarkerSet(markerSetName, markerSetName, null, false);
+
+        }
+
+        PolyLineMarker polyLineMarker = markerSet.findPolyLineMarker(lineLabel);
+
+        if (polyLineMarker != null) {
+
+            polyLineMarker.deleteMarker();
+            polyLineMarker = null;
+
+        }
+
+        polyLineMarker = markerSet.createPolyLineMarker(lineLabel, lineName, false, world.getName(), xCoords, yCoords, zCoords, false);
+        polyLineMarker.setDescription(description);
+        polyLineMarker.setLineStyle(lineWidth, lineOpacity, Integer.parseInt(lineColorHex, 16));
+
     }
 
 
