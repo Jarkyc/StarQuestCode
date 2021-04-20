@@ -1,9 +1,11 @@
 package com.spacebeaverstudios.sqcore;
 
+import com.spacebeaverstudios.sqcore.commands.Template.TemplateCmd;
 import com.spacebeaverstudios.sqcore.commands.World.WorldCmd;
 import com.spacebeaverstudios.sqcore.generator.VoidGenerator;
 import com.spacebeaverstudios.sqcore.utils.GUIUtils;
 import com.spacebeaverstudios.sqcore.listeners.*;
+import com.spacebeaverstudios.sqcore.utils.TemplateUtils;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -30,10 +32,12 @@ public class SQCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
 
         getCommand("world").setExecutor(new WorldCmd());
+        getCommand("template").setExecutor(new TemplateCmd());
 
         if (!(new File(getDataFolder().getAbsolutePath() + "/config.yml")).exists()) this.saveDefaultConfig();
 
         loadWorlds();
+        TemplateUtils.loadTemplates();
 
         this.reloadConfig();
 
@@ -48,6 +52,11 @@ public class SQCore extends JavaPlugin {
                 }
             }
         }, 1, 1);
+    }
+
+    @Override
+    public void onDisable(){
+        TemplateUtils.saveTemplates();
     }
 
     private void loadWorlds() {
