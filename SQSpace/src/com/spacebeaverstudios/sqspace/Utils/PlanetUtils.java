@@ -42,18 +42,18 @@ public class PlanetUtils {
 
     public static void loadPlanet(String name, String system, Location systemOrigin, ConfigurationSection section){
         DynmapUtils.createCircleMarker(name + "'s Orbit", systemOrigin, section.getInt("orbitRadius"), "ffff00");
-        planets.add(new Planet(name, systemOrigin, section.getInt("radius"), section.getInt("orbitRadius"), system, section.getInt("storedAngle") + 20));
+        planets.add(new Planet(name, systemOrigin, section.getInt("radius"), section.getInt("orbitRadius"), system, section.getInt("storedAngle") - 20));
 
         int radius = section.getInt("orbitRadius");
-        int angle = section.getInt("storedAngle") + 20;
+        int angle = section.getInt("storedAngle") - 20;
 
-        double x = radius * Math.cos(angle);
-        double z = radius * Math.sin(angle);
+        int x = (int) (radius * Math.cos(angle));
+        int z = (int) (radius * Math.sin(angle));
 
         x += systemOrigin.getX();
         z += systemOrigin.getZ();
 
-        DynmapUtils.createMarker("world", "planet_name" + name.toLowerCase(), name, name, "planets", new Location(systemOrigin.getWorld(), Math.floor(x), 100, Math.floor(z)));
+        DynmapUtils.createMarker("world", "planet_" + name + name.toLowerCase(), name, name, "planets", new Location(systemOrigin.getWorld(), Math.floor(x), 100, Math.floor(z)));
 
         WorldCreator worldCreator = new WorldCreator(name.toLowerCase());
         worldCreator.environment(World.Environment.NORMAL);
