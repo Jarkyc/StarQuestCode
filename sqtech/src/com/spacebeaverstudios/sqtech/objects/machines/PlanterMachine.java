@@ -148,18 +148,53 @@ public class PlanterMachine extends Machine {
         }
     }
 
+    private void tryPlant(Block below) {
+        ItemStack toRemove = null;
+        for (ItemStack itemStack : getInventory()) {
+            if (itemsToBlocks.containsKey(itemStack.getType())
+                    && canPlant.get(itemStack.getType()).contains(below.getRelative(BlockFace.DOWN).getType())
+                    && getAvailablePower() >= 20) {
+                if (itemStack.getType() == Material.SUGAR_CANE) {
+                    boolean canPlace = false;
+                    for (BlockFace face : Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST)) {
+                        if (below.getRelative(BlockFace.DOWN).getRelative(face).getType() == Material.WATER) {
+                            canPlace = true;
+                            break;
+                        }
+                    }
+                    if (!canPlace) {
+                        continue;
+                    }
+                }
+
+                tryUsePower(20);
+                below.setType(itemsToBlocks.get(itemStack.getType()));
+                itemStack.setAmount(itemStack.getAmount() - 1);
+                if (itemStack.getAmount() == 0) {
+                    toRemove = itemStack;
+                }
+                break;
+            }
+        }
+        if (toRemove != null) {
+            getInventory().remove(toRemove);
+        }
+    }
+
     public void tick() {
         Sign sign = (Sign) getSign().getBlock().getState();
         if (getAvailablePower() == 0) {
             sign.setLine(1, ChatColor.RED + "No Power");
         } else {
             sign.setLine(1, ChatColor.GREEN + "Active");
+
             // swap if the sweeper is at the end of the track
             if (currMove == startMove) {
                 direction = 1;
             } else if (currMove == endMove) {
                 direction = -1;
             }
+
             // check if can move
             boolean canMove = true;
             int sugarCanes = 0;
@@ -178,6 +213,7 @@ public class PlanterMachine extends Machine {
             if (sugarCanes * 20 > getAvailablePower()) {
                 canMove = false;
             }
+
             // if can't move, try to turn around
             if (!canMove) {
                 if (currMove != startMove && currMove != endMove) {
@@ -189,6 +225,7 @@ public class PlanterMachine extends Machine {
                 sign.update();
                 return;
             }
+
             // move
             tryUsePower(sugarCanes * 20);
             tryOutput(new ItemStack(Material.SUGAR_CANE, sugarCanes));
@@ -206,6 +243,7 @@ public class PlanterMachine extends Machine {
                 getMachinesByBlock().put(location, this);
                 location.getBlock().setType(fenceType);
             }
+
             // harvest/plant
             for (Location location : movingBlocks) {
                 Block below = location.getBlock().getRelative(BlockFace.DOWN);
@@ -221,6 +259,7 @@ public class PlanterMachine extends Machine {
                                 tryOutput(itemStack);
                             }
                             below.setType(Material.AIR);
+                            tryPlant(below);
                         }
                     }
                 } else if (extraHarvest.contains(below.getType()) && tryUsePower(20)) {
@@ -229,36 +268,7 @@ public class PlanterMachine extends Machine {
                     }
                     below.setType(Material.AIR);
                 } else if (below.getType() == Material.AIR) {
-                    ItemStack toRemove = null;
-                    for (ItemStack itemStack : getInventory()) {
-                        if (itemsToBlocks.containsKey(itemStack.getType())
-                                && canPlant.get(itemStack.getType()).contains(below.getRelative(BlockFace.DOWN).getType())
-                                && getAvailablePower() >= 20) {
-                            if (itemStack.getType() == Material.SUGAR_CANE) {
-                                boolean canPlace = false;
-                                for (BlockFace face : Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST)) {
-                                    if (below.getRelative(BlockFace.DOWN).getRelative(face).getType() == Material.WATER) {
-                                        canPlace = true;
-                                        break;
-                                    }
-                                }
-                                if (!canPlace) {
-                                    continue;
-                                }
-                            }
-
-                            tryUsePower(20);
-                            below.setType(itemsToBlocks.get(itemStack.getType()));
-                            itemStack.setAmount(itemStack.getAmount() - 1);
-                            if (itemStack.getAmount() == 0) {
-                                toRemove = itemStack;
-                            }
-                            break;
-                        }
-                    }
-                    if (toRemove != null) {
-                        getInventory().remove(toRemove);
-                    }
+                    tryPlant(below);
                 }
             }
         }
