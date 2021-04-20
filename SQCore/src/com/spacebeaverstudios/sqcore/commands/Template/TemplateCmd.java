@@ -1,7 +1,6 @@
 package com.spacebeaverstudios.sqcore.commands.Template;
 
 import com.spacebeaverstudios.sqcore.commands.SQCmd;
-import com.spacebeaverstudios.sqcore.objects.Template;
 import org.bukkit.command.CommandSender;
 
 public class TemplateCmd extends SQCmd {
@@ -15,6 +14,6 @@ public class TemplateCmd extends SQCmd {
 
     @Override
     public void onExecute(CommandSender sender, String previousLabels, Object[] args) {
-
+        this.getHelpCommand().onExecute(sender, previousLabels, args);
     }
 }

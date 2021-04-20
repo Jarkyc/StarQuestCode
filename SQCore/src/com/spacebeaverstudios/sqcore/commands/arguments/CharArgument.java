@@ -16,7 +16,10 @@ public class CharArgument extends Argument<Character> {
 
     @Override
     public Character parse(String arg) {
-        if (arg.length() > 1) return null;
-        else return arg.charAt(0);
+        if (arg.length() > 1) {
+            return null;
+        } else {
+            return arg.charAt(0);
+        }
     }
 }

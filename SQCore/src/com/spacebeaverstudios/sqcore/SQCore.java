@@ -3,9 +3,9 @@ package com.spacebeaverstudios.sqcore;
 import com.spacebeaverstudios.sqcore.commands.Template.TemplateCmd;
 import com.spacebeaverstudios.sqcore.commands.World.WorldCmd;
 import com.spacebeaverstudios.sqcore.generator.VoidGenerator;
+import com.spacebeaverstudios.sqcore.objects.template.Template;
 import com.spacebeaverstudios.sqcore.utils.GUIUtils;
 import com.spacebeaverstudios.sqcore.listeners.*;
-import com.spacebeaverstudios.sqcore.utils.TemplateUtils;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -31,13 +31,20 @@ public class SQCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ItemListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
 
-        getCommand("world").setExecutor(new WorldCmd());
-        getCommand("template").setExecutor(new TemplateCmd());
+        WorldCmd worldCmd = new WorldCmd();
+        getCommand("world").setExecutor(worldCmd);
+        getCommand("world").setTabCompleter(worldCmd);
 
-        if (!(new File(getDataFolder().getAbsolutePath() + "/config.yml")).exists()) this.saveDefaultConfig();
+        TemplateCmd templateCmd = new TemplateCmd();
+        getCommand("template").setExecutor(templateCmd);
+        getCommand("template").setTabCompleter(templateCmd);
+
+        if (!(new File(getDataFolder().getAbsolutePath() + "/config.yml")).exists()) {
+            this.saveDefaultConfig();
+        }
 
         loadWorlds();
-        TemplateUtils.loadTemplates();
+        Template.loadTemplates();
 
         this.reloadConfig();
 
@@ -54,15 +61,12 @@ public class SQCore extends JavaPlugin {
         }, 1, 1);
     }
 
-    @Override
-    public void onDisable(){
-        TemplateUtils.saveTemplates();
-    }
-
     private void loadWorlds() {
         File file = new File(getDataFolder().getAbsolutePath() + "/worlds.yml");
 
-        if (!file.exists()) this.saveResource("worlds.yml", false);
+        if (!file.exists()) {
+            this.saveResource("worlds.yml", false);
+        }
 
         FileConfiguration config = new YamlConfiguration();
 
@@ -76,7 +80,9 @@ public class SQCore extends JavaPlugin {
                 world.environment(World.Environment.NORMAL);
                 world.generator(new VoidGenerator());
                 world.generateStructures(false);
-                if(Bukkit.getWorld(key) != null) Bukkit.unloadWorld(key, false);
+                if (Bukkit.getWorld(key) != null) {
+                    Bukkit.unloadWorld(key, false);
+                }
                 World w = Bukkit.createWorld(world);
                 w.setGameRule(GameRule.DO_FIRE_TICK, false);
                 w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);

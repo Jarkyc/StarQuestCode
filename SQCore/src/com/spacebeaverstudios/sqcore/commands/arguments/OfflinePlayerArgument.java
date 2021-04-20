@@ -30,8 +30,9 @@ public class OfflinePlayerArgument extends Argument<OfflinePlayer>{
     public OfflinePlayer parse(String arg) {
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(arg);
 
-        if (offlinePlayer == null || offlinePlayer.getName() == null)
+        if (offlinePlayer == null || offlinePlayer.getName() == null) {
             return null;
+        }
 
         return offlinePlayer;
     }
