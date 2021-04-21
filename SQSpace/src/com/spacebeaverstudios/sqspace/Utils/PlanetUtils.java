@@ -1,13 +1,20 @@
 package com.spacebeaverstudios.sqspace.Utils;
 
 import com.mysql.jdbc.jdbc2.optional.SuspendableXAConnection;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.spacebeaverstudios.sqcore.objects.template.Template;
+import com.spacebeaverstudios.sqcore.objects.template.TemplateBlock;
 import com.spacebeaverstudios.sqspace.Generators.VoidGenerator;
 import com.spacebeaverstudios.sqspace.Objects.Planet;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,7 +40,45 @@ public class PlanetUtils {
             int systemX = systemSection.getInt(systemName + ".x");
             int systemZ = systemSection.getInt(systemName + ".z");
 
-            DynmapUtils.createMarker("sun", "system_" + systemName.toLowerCase(), systemName, systemName, "systems", new Location(Bukkit.getWorld("space"), systemX, 100, systemZ));
+            Location center = new Location(Bukkit.getWorld("space"), systemX, 100, systemZ);
+
+            DynmapUtils.createMarker("sun", "system_" + systemName.toLowerCase(), systemName, systemName, "systems", center);
+
+            Template template = Template.getTemplates().get("star");
+            template.paste(center);
+
+            RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(Bukkit.getWorld("space")));
+
+            regionManager.removeRegion("star_" + systemName.toLowerCase());
+
+            int minX = Integer.MAX_VALUE;
+            int minY = Integer.MAX_VALUE;
+            int minZ = Integer.MAX_VALUE;
+
+            int maxX = Integer.MIN_VALUE;
+            int maxY = Integer.MIN_VALUE;
+            int maxZ = Integer.MIN_VALUE;
+
+            for(TemplateBlock block : template.getBlocks()) {
+                Vector vector = block.getVector();
+
+                minX = Math.min(minX, vector.getBlockX());
+                minY = Math.min(minY, vector.getBlockY());
+                minZ = Math.min(minZ, vector.getBlockZ());
+
+                maxX = Math.max(maxX, vector.getBlockX());
+                maxY = Math.max(maxY, vector.getBlockY());
+                maxZ = Math.max(maxZ, vector.getBlockZ());
+
+            }
+
+            ProtectedCuboidRegion protectedRegion = new ProtectedCuboidRegion(
+                    "star_" + systemName.toLowerCase(),
+                    BlockVector3.at(systemX + minX, 100 + minY, systemZ + minZ),
+                    BlockVector3.at(systemX + maxX, 100 + maxY, systemZ + maxZ)
+            );
+
+            regionManager.addRegion(protectedRegion);
 
             for(String planetName : systemSection.getConfigurationSection(systemName + ".planets").getKeys(false)){
                 loadPlanet(planetName, systemName, new Location(Bukkit.getWorld("space"), systemX, 100, systemZ), systemSection.getConfigurationSection(systemName + ".planets." + planetName));
@@ -83,6 +128,39 @@ public class PlanetUtils {
 
         DynmapUtils.createMarker("world", "planet_" + name + name.toLowerCase(), name, name, "planets", newLoc);
         planetBody.paste(newLoc);
+
+        RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(Bukkit.getWorld("space")));
+
+        regionManager.removeRegion("planet_" + name.toLowerCase());
+
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int minZ = Integer.MAX_VALUE;
+
+        int maxX = Integer.MIN_VALUE;
+        int maxY = Integer.MIN_VALUE;
+        int maxZ = Integer.MIN_VALUE;
+
+        for(TemplateBlock block : planetBody.getBlocks()) {
+            Vector vector = block.getVector();
+
+            minX = Math.min(minX, vector.getBlockX());
+            minY = Math.min(minY, vector.getBlockY());
+            minZ = Math.min(minZ, vector.getBlockZ());
+
+            maxX = Math.max(maxX, vector.getBlockX());
+            maxY = Math.max(maxY, vector.getBlockY());
+            maxZ = Math.max(maxZ, vector.getBlockZ());
+
+        }
+
+        ProtectedCuboidRegion protectedRegion = new ProtectedCuboidRegion(
+                "planet_" + name.toLowerCase(),
+                BlockVector3.at(x + minX, 100 + minY, z + minZ),
+                BlockVector3.at(x + maxX, 100 + maxY, z + maxZ)
+        );
+
+        regionManager.addRegion(protectedRegion);
 
         WorldCreator worldCreator = new WorldCreator(name.toLowerCase());
         worldCreator.environment(World.Environment.NORMAL);
