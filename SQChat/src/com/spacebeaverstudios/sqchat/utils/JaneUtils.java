@@ -70,9 +70,14 @@ public class JaneUtils {
     }
 
     public static void say(String message, boolean toDiscord) {
-        Bukkit.broadcastMessage(ChatColor.BLUE + "JANE> " + ChatColor.WHITE + message);
         if (toDiscord) {
+            Bukkit.broadcastMessage(ChatColor.BLUE + "JANE> " + ChatColor.WHITE + message);
             Bukkit.getPluginManager().callEvent(new JaneMessageEvent(message));
+        } else {
+            // also, don't broadcast because it clogs the console
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendMessage(ChatColor.BLUE + "JANE> " + ChatColor.WHITE + message);
+            }
         }
     }
 

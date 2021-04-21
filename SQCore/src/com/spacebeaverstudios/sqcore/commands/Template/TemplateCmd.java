@@ -11,7 +11,6 @@ public class TemplateCmd extends SQCmd {
         this.addSubcommand(new ListCmd());
     }
 
-
     @Override
     public void onExecute(CommandSender sender, String previousLabels, Object[] args) {
         this.getHelpCommand().onExecute(sender, previousLabels, args);

@@ -27,6 +27,8 @@ public class SQCore extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+
+        getServer().getPluginManager().registerEvents(new CommandListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(), this);
         getServer().getPluginManager().registerEvents(new ItemListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
