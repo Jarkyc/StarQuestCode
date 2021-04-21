@@ -133,7 +133,10 @@ public class WorldBorderUtils {
             int x = location.getBlockX();
             int z= location.getBlockZ();
 
-            return x >= x1 && x <= x2 && z >= z1 && z >= z2;
+            return x >= x1 &&
+                    x <= x2 &&
+                    z >= z1 &&
+                    z <= z2;
         }
     }
 

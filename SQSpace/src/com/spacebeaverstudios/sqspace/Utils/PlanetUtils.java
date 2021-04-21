@@ -1,5 +1,7 @@
 package com.spacebeaverstudios.sqspace.Utils;
 
+import com.mysql.jdbc.jdbc2.optional.SuspendableXAConnection;
+import com.spacebeaverstudios.sqcore.objects.template.Template;
 import com.spacebeaverstudios.sqspace.Generators.VoidGenerator;
 import com.spacebeaverstudios.sqspace.Objects.Planet;
 import org.bukkit.*;
@@ -44,16 +46,32 @@ public class PlanetUtils {
         DynmapUtils.createCircleMarker(name + "'s Orbit", systemOrigin, section.getInt("orbitRadius"), "ffff00");
         planets.add(new Planet(name, systemOrigin, section.getInt("radius"), section.getInt("orbitRadius"), system, section.getInt("storedAngle") - 20));
 
-        int radius = section.getInt("orbitRadius");
-        int angle = section.getInt("storedAngle") - 20;
+        Template planetBody;
 
-        int x = (int) (radius * Math.cos(angle));
-        int z = (int) (radius * Math.sin(angle));
+        if(Template.getTemplates().get(name) == null){
+            planetBody = Template.getTemplates().get("blank_planet");
+        } else {
+            planetBody = Template.getTemplates().get(name);
+        }
+
+        int radius = section.getInt("orbitRadius");
+        int angle = section.getInt("storedAngle");
+
+        int currentX = (int) (radius * Math.cos(angle) + systemOrigin.getX());
+        int currentZ = (int) (radius * Math.sin(angle) + systemOrigin.getZ());
+
+        planetBody.pasteAir(new Location(systemOrigin.getWorld(), currentX, 100, currentZ));
+
+        int x = (int) (radius * Math.cos(angle - 20));
+        int z = (int) (radius * Math.sin(angle - 20));
 
         x += systemOrigin.getX();
         z += systemOrigin.getZ();
 
-        DynmapUtils.createMarker("world", "planet_" + name + name.toLowerCase(), name, name, "planets", new Location(systemOrigin.getWorld(), Math.floor(x), 100, Math.floor(z)));
+        Location newLoc = new Location(systemOrigin.getWorld(), x, 100, z);
+
+        DynmapUtils.createMarker("world", "planet_" + name + name.toLowerCase(), name, name, "planets", newLoc);
+        planetBody.paste(newLoc);
 
         WorldCreator worldCreator = new WorldCreator(name.toLowerCase());
         worldCreator.environment(World.Environment.NORMAL);
