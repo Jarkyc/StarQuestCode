@@ -44,28 +44,6 @@ public abstract class Machine implements CanCheckIntact {
     public static void addSignText(String text, Function<? super Block, ? extends Machine> function) {
         signTexts.put(text, function);
     }
-    public static void initializeSignTexts() {
-        // can only initialize the machines in this plugin, which is why it's done like this
-        addSignText("[battery]", BatteryMachine::new);
-        addSignText("[crafter]", CrafterMachine::new);
-        addSignText("[autocrafter]", CrafterMachine::new);
-        addSignText("[auto crafter]", CrafterMachine::new);
-        addSignText("[replicator]", ReplicatorMachine::new);
-        addSignText("[bottlefiller]", BottleFillerMachine::new);
-        addSignText("[bottle filler]", BottleFillerMachine::new);
-        addSignText("[solarpanel]", SolarPanelMachine::new);
-        addSignText("[solar panel]", SolarPanelMachine::new);
-        addSignText("[coalgenerator]", CoalGeneratorMachine::new);
-        addSignText("[coal generator]", CoalGeneratorMachine::new);
-        addSignText("[hopper]", HopperMachine::new);
-        addSignText("[brewer]", BrewerMachine::new);
-        addSignText("[autobrewer]", BrewerMachine::new);
-        addSignText("[auto brewer]", BrewerMachine::new);
-        addSignText("[smelter]", SmelterMachine::new);
-        addSignText("[autosmelter]", SmelterMachine::new);
-        addSignText("[auto smelter]", SmelterMachine::new);
-        addSignText("[planter]", PlanterMachine::new);
-    }
     public static boolean createFromSign(Block sign) {
         String text = ((Sign) sign.getState()).getLine(0).toLowerCase();
         if (signTexts.containsKey(text)) {

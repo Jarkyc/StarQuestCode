@@ -6,11 +6,13 @@ import com.spacebeaverstudios.sqtech.SQTech;
 import com.spacebeaverstudios.sqtech.guis.ReplicatorGUI;
 import com.spacebeaverstudios.sqtech.guis.guifunctions.OpenMachineGUIFunction;
 import com.spacebeaverstudios.sqtech.objects.BoxLocation;
+import com.spacebeaverstudios.sqtech.utils.ReplicatorUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.*;
 import org.bukkit.block.data.Directional;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.util.Vector;
 
@@ -20,6 +22,34 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ReplicatorMachine extends Machine {
+    // static
+    private static String SIGN_TEXT;
+    private static int POWER_COST;
+    private static final ArrayList<HashMap<Vector, Material>> SCHEMAS = new ArrayList<>();
+
+    public static void staticInitialize() {
+        ConfigurationSection configSection = SQTech.getInstance().getConfig().getConfigurationSection("ReplicatorMachine");
+        for (String text : configSection.getStringList("sign-texts")) {
+            SIGN_TEXT = text;
+            Machine.addSignText(text, ReplicatorMachine::new);
+        }
+        POWER_COST = configSection.getInt("power-cost");
+
+        ReplicatorUtils.initializeConfig(configSection);
+
+        // initialize schemas
+        // to make things easier, only these count as the "core"
+        // everything else can be added or removed later, and just gets recalculated
+        HashMap<Vector, Material> schema = new HashMap<>();
+        schema.put(new Vector(1, 0, 0), Material.BRICKS);
+        schema.put(new Vector(1, 1, 0), Material.BRICKS);
+        schema.put(new Vector(1, 0, 1), Material.BRICKS);
+        schema.put(new Vector(1, 0, -1), Material.BRICKS);
+        schema.put(new Vector(1, -1, 0), Material.LAPIS_BLOCK);
+        SCHEMAS.add(schema);
+    }
+
+    // instance
     private boolean copyFromLeft = true;
     private BoxLocation copyFromBox;
     private BoxLocation copyToBox;
@@ -29,15 +59,7 @@ public class ReplicatorMachine extends Machine {
     }
 
     public ArrayList<HashMap<Vector, Material>> getSchemas() {
-        // to make things easier, only these count as the "core"
-        // everything else can be added or removed later, and just gets recalculated
-        HashMap<Vector, Material> schema = new HashMap<>();
-        schema.put(new Vector(1, 0, 0), Material.BRICKS);
-        schema.put(new Vector(1, 1, 0), Material.BRICKS);
-        schema.put(new Vector(1, 0, 1), Material.BRICKS);
-        schema.put(new Vector(1, 0, -1), Material.BRICKS);
-        schema.put(new Vector(1, -1, 0), Material.LAPIS_BLOCK);
-        return new ArrayList<>(Collections.singletonList(schema));
+        return SCHEMAS;
     }
 
     public void init() {
@@ -193,7 +215,7 @@ public class ReplicatorMachine extends Machine {
         return "Replicator";
     }
     public String getMachineInfo() {
-        return "Replicates ships.\n " + ChatColor.GOLD + "BV / block replicated: " + ChatColor.AQUA + "5";
+        return "Replicates ships.\n " + ChatColor.GOLD + "BV / block replicated: " + ChatColor.AQUA + POWER_COST;
     }
 
     @Override
@@ -203,7 +225,7 @@ public class ReplicatorMachine extends Machine {
     }
 
     public String getSignText() {
-        return "[replicator]";
+        return SIGN_TEXT;
     }
     public String getCustomSaveText() {
         return String.valueOf(copyFromLeft);

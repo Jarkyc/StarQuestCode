@@ -17,17 +17,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ReplicatorUtils {
+    private static int POWER_COST;
     private static final HashMap<Material, Material> blocksToItems = new HashMap<>();
     private static final ArrayList<Material> halveCost = new ArrayList<>();
     private static final ArrayList<Material> ignore = new ArrayList<>();
 
-    public static void initializeConfig() {
-        ConfigurationSection configSection = SQTech.getInstance().getConfig().getConfigurationSection("replicator");
-        for (String key : configSection.getConfigurationSection("blockstoitems").getKeys(false)) {
+    public static void initializeConfig(ConfigurationSection configSection) {
+        POWER_COST = configSection.getInt("power-cost");
+        for (String key : configSection.getConfigurationSection("blocks-to-items").getKeys(false)) {
             blocksToItems.put(Material.getMaterial(key.toUpperCase()),
-                    Material.getMaterial(configSection.getString("blockstoitems." + key).toUpperCase()));
+                    Material.getMaterial(configSection.getString("blocks-to-items." + key).toUpperCase()));
         }
-        for (String item : configSection.getStringList("halvecost")) {
+        for (String item : configSection.getStringList("halve-cost")) {
             halveCost.add(Material.getMaterial(item.toUpperCase()));
         }
         for (String item : configSection.getStringList("ignore")) {

@@ -1,5 +1,52 @@
-replicator:
-  blockstoitems:
+BatteryMachine:
+  sign-texts: ["[battery]"]
+  small-storage: 10000
+  medium-storage: 100000
+  large-storage: 1000000
+BottleFillerMachine:
+  sign-texts: ["[bottlefiller]", "[bottle filler]"]
+  power-cost: 10
+BrewerMachine:
+  sign-texts: ["[brewer]", "[autobrewer]", "[auto brewer]"]
+  power-cost: 200
+  cooldown: 10
+CoalGeneratorMachine:
+  sign-texts: ["[coalgenerator]", "[coal generator]"]
+  power-generated: 400
+CrafterMachine:
+  sign-texts: ["[crafter]", "[autocrafter]", "[auto crafter]"]
+  power-cost: 10
+HopperMachine:
+  sign-texts: ["[hopper]"]
+PlanterMachine:
+  sign-texts: ["[planter]"]
+  power-cost: 20
+  items-to-blocks:
+    BEETROOT_SEEDS: BEETROOTS
+    CARROT: CARROTS
+    NETHER_WART: NETHER_WART
+    POTATO: POTATOES
+    SUGAR_CANE: SUGAR_CANE
+    SWEET_BERRIES: SWEET_BERRY_BUSH
+    WHEAT_SEEDS: WHEAT
+    PUMPKIN_SEEDS: PUMPKIN_STEM
+    MELON_SEEDS: MELON_STEM
+  can-plant:
+    BEETROOT_SEEDS: [FARMLAND]
+    CARROT: [FARMLAND]
+    NETHER_WART: [SOUL_SAND]
+    POTATO: [FARMLAND]
+    SUGAR_CANE: [GRASS_BLOCK, DIRT, COARSE_DIRT, PODZOL, SAND, RED_SAND]
+    SWEET_BERRIES: [GRASS_BLOCK, DIRT, PODZOL, COARSE_DIRT, FARMLAND]
+    WHEAT_SEEDS: [FARMLAND]
+    PUMPKIN_SEEDS: [FARMLAND]
+    MELON_SEEDS: [FARMLAND]
+  dont-harvest: [SUGAR_CANE, PUMPKIN_STEM, MELON_STEM]
+  extra-harvest: [PUMPKIN, MELON]
+ReplicatorMachine:
+  sign-texts: ["[replicator]"]
+  power-cost: 5
+  blocks-to-items:
     # wall signs
     OAK_WALL_SIGN: OAK_SIGN
     BIRCH_WALL_SIGN: BIRCH_SIGN
@@ -7,7 +54,7 @@ replicator:
     JUNGLE_WALL_SIGN: JUNGLE_SIGN
     ACACIA_WALL_SIGN: ACACIA_SIGN
     SPRUCE_WALL_SIGN: SPRUCE_SIGN
-  halvecost:
+  halve-cost:
     # doors
     - OAK_DOOR
     - BIRCH_DOOR
@@ -49,26 +96,10 @@ replicator:
     - SUNFLOWER
     - TALL_GRASS
     - TALL_SEAGRASS
-planter:
-  items-to-blocks:
-    BEETROOT_SEEDS: BEETROOTS
-    CARROT: CARROTS
-    NETHER_WART: NETHER_WART
-    POTATO: POTATOES
-    SUGAR_CANE: SUGAR_CANE
-    SWEET_BERRIES: SWEET_BERRY_BUSH
-    WHEAT_SEEDS: WHEAT
-    PUMPKIN_SEEDS: PUMPKIN_STEM
-    MELON_SEEDS: MELON_STEM
-  can-plant:
-    BEETROOT_SEEDS: [FARMLAND]
-    CARROT: [FARMLAND]
-    NETHER_WART: [SOUL_SAND]
-    POTATO: [FARMLAND]
-    SUGAR_CANE: [GRASS_BLOCK, DIRT, COARSE_DIRT, PODZOL, SAND, RED_SAND]
-    SWEET_BERRIES: [GRASS_BLOCK, DIRT, PODZOL, COARSE_DIRT, FARMLAND]
-    WHEAT_SEEDS: [FARMLAND]
-    PUMPKIN_SEEDS: [FARMLAND]
-    MELON_SEEDS: [FARMLAND]
-  dont-harvest: [SUGAR_CANE, PUMPKIN_STEM, MELON_STEM]
-  extra-harvest: [PUMPKIN, MELON]
+SmelterMachine:
+  sign-texts: ["[smelter]", "[autosmelter]", "[auto smelter]"]
+  power-cost: 50
+  cooldown: 5
+SolarPanelMachine:
+  sign-texts: ["[solarpanel]", "[solar panel]"]
+  power-generated: 2

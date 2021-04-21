@@ -21,13 +21,23 @@ import java.util.List;
 
 public class PlanterMachine extends Machine {
     // static
+    private static String SIGN_TEXT;
+    private static int POWER_COST;
+    private static final ArrayList<HashMap<Vector, Material>> SCHEMAS = new ArrayList<>();
     private static final HashMap<Material, Material> itemsToBlocks = new HashMap<>();
     private static final HashMap<Material, ArrayList<Material>> canPlant = new HashMap<>();
     private static final ArrayList<Material> dontHarvest = new ArrayList<>();
     private static final ArrayList<Material> extraHarvest = new ArrayList<>();
 
-    public static void initializePlants() {
-        ConfigurationSection configSection = SQTech.getInstance().getConfig().getConfigurationSection("planter");
+    public static void staticInitialize() {
+        ConfigurationSection configSection = SQTech.getInstance().getConfig().getConfigurationSection("PlanterMachine");
+        for (String text : configSection.getStringList("sign-texts")) {
+            SIGN_TEXT = text;
+            Machine.addSignText(text, PlanterMachine::new);
+        }
+        POWER_COST = configSection.getInt("power-cost");
+
+        // initialize block lists
         for (String key : configSection.getConfigurationSection("items-to-blocks").getKeys(false)) {
             itemsToBlocks.put(Material.getMaterial(key), Material.getMaterial(configSection.getString("items-to-blocks." + key)));
         }
@@ -43,6 +53,18 @@ public class PlanterMachine extends Machine {
         }
         for (String material : configSection.getStringList("extra-harvest")) {
             extraHarvest.add(Material.getMaterial(material));
+        }
+
+        // initialize schemas
+        // To make things easier, only these count as the "core". Everything else is calculated in PlanterMachine#init
+        for (Material fence : Arrays.asList(Material.OAK_FENCE, Material.ACACIA_FENCE, Material.DARK_OAK_FENCE,
+                Material.BIRCH_FENCE, Material.JUNGLE_FENCE, Material.SPRUCE_FENCE, Material.NETHER_BRICK_FENCE)) {
+            HashMap<Vector, Material> schema = new HashMap<>();
+            schema.put(new Vector(1, 0, 0), Material.LAPIS_BLOCK);
+            schema.put(new Vector(1, 1, 0), fence);
+            schema.put(new Vector(2, 1, 0), fence);
+            schema.put(new Vector(1, 1, -1), fence);
+            SCHEMAS.add(schema);
         }
     }
 
@@ -71,18 +93,7 @@ public class PlanterMachine extends Machine {
     }
 
     public ArrayList<HashMap<Vector, Material>> getSchemas() {
-        // To make things easier, only these count as the "core". Everything else is calculated in PlanterMachine#init
-        ArrayList<HashMap<Vector, Material>> schemas = new ArrayList<>();
-        for (Material fence : Arrays.asList(Material.OAK_FENCE, Material.ACACIA_FENCE, Material.DARK_OAK_FENCE,
-                Material.BIRCH_FENCE, Material.JUNGLE_FENCE, Material.SPRUCE_FENCE, Material.NETHER_BRICK_FENCE)) {
-            HashMap<Vector, Material> schema = new HashMap<>();
-            schema.put(new Vector(1, 0, 0), Material.LAPIS_BLOCK);
-            schema.put(new Vector(1, 1, 0), fence);
-            schema.put(new Vector(2, 1, 0), fence);
-            schema.put(new Vector(1, 1, -1), fence);
-            schemas.add(schema);
-        }
-        return schemas;
+        return SCHEMAS;
     }
 
     public void init() {
@@ -153,7 +164,7 @@ public class PlanterMachine extends Machine {
         for (ItemStack itemStack : getInventory()) {
             if (itemsToBlocks.containsKey(itemStack.getType())
                     && canPlant.get(itemStack.getType()).contains(below.getRelative(BlockFace.DOWN).getType())
-                    && getAvailablePower() >= 20) {
+                    && getAvailablePower() >= POWER_COST) {
                 if (itemStack.getType() == Material.SUGAR_CANE) {
                     boolean canPlace = false;
                     for (BlockFace face : Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST)) {
@@ -167,7 +178,7 @@ public class PlanterMachine extends Machine {
                     }
                 }
 
-                tryUsePower(20);
+                tryUsePower(POWER_COST);
                 below.setType(itemsToBlocks.get(itemStack.getType()));
                 itemStack.setAmount(itemStack.getAmount() - 1);
                 if (itemStack.getAmount() == 0) {
@@ -210,7 +221,7 @@ public class PlanterMachine extends Machine {
                     block = block.getRelative(BlockFace.UP);
                 }
             }
-            if (sugarCanes * 20 > getAvailablePower()) {
+            if (sugarCanes * POWER_COST > getAvailablePower()) {
                 canMove = false;
             }
 
@@ -227,7 +238,7 @@ public class PlanterMachine extends Machine {
             }
 
             // move
-            tryUsePower(sugarCanes * 20);
+            tryUsePower(sugarCanes * POWER_COST);
             tryOutput(new ItemStack(Material.SUGAR_CANE, sugarCanes));
             currMove += direction;
             for (Location location : movingBlocks) {
@@ -249,7 +260,7 @@ public class PlanterMachine extends Machine {
                 Block below = location.getBlock().getRelative(BlockFace.DOWN);
                 if (itemsToBlocks.containsValue(below.getType()) && !dontHarvest.contains(below.getType())) {
                     Ageable ageable = (Ageable) below.getBlockData();
-                    if (ageable.getAge() == ageable.getMaximumAge() && tryUsePower(20)) {
+                    if (ageable.getAge() == ageable.getMaximumAge() && tryUsePower(POWER_COST)) {
                         if (below.getType() == Material.SWEET_BERRY_BUSH) {
                             tryOutput(new ItemStack(Material.SWEET_BERRIES, 1));
                             ageable.setAge(1); // because it cycles between ages 1-3 when producing berries
@@ -262,7 +273,7 @@ public class PlanterMachine extends Machine {
                             tryPlant(below);
                         }
                     }
-                } else if (extraHarvest.contains(below.getType()) && tryUsePower(20)) {
+                } else if (extraHarvest.contains(below.getType()) && tryUsePower(POWER_COST)) {
                     for (ItemStack itemStack : below.getDrops()) {
                         tryOutput(itemStack);
                     }
@@ -301,10 +312,10 @@ public class PlanterMachine extends Machine {
         return "Planter";
     }
     public String getMachineInfo() {
-        return "Automatically plants and harvests crops.\n " + ChatColor.GOLD + "Cost per Crop: " + ChatColor.AQUA + "20 BV";
+        return "Automatically plants and harvests crops.\n " + ChatColor.GOLD + "Cost per Crop: " + ChatColor.AQUA + POWER_COST + " BV";
     }
 
     public String getSignText() {
-        return "[planter]";
+        return SIGN_TEXT;
     }
 }

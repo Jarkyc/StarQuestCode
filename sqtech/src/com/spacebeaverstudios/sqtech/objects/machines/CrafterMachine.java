@@ -1,18 +1,41 @@
 package com.spacebeaverstudios.sqtech.objects.machines;
 
 import com.spacebeaverstudios.sqcore.gui.GUIItem;
+import com.spacebeaverstudios.sqtech.SQTech;
 import com.spacebeaverstudios.sqtech.guis.guifunctions.ChooseCrafterMachineRecipeGUIFunction;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.*;
 
 public class CrafterMachine extends Machine {
+    // static
+    private static String SIGN_TEXT;
+    private static int POWER_COST;
+    private static final ArrayList<HashMap<Vector, Material>> SCHEMAS = new ArrayList<>();
+
+    public static void staticInitialize() {
+        ConfigurationSection configSection = SQTech.getInstance().getConfig().getConfigurationSection("CrafterMachine");
+        for (String text : configSection.getStringList("sign-texts")) {
+            SIGN_TEXT = text;
+            Machine.addSignText(text, CrafterMachine::new);
+        }
+        POWER_COST = configSection.getInt("power-cost");
+
+        // initialize schemas
+        HashMap<Vector, Material> schema = new HashMap<>();
+        schema.put(new Vector(1, 0, 0), Material.CRAFTING_TABLE);
+        schema.put(new Vector(2, 0, 0), Material.LAPIS_BLOCK);
+        SCHEMAS.add(schema);
+    }
+
+    // instance
     private final HashMap<Material, Integer> potentialInputItems = new HashMap<>();
     private final HashMap<Material, Integer> inputItems = new HashMap<>();
     private ItemStack outputItemStack = null;
@@ -22,10 +45,7 @@ public class CrafterMachine extends Machine {
     }
 
     public ArrayList<HashMap<Vector, Material>> getSchemas() {
-        HashMap<Vector, Material> schema = new HashMap<>();
-        schema.put(new Vector(1, 0, 0), Material.CRAFTING_TABLE);
-        schema.put(new Vector(2, 0, 0), Material.LAPIS_BLOCK);
-        return new ArrayList<>(Collections.singletonList(schema));
+        return SCHEMAS;
     }
 
     public void init() {
@@ -75,12 +95,12 @@ public class CrafterMachine extends Machine {
             }
 
             if (canCraft) {
-                if (tryUsePower(10)) {
+                if (tryUsePower(POWER_COST)) {
                     getInventory().clear();
                     getInventory().addAll(newInventory);
                     tryOutput(new ItemStack(outputItemStack.getType(), outputItemStack.getAmount()));
                     sign.setLine(1, ChatColor.GREEN + "Active");
-                    sign.setLine(2, "-10 BV/second");
+                    sign.setLine(2, "-" + POWER_COST + " BV/second");
                 } else {
                     sign.setLine(1, ChatColor.RED + "No Power");
                     sign.setLine(2, "0 BV/second");
@@ -118,7 +138,7 @@ public class CrafterMachine extends Machine {
     }
     public String getMachineInfo() {
         return "Automatically crafts items.\n " + ChatColor.GOLD + "Speed: " + ChatColor.GRAY + "1 craft/second\n "
-                + ChatColor.GOLD + "Power Usage: " + ChatColor.GRAY + "10 BV/craft";
+                + ChatColor.GOLD + "Power Usage: " + ChatColor.GRAY + POWER_COST + " BV/craft";
     }
 
     public GUIItem getCustomOptionsGUIItem() {
@@ -129,7 +149,7 @@ public class CrafterMachine extends Machine {
     }
 
     public String getSignText() {
-        return "[crafter]";
+        return SIGN_TEXT;
     }
     public String getCustomSaveText() {
         if (outputItemStack == null) {

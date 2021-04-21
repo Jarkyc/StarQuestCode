@@ -6,11 +6,7 @@ import com.spacebeaverstudios.sqtech.guis.MachineInventoryGUI;
 import com.spacebeaverstudios.sqtech.listeners.*;
 import com.spacebeaverstudios.sqtech.objects.CanCheckIntact;
 import com.spacebeaverstudios.sqtech.objects.Pipe;
-import com.spacebeaverstudios.sqtech.objects.machines.BatteryMachine;
-import com.spacebeaverstudios.sqtech.objects.machines.Machine;
-import com.spacebeaverstudios.sqtech.objects.machines.PlanterMachine;
-import com.spacebeaverstudios.sqtech.objects.machines.SmelterMachine;
-import com.spacebeaverstudios.sqtech.utils.ReplicatorUtils;
+import com.spacebeaverstudios.sqtech.objects.machines.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -47,14 +43,19 @@ public class SQTech extends JavaPlugin {
 
         getCommand("pipe").setExecutor(new PipeCmd());
 
-        SmelterMachine.initializeRecipes();
-        Machine.initializeSignTexts();
-
         if (!(new File(getDataFolder().getAbsolutePath() + "/config.yml")).exists()) {
             this.saveDefaultConfig();
         }
-        ReplicatorUtils.initializeConfig();
-        PlanterMachine.initializePlants();
+        BatteryMachine.staticInitialize();
+        BottleFillerMachine.staticInitialize();
+        BrewerMachine.staticInitialize();
+        CoalGeneratorMachine.staticInitialize();
+        CrafterMachine.staticInitialize();
+        HopperMachine.staticInitialize();
+        PlanterMachine.staticInitialize();
+        ReplicatorMachine.staticInitialize();
+        SmelterMachine.staticInitialize();
+        SolarPanelMachine.staticInitialize();
 
         // should run it after all plugins initialize their sign texts
         Bukkit.getScheduler().scheduleSyncDelayedTask(this, this::loadMachines, 1);

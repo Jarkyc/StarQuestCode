@@ -13,6 +13,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.Directional;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -24,6 +25,29 @@ import org.bukkit.util.Vector;
 import java.util.*;
 
 public class BrewerMachine extends Machine {
+    // static
+    private static String SIGN_TEXT;
+    private static int POWER_COST;
+    private static int COOLDOWN;
+    private static final ArrayList<HashMap<Vector, Material>> SCHEMAS = new ArrayList<>();
+
+    public static void staticInitialize() {
+        ConfigurationSection configSection = SQTech.getInstance().getConfig().getConfigurationSection("BrewerMachine");
+        for (String text : configSection.getStringList("sign-texts")) {
+            SIGN_TEXT = text;
+            Machine.addSignText(text, BrewerMachine::new);
+        }
+        POWER_COST = configSection.getInt("power-cost");
+        COOLDOWN = configSection.getInt("cooldown");
+
+        // initialize schemas
+        HashMap<Vector, Material> schema = new HashMap<>();
+        schema.put(new org.bukkit.util.Vector(1, 0, 0), Material.BREWING_STAND);
+        schema.put(new org.bukkit.util.Vector(2, 0, 0), Material.LAPIS_BLOCK);
+        SCHEMAS.add(schema);
+    }
+
+    // instance
     private PotionData inputPotionData = null;
     private PotionData outputPotionData = null;
     private Material ingredient = null;
@@ -36,10 +60,7 @@ public class BrewerMachine extends Machine {
     }
 
     public ArrayList<HashMap<Vector, Material>> getSchemas() {
-        HashMap<Vector, Material> schema = new HashMap<>();
-        schema.put(new org.bukkit.util.Vector(1, 0, 0), Material.BREWING_STAND);
-        schema.put(new org.bukkit.util.Vector(2, 0, 0), Material.LAPIS_BLOCK);
-        return new ArrayList<>(Collections.singletonList(schema));
+        return SCHEMAS;
     }
 
     public void init() {
@@ -57,7 +78,7 @@ public class BrewerMachine extends Machine {
                 .getRelative(((Directional) getSign().getBlock().getBlockData()).getFacing().getOppositeFace()).getBlockData();
 
         if (outputPotionData != null) {
-            if (getAvailablePower() > 200) {
+            if (getAvailablePower() > POWER_COST) {
                 ItemStack ingredientToUse = null;
                 ArrayList<ItemStack> potionsToUse = new ArrayList<>();
                 for (ItemStack itemStack : getInventory()) {
@@ -73,16 +94,17 @@ public class BrewerMachine extends Machine {
                 if (ingredientToUse != null && potionsToUse.size() > 0) {
                     brewCooldown++;
                     sign.setLine(1, ChatColor.GREEN + "Active");
-                    sign.setLine(2, "-20 BV/second");
-                    sign.setLine(3, "[" + (new String(new char[brewCooldown])).replace("\0", "|")
-                            + (new String(new char[10 - brewCooldown])).replace("\0", ".") + "]");
+                    sign.setLine(2, "-" + (POWER_COST / COOLDOWN) +" BV/second");
+                    sign.setLine(3, "[" + ChatColor.GREEN + (new String(new char[brewCooldown])).replace("\0", "|")
+                            + ChatColor.RED + (new String(new char[COOLDOWN - brewCooldown])).replace("\0", "|")
+                            + ChatColor.BLACK + "]");
                     for (int i = 0; i < 3; i++) {
                         brewingStand.setBottle(i, potionsToUse.size() >= i);
                     }
 
-                    if (brewCooldown == 10) {
+                    if (brewCooldown == COOLDOWN) {
                         brewCooldown = 0;
-                        tryUsePower(200);
+                        tryUsePower(POWER_COST);
                         Material material;
                         if (toSplash) {
                             material = Material.SPLASH_POTION;
@@ -150,13 +172,20 @@ public class BrewerMachine extends Machine {
             return;
         }
 
+        // prep brewing stand
         BrewingStand brewingStand = (BrewingStand) getSign().getBlock()
                 .getRelative(((Directional) getSign().getBlock().getBlockData()).getFacing().getOppositeFace()).getState();
         brewingStand.setFuelLevel(1);
         brewingStand.setBrewingTime(1);
         brewingStand.update();
-        brewingStand.getInventory().setIngredient(new ItemStack(potentialIngredient, 1));
-        brewingStand.getInventory().setItem(0, potion.clone());
+
+        // set items in inventory
+        ItemStack ingredientItem = new ItemStack(potentialIngredient, 1);
+        GUIUtils.setWanted(ingredientItem, true);
+        brewingStand.getInventory().setIngredient(ingredientItem);
+        ItemStack potionClone = potion.clone();
+        GUIUtils.setWanted(potionClone, true);
+        brewingStand.getInventory().setItem(0, potionClone);
 
         SQTech.getInstance().getServer().getScheduler().scheduleSyncDelayedTask(SQTech.getInstance(), () -> {
             // if the brewing worked, the ingredient should be gone
@@ -195,8 +224,8 @@ public class BrewerMachine extends Machine {
         return "Auto Brewer";
     }
     public String getMachineInfo() {
-        return "Automatically brews potions.\n " + ChatColor.GOLD + "Speed: " + ChatColor.GRAY + "1 brew/20 seconds\n "
-                + ChatColor.GOLD + "Power Cost: " + ChatColor.GRAY + "200 BV/brew";
+        return "Automatically brews potions.\n " + ChatColor.GOLD + "Speed: " + ChatColor.GRAY + "1 brew/" + COOLDOWN + " seconds\n "
+                + ChatColor.GOLD + "Power Cost: " + ChatColor.GRAY + POWER_COST + " BV/brew";
     }
 
     public GUIItem getCustomOptionsGUIItem() {
@@ -281,7 +310,7 @@ public class BrewerMachine extends Machine {
     }
 
     public String getSignText() {
-        return "[brewer]";
+        return SIGN_TEXT;
     }
     public String getCustomSaveText() {
         if (ingredient == null) {

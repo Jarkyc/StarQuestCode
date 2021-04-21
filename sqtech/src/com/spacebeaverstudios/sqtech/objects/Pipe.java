@@ -231,11 +231,24 @@ public class Pipe implements CanCheckIntact {
         }
         return false;
     }
+    public boolean connectedToBatteryWithSpace() {
+        for (Machine machine : powerOutputMachines) {
+            if (machine instanceof BatteryMachine && ((BatteryMachine) machine).getStorage() != ((BatteryMachine) machine).getPower()) {
+                return true;
+            }
+        }
+        return false;
+    }
     public void powerToBattery(Integer amount) {
         for (Machine machine : powerOutputMachines) {
-            if (machine instanceof BatteryMachine) {
+            if (machine instanceof BatteryMachine && ((BatteryMachine) machine).getStorage() != ((BatteryMachine) machine).getPower()) {
                 BatteryMachine batteryMachine = (BatteryMachine) machine;
-                batteryMachine.setPower(batteryMachine.getPower()+amount);
+                if (batteryMachine.getPower() + amount > batteryMachine.getStorage()) {
+                    powerToBattery(batteryMachine.getPower() + amount - batteryMachine.getStorage());
+                    batteryMachine.setPower(batteryMachine.getStorage());
+                } else {
+                    batteryMachine.setPower(batteryMachine.getPower() + amount);
+                }
                 return;
             }
         }
