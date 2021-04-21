@@ -31,6 +31,8 @@ public class SQCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ItemListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
 
+        Template.loadTemplates();
+
         WorldCmd worldCmd = new WorldCmd();
         getCommand("world").setExecutor(worldCmd);
         getCommand("world").setTabCompleter(worldCmd);
@@ -44,7 +46,6 @@ public class SQCore extends JavaPlugin {
         }
 
         loadWorlds();
-        Template.loadTemplates();
 
         this.reloadConfig();
 

@@ -33,6 +33,7 @@ public class Template implements Serializable {
                         fileIn.close();
                         ois.close();
                         templates.put(template.getName(), template);
+                        System.out.println("Loaded template: " + template.name);
                     }
                 }
             } catch (Exception e) {
