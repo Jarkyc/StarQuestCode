@@ -87,4 +87,8 @@ public class Template implements Serializable {
             pasteLoc.getBlock().setType(Material.AIR);
         }
     }
+
+    public ArrayList<TemplateBlock> getBlocks(){
+        return this.blocks;
+    }
 }
