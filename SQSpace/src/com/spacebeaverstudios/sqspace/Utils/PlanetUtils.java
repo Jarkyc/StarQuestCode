@@ -44,7 +44,15 @@ public class PlanetUtils {
 
     public static void loadPlanet(String name, String system, Location systemOrigin, ConfigurationSection section){
         DynmapUtils.createCircleMarker(name + "'s Orbit", systemOrigin, section.getInt("orbitRadius"), "ffff00");
-        planets.add(new Planet(name, systemOrigin, section.getInt("radius"), section.getInt("orbitRadius"), system, section.getInt("storedAngle") - 20));
+
+        int newAngle = section.getInt("storedAngle") - 20;
+
+        //Making sure the angle never exceeds 360 for aesthetic purposes
+        if(newAngle <= -360){
+            newAngle += 360;
+        }
+
+        planets.add(new Planet(name, systemOrigin, section.getInt("radius"), section.getInt("orbitRadius"), system, newAngle));
 
         Template planetBody;
 
@@ -57,13 +65,16 @@ public class PlanetUtils {
         int radius = section.getInt("orbitRadius");
         int angle = section.getInt("storedAngle");
 
-        int currentX = (int) (radius * Math.cos(angle) + systemOrigin.getX());
-        int currentZ = (int) (radius * Math.sin(angle) + systemOrigin.getZ());
+        double currentX = Math.floor(radius * Math.cos(angle));
+        double currentZ = Math.floor(radius * Math.sin(angle));
+
+        currentX += systemOrigin.getX();
+        currentZ += systemOrigin.getZ();
 
         planetBody.pasteAir(new Location(systemOrigin.getWorld(), currentX, 100, currentZ));
 
-        int x = (int) (radius * Math.cos(angle - 20));
-        int z = (int) (radius * Math.sin(angle - 20));
+        double x = Math.floor(radius * Math.cos(newAngle));
+        double z = Math.floor(radius * Math.sin(newAngle));
 
         x += systemOrigin.getX();
         z += systemOrigin.getZ();
