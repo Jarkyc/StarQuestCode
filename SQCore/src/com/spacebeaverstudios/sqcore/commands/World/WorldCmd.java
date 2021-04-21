@@ -7,6 +7,7 @@ public class WorldCmd extends SQCmd {
     public WorldCmd() {
         super("world", "world commands", true);
             this.addSubcommand(new TPCmd());
+            this.addSubcommand(new ListCmd());
     }
 
     @Override

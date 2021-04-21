@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 
 public class TPCmd extends SQCmd {
     public TPCmd() {
-        super("tp", "teleports to a worlds spawn", true);
+        super("tp", "teleports to a worlds spawn", true, "sqcore.world.tp");
         this.addArgument(new WorldArgument("world"));
     }
 

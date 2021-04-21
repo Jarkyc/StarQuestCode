@@ -10,6 +10,9 @@ public class CommandListener implements Listener {
     public void onServerCommand(ServerCommandEvent event) {
         // for some reason the server runs /list every 50 seconds
         // so we cancel it to prevent console spam
+
+        // Jarkyc here, it does this to make sure the server is still up
+        // and receiving things properly
         if (event.getCommand().equals("list")) {
             event.setCancelled(true);
         }

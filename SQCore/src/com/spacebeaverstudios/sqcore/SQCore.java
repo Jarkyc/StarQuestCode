@@ -47,8 +47,6 @@ public class SQCore extends JavaPlugin {
             this.saveDefaultConfig();
         }
 
-        loadWorlds();
-
         this.reloadConfig();
 
         // check for gui contraband
@@ -62,37 +60,5 @@ public class SQCore extends JavaPlugin {
                 }
             }
         }, 1, 1);
-    }
-
-    private void loadWorlds() {
-        File file = new File(getDataFolder().getAbsolutePath() + "/worlds.yml");
-
-        if (!file.exists()) {
-            this.saveResource("worlds.yml", false);
-        }
-
-        FileConfiguration config = new YamlConfiguration();
-
-        try {
-            config.load(file);
-
-            getLogger().info(config.getConfigurationSection("worlds.").getKeys(false).toString());
-
-            for (String key : config.getConfigurationSection("worlds.").getKeys(false)) {
-                WorldCreator world = new WorldCreator(key.toLowerCase());
-                world.environment(World.Environment.NORMAL);
-                world.generator(new VoidGenerator());
-                world.generateStructures(false);
-                if (Bukkit.getWorld(key) != null) {
-                    Bukkit.unloadWorld(key, false);
-                }
-                World w = Bukkit.createWorld(world);
-                w.setGameRule(GameRule.DO_FIRE_TICK, false);
-                w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-                w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
