@@ -104,7 +104,7 @@ public class Ship {
 
         createGUIs();
         core.armorStand.setCanTick(true);
-        // core.armorStand.getEquipment().setHelmet(new ItemStack(Material.AIR));
+        core.armorStand.getEquipment().setHelmet(new ItemStack(Material.AIR));
 
         modules.add(new Jammer());
     }
@@ -198,34 +198,9 @@ public class Ship {
         updateOrigin();
         updateData();
         handleModules();
-        handleShiftFly();
         rotateStands();
+        handleShiftFly();
         handleAutoPilot();
-
-        /*
-        double maxX = core.location.getX();
-        double minX = core.location.getX();
-        double maxY = core.location.getY();
-        double minY = core.location.getY();
-        double maxZ = core.location.getZ();
-        double minZ = core.location.getZ();
-
-
-        for(ShipBlock block : blocks){
-            if(block.armorStand.getLocation().getX() > maxX) maxX = block.armorStand.getLocation().getX();
-            if(block.armorStand.getLocation().getX() < minX) minX = block.armorStand.getLocation().getX();
-
-            if(block.armorStand.getLocation().getY() > maxY) maxY = block.armorStand.getLocation().getY();
-            if(block.armorStand.getLocation().getY() < minY) minY = block.armorStand.getLocation().getY();
-
-            if(block.armorStand.getLocation().getZ() > maxZ) maxZ = block.armorStand.getLocation().getZ();
-            if(block.armorStand.getLocation().getZ() < minZ) minZ = block.armorStand.getLocation().getZ();
-        }
-
-        System.out.println("Max: " + maxX + " " + maxY + " " + maxZ);
-        System.out.println("Min: " + minX + " " + minY + " " + minZ);
-        */
-
 
     }
 
@@ -323,6 +298,8 @@ public class Ship {
         double yaw = this.getOwner().getEyeLocation().getYaw();
         yaw = Math.toRadians(yaw);
 
+        if(!canRotate(pitch, yaw)) return;;
+
         double yawCos = Math.cos(yaw);
         double yawSin = Math.sin(yaw);
 
@@ -337,7 +314,7 @@ public class Ship {
         final double tempPitch = pitch;
         final double tempYaw = yaw;
 
-        if(!canRotate(pitch, yaw)) return;;
+
 
         for (ShipBlock block : this.blocks) {
 
@@ -354,14 +331,12 @@ public class Ship {
 
             locationShip.setYaw(0);
             locationShip.setPitch(0);
-
             locationShip.add(0, block.getyOffset(), 0);
 
             block.armorStand.teleport(locationShip);
 
-
         }
-        Bukkit.getScheduler().scheduleSyncDelayedTask(SQSmoothcraft.instance, new Runnable() {
+       Bukkit.getScheduler().scheduleSyncDelayedTask(SQSmoothcraft.instance, new Runnable() {
             @Override
             public void run() {
 
@@ -370,22 +345,31 @@ public class Ship {
                     block.armorStand.setHeadPose(new EulerAngle(tempPitch, tempYaw, 0));
                 }
             }
-        }, 1L);
+        }, 2L);
+
 
     }
 
-    public boolean canMove(Vector vec){
-        for(ShipBlock block : this.blocks){
-            if(block.visible){
-                if(!(block.armorStand.getLocation().clone().add(vec).getBlock().isPassable())) return false;
+    public boolean canMove(Vector vector){
+
+        vector = vector.normalize();
+
+        Vector vec = vector.normalize();
+        int distance = 5    ;
+        for(int i = 0; i < distance; i++){
+            for (ShipBlock block : this.blocks) {
+                if (block.visible) {
+                    if (!(block.armorStand.getLocation().clone().add(vec).getBlock().isPassable())) return false;
+                }
             }
+            vec.add(vector);
         }
         return true;
     }
 
     private void handleShiftFly() {
 
-        if(!canMove(owner.getLocation().getDirection())){
+        if(!canMove(owner.getLocation().getDirection()) || !canRotate(Math.toRadians(owner.getEyeLocation().getPitch()), Math.toRadians(owner.getEyeLocation().getYaw()))){
             core.armorStand.setVelocity(new Vector(0, 0, 0));
             return;
         }
@@ -394,8 +378,6 @@ public class Ship {
 
             //Don't ask me why but this makes chunk loading happy
             owner.setSneaking(false);
-
-
             core.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(speed));
             owner.playSound(core.getArmorStand().getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 5, 1);
         }
