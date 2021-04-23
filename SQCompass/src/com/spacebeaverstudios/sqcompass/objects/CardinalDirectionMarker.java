@@ -4,36 +4,15 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-public class CardinalDirectionMarker implements CompassMarker {
-    public enum Direction {
-        NORTH,
-        EAST,
-        SOUTH,
-        WEST
-    }
+public enum CardinalDirectionMarker implements CompassMarker {
+    NORTH(180, 'N'), EAST(270, 'E'), SOUTH(0, 'S'), WEST(90, 'W');
 
-    private int yaw;
-    private char marker;
+    private final int yaw;
+    private final char marker;
 
-    public CardinalDirectionMarker(Direction direction) {
-        switch(direction) {
-            case NORTH:
-                this.yaw = 180;
-                this.marker = 'N';
-                break;
-            case EAST:
-                this.yaw = 270;
-                this.marker = 'E';
-                break;
-            case SOUTH:
-                this.yaw = 0;
-                this.marker = 'S';
-                break;
-            case WEST:
-                this.yaw = 90;
-                this.marker = 'W';
-                break;
-        }
+    CardinalDirectionMarker(int yaw, char marker) {
+        this.yaw = yaw;
+        this.marker = marker;
     }
 
     public int getYaw(Player player) {

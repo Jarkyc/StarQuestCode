@@ -8,13 +8,12 @@ public class CompassCmd extends SQCmd {
         super("compass", "Commands for using the compass display", true);
 
         this.addHelpCommand();
-        this.addSubcommand(new CompassMarkersCmd());
-        this.addSubcommand(new ShowCommonMarkerCmd());
-        this.addSubcommand(new HideCommonMarkerCmd());
         this.addSubcommand(new AddMarkerCmd());
+        this.addSubcommand(new CompassMarkersCmd());
+        this.addSubcommand(new CommonMarkersCmd());
         this.addSubcommand(new DeleteMarkerCmd());
-        this.addSubcommand(new ShowCompassCmd());
         this.addSubcommand(new HideCompassCmd());
+        this.addSubcommand(new ShowCompassCmd());
     }
 
     @Override

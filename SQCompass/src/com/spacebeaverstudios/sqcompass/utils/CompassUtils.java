@@ -180,10 +180,10 @@ public class CompassUtils {
     // actual functions
     public static void playerJoin(Player player) {
         markers.put(player, new ArrayList<>());
-        markers.get(player).add(new CardinalDirectionMarker(CardinalDirectionMarker.Direction.NORTH));
-        markers.get(player).add(new CardinalDirectionMarker(CardinalDirectionMarker.Direction.EAST));
-        markers.get(player).add(new CardinalDirectionMarker(CardinalDirectionMarker.Direction.SOUTH));
-        markers.get(player).add(new CardinalDirectionMarker(CardinalDirectionMarker.Direction.WEST));
+        markers.get(player).add(CardinalDirectionMarker.NORTH);
+        markers.get(player).add(CardinalDirectionMarker.EAST);
+        markers.get(player).add(CardinalDirectionMarker.SOUTH);
+        markers.get(player).add(CardinalDirectionMarker.WEST);
 
         if (commonMarkersEnabled.containsKey(player.getUniqueId())) {
             for (String name : commonMarkersEnabled.get(player.getUniqueId())) {
