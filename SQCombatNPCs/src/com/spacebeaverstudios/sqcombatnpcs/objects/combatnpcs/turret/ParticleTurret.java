@@ -1,10 +1,7 @@
-package com.spacebeaverstudios.sqcombatnpcs.objects.combatnpcs;
+package com.spacebeaverstudios.sqcombatnpcs.objects.combatnpcs.turret;
 
 import com.spacebeaverstudios.sqcombatnpcs.objects.targetselectors.TargetSelector;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
@@ -12,29 +9,33 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class AutoTurretCombatNPC extends StructureCombatNPC {
-    private final Location fireFrom;
-    private final int FIRING_COOLDOWN;
+public class ParticleTurret extends Turret {
     private int firingCooldown = 0;
+    private final int FIRING_COOLDOWN;
     private final int DAMAGE;
     private final int FIRING_RANGE;
     private final int WARNING_SHOT_RANGE;
 
-    public AutoTurretCombatNPC(ArrayList<Location> blocks, Location fireFrom, TargetSelector enemies, int health, int firingCooldown,
-                               int damage, int firingRange, int warningShotRange) {
-        super(blocks, enemies, health);
-        this.fireFrom = fireFrom.add(0.5, 0.5, 0.5);
+    public ParticleTurret(Location location, DyeColor color, TargetSelector enemies, int health, int firingCooldown,
+                  int damage, int firingRange, int warningShotRange) {
+        super(location, color, enemies, health);
         this.FIRING_COOLDOWN = firingCooldown;
         this.DAMAGE = damage;
         this.FIRING_RANGE = firingRange;
-        this.WARNING_SHOT_RANGE = warningShotRange;
+        this.WARNING_SHOT_RANGE = Math.max(firingRange, warningShotRange);
     }
 
     public void tick() {
         firingCooldown++;
         if (firingCooldown >= FIRING_COOLDOWN) {
             firingCooldown = 0;
-            ArrayList<Entity> targets = enemies.getSortedEntitiesWithinRange(fireFrom, WARNING_SHOT_RANGE);
+            ArrayList<LivingEntity> targets = enemies.getSortedEntitiesWithinRange(fireFrom, WARNING_SHOT_RANGE);
+            if (targets.size() == 0) {
+                close();
+            } else {
+                open();
+            }
+
             entityloop: for (Entity entity : targets) {
                 Location eLoc = ((LivingEntity) entity).getEyeLocation();
                 Vector direction = (new Vector(eLoc.getX() - fireFrom.getX(),
@@ -71,8 +72,8 @@ public class AutoTurretCombatNPC extends StructureCombatNPC {
                 // if the shot doesn't hit, multiply the distance by 1.2 for more realism
                 Location fireAtUnmultiplied = eLoc.clone().add(offset.rotateAroundAxis(direction, Math.random() * 360));
                 Location fireAt = fireFrom.clone().add((new Vector(fireAtUnmultiplied.getX() - fireFrom.getX(),
-                            fireAtUnmultiplied.getY() - fireFrom.getY(),
-                            fireAtUnmultiplied.getZ() - fireFrom.getZ())).multiply(offset.getY() <= 1.5 ? 1 : 1.2));
+                        fireAtUnmultiplied.getY() - fireFrom.getY(),
+                        fireAtUnmultiplied.getZ() - fireFrom.getZ())).multiply(offset.getY() <= 1.5 ? 1 : 1.2));
                 direction = (new Vector(fireAt.getX() - fireFrom.getX(), fireAt.getY() - fireFrom.getY(),
                         fireAt.getZ() - fireFrom.getZ())).normalize();
 
@@ -85,13 +86,6 @@ public class AutoTurretCombatNPC extends StructureCombatNPC {
                 }
                 break;
             }
-        }
-    }
-
-    public void damage(int damage) {
-        health -= damage;
-        if (health <= 0) {
-            die();
         }
     }
 }

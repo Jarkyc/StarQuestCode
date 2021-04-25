@@ -1,24 +1,25 @@
 package com.spacebeaverstudios.sqcombatnpcs.objects.targetselectors;
 
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("unused")
 public abstract class TargetSelector {
-    public abstract boolean isSelected(Entity entity);
+    // TODO: ship targetting
+    public abstract boolean isSelected(LivingEntity entity);
     public abstract boolean canTargetMobs();
 
-    public ArrayList<Entity> getEntitiesWithinRange(Location location, int range) {
+    public ArrayList<LivingEntity> getEntitiesWithinRange(Location location, int range) {
         if (canTargetMobs()) {
             return new ArrayList<>(location.getNearbyEntitiesByType(LivingEntity.class, range, this::isSelected));
         } else {
             return new ArrayList<>(location.getNearbyPlayers(range, this::isSelected));
         }
     }
-    public ArrayList<Entity> getSortedEntitiesWithinRange(Location location, int range) {
-        ArrayList<Entity> list = getEntitiesWithinRange(location, range);
+    public ArrayList<LivingEntity> getSortedEntitiesWithinRange(Location location, int range) {
+        ArrayList<LivingEntity> list = getEntitiesWithinRange(location, range);
         list.sort((entity1, entity2) ->
                 (int) (Math.round(location.distance(entity2.getLocation()) - location.distance(entity1.getLocation()))));
         return list;

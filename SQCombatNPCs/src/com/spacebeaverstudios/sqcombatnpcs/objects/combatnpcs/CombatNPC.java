@@ -4,6 +4,7 @@ import com.spacebeaverstudios.sqcombatnpcs.objects.targetselectors.TargetSelecto
 
 import java.util.ArrayList;
 
+@SuppressWarnings("unused")
 public abstract class CombatNPC {
     // static
     private static final ArrayList<CombatNPC> npcs = new ArrayList<>();
@@ -14,7 +15,9 @@ public abstract class CombatNPC {
 
     public static void tickAll() {
         for (CombatNPC npc : npcs) {
-            npc.tick();
+            if (npc.isLoaded()) {
+                npc.tick();
+            }
         }
     }
 
@@ -22,11 +25,16 @@ public abstract class CombatNPC {
     private final ArrayList<Runnable> deathListeners = new ArrayList<>();
     protected TargetSelector enemies;
 
+    public TargetSelector getEnemies() {
+        return enemies;
+    }
+
     public CombatNPC(TargetSelector enemies) {
         this.enemies = enemies;
         npcs.add(this);
     }
 
+    public abstract boolean isLoaded();
     public abstract void tick();
 
     public void addDeathListener(Runnable runnable) {
