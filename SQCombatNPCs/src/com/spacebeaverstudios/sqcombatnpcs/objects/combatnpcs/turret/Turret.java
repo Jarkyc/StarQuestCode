@@ -1,14 +1,14 @@
 package com.spacebeaverstudios.sqcombatnpcs.objects.combatnpcs.turret;
 
 import com.spacebeaverstudios.sqcombatnpcs.SQCombatNPCs;
-import com.spacebeaverstudios.sqcombatnpcs.objects.combatnpcs.EntityCombatNPC;
+import com.spacebeaverstudios.sqcombatnpcs.objects.combatnpcs.CombatNPC;
 import com.spacebeaverstudios.sqcombatnpcs.objects.targetselectors.TargetSelector;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Shulker;
 
-public abstract class Turret extends EntityCombatNPC {
+public abstract class Turret extends CombatNPC {
     protected boolean open = false;
     protected final Location fireFrom;
 

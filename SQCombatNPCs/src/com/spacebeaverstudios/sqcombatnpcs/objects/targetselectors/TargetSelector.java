@@ -8,8 +8,15 @@ import java.util.ArrayList;
 @SuppressWarnings("unused")
 public abstract class TargetSelector {
     // TODO: ship targetting
-    public abstract boolean isSelected(LivingEntity entity);
-    public abstract boolean canTargetMobs();
+    private final boolean canTargetMobs;
+
+    public boolean canTargetMobs() {
+        return canTargetMobs;
+    }
+
+    public TargetSelector(boolean canTargetMobs) {
+        this.canTargetMobs = canTargetMobs;
+    }
 
     public ArrayList<LivingEntity> getEntitiesWithinRange(Location location, int range) {
         if (canTargetMobs()) {
@@ -24,4 +31,6 @@ public abstract class TargetSelector {
                 (int) (Math.round(location.distance(entity2.getLocation()) - location.distance(entity1.getLocation()))));
         return list;
     }
+
+    public abstract boolean isSelected(LivingEntity entity);
 }

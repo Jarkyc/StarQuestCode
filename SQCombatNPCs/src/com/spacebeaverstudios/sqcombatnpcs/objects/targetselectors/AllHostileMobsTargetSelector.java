@@ -5,10 +5,11 @@ import org.bukkit.entity.Monster;
 
 @SuppressWarnings("unused")
 public class AllHostileMobsTargetSelector extends TargetSelector {
+    public AllHostileMobsTargetSelector() {
+        super(true);
+    }
+
     public boolean isSelected(LivingEntity entity) {
         return entity instanceof Monster;
-    }
-    public boolean canTargetMobs() {
-        return true;
     }
 }
