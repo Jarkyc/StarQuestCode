@@ -4,7 +4,7 @@ public enum ShipClass {
 
     FIGHTER(26, 30 , 100, 1, 1, 1, 1, 1),
     GUNSHIP(31, 39, 101, 1, 1, 1, 1, 1),
-    ADMINSHIP(40, 5000, 1000, 100, 100 ,100, 100, 1);
+    ADMINSHIP(26, 5000, 1000, 100, 100 ,100, 100, 1);
 
     private ShipClass(int minSize, int maxSize, int maxHeath, int wepCount, int defCount, int utilCount, int dropperCount, int speed){
         this.minSize = minSize;

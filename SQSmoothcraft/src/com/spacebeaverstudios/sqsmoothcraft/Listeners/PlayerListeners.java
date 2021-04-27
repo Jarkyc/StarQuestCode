@@ -40,7 +40,7 @@ public class PlayerListeners implements Listener {
                 ship.autoPilotDirection = null;
                 e.getPlayer().sendMessage(ChatColor.GREEN + "Stopping auto-pilot");
             } else {
-                ShipAutopilotEvent event = new ShipAutopilotEvent(e.getPlayer(), ship, e.getPlayer().getLocation().getDirection().normalize());
+                ShipAutopilotEvent event = new ShipAutopilotEvent(ship.getOwner(), ship, e.getPlayer().getLocation().getDirection().normalize());
                 Bukkit.getPluginManager().callEvent(event);
                 if(!event.isCancelled()){
                     ship.isAutopilot = true;

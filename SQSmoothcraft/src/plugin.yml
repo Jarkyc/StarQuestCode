@@ -10,3 +10,10 @@ commands:
     description: Commands regarding smoothcraft ships
   release:
     usage: /release
+  deletearmorstands:
+    usage: /deletearmorstands
+    permission: SQSmoothcraft.deletearmorstands
+    permission-message: You do not have permission to use this command!
+permissions:
+  SQSmoothcraft.deletearmorstands:
+    default: op

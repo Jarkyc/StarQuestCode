@@ -31,7 +31,7 @@ public class Ship {
     private ShipClass shipClass;
 
     private HashSet<ShipBlock> blocks;
-    private Player owner;
+    private Pilot owner;
     private Location shipLocation;
     private ShipBlock core;
     public Vector autoPilotDirection;
@@ -54,7 +54,7 @@ public class Ship {
     public Inventory defenseModulesWind;
     public Inventory weaponModulesWind;
 
-    public Ship(HashSet<ShipBlock> blocks, Player owner, Location origin, ShipBlock core, Location originalVector, ArrayList<ShipBlock> pistons, ArrayList<ShipBlock> droppers, ShipClass clazz) {
+    public Ship(HashSet<ShipBlock> blocks, Pilot owner, Location origin, ShipBlock core, Location originalVector, ArrayList<ShipBlock> pistons, ArrayList<ShipBlock> droppers, ShipClass clazz) {
         this.blocks = blocks;
         this.owner = owner;
         this.shipLocation = origin;
@@ -92,10 +92,10 @@ public class Ship {
         //prevents the player's view from lowering when the crouch
         //Future self here, I am just kidding, it only works sometimes
         owner.setFlying(true);
-        core.armorStand.addPassenger(owner);
+        core.armorStand.addPassenger(owner.getEntity());
 
-        infoWindow = Bukkit.createInventory(null, 9, ChatColor.BLUE + owner.getName() + "'s Ship Info");
-        moduleWindow = Bukkit.createInventory(null, InventoryType.DROPPER, ChatColor.GREEN + owner.getName() + "'s Ship Modules");
+        infoWindow = Bukkit.createInventory(null, 9, ChatColor.BLUE + owner.getEntity().getName() + "'s Ship Info");
+        moduleWindow = Bukkit.createInventory(null, InventoryType.DROPPER, ChatColor.GREEN + owner.getEntity().getName() + "'s Ship Modules");
 
         defenseModulesWind = Bukkit.createInventory(null, 27, ChatColor.BLUE + "Defense Modules");
         weaponModulesWind = Bukkit.createInventory(null, 27, ChatColor.RED + "Weapon Modules");
@@ -109,7 +109,7 @@ public class Ship {
         modules.add(new Jammer());
     }
 
-    public Player getOwner() {
+    public Pilot getOwner() {
         return this.owner;
     }
 
@@ -134,10 +134,10 @@ public class Ship {
 
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skull = (SkullMeta) head.getItemMeta();
-        skull.setOwningPlayer(owner);
+        skull.setOwningPlayer(owner.getSkullPlayer());
         skull.setDisplayName(ChatColor.GOLD + "Owner");
         ArrayList<String> nm = new ArrayList<>();
-        nm.add(owner.getName());
+        nm.add(owner.getEntity().getName());
         skull.setLore(nm);
         head.setItemMeta(skull);
 
@@ -225,7 +225,7 @@ public class Ship {
             if (!block.visible) continue;
             block.location = block.getArmorStand().getLocation();
         }
-        if (((getOwner().getInventory().getItemInMainHand().getType() != Material.CLOCK && !isAutopilot) || (getOwner().getInventory().getItemInMainHand().getType() == Material.CLOCK && !getOwner().isSneaking())) && core.armorStand.getVelocity().getY() < 0) {
+        if (((getOwner().getItemInMainHand().getType() != Material.CLOCK && !isAutopilot) || (getOwner().getItemInMainHand().getType() == Material.CLOCK && !getOwner().isSneaking())) && core.armorStand.getVelocity().getY() < 0) {
             core.armorStand.setVelocity(core.armorStand.getVelocity().clone().setY(0));
         }
 
@@ -247,7 +247,7 @@ public class Ship {
     public void teleport(Location loc){
         core.getArmorStand().eject();
         core.getArmorStand().teleport(loc);
-        core.getArmorStand().addPassenger(owner);
+        core.getArmorStand().addPassenger(owner.getEntity());
     }
 
     private void updateOrigin() {
@@ -292,10 +292,10 @@ public class Ship {
 
     private void rotateStands() {
 
-        double pitch = this.getOwner().getEyeLocation().getPitch();
+        double pitch = this.getOwner().getEntity().getEyeLocation().getPitch();
         pitch = Math.toRadians(pitch);
 
-        double yaw = this.getOwner().getEyeLocation().getYaw();
+        double yaw = this.getOwner().getEntity().getEyeLocation().getYaw();
         yaw = Math.toRadians(yaw);
 
         if(!canRotate(pitch, yaw)) return;;
@@ -369,16 +369,16 @@ public class Ship {
 
     private void handleShiftFly() {
 
-        if(!canMove(owner.getLocation().getDirection()) || !canRotate(Math.toRadians(owner.getEyeLocation().getPitch()), Math.toRadians(owner.getEyeLocation().getYaw()))){
+        if(!canMove(owner.getEntity().getLocation().getDirection()) || !canRotate(Math.toRadians(owner.getEntity().getEyeLocation().getPitch()), Math.toRadians(owner.getEntity().getEyeLocation().getYaw()))){
             core.armorStand.setVelocity(new Vector(0, 0, 0));
             return;
         }
 
-        if (getOwner().isSneaking() && !isAutopilot && getOwner().getInventory().getItemInMainHand().getType() == Material.CLOCK) {
+        if (getOwner().isSneaking() && !isAutopilot && getOwner().getItemInMainHand().getType() == Material.CLOCK) {
 
             //Don't ask me why but this makes chunk loading happy
             owner.setSneaking(false);
-            core.armorStand.setVelocity(getOwner().getLocation().getDirection().normalize().multiply(speed));
+            core.armorStand.setVelocity(getOwner().getEntity().getLocation().getDirection().normalize().multiply(speed));
             owner.playSound(core.getArmorStand().getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 5, 1);
         }
 
@@ -389,7 +389,7 @@ public class Ship {
         Bukkit.getPluginManager().callEvent(event);
         if (!event.isCancelled()) {
             for (ShipBlock block : pistons) {
-                new CannonTask(block.getArmorStand().getLocation(), owner.getLocation().getDirection(), this);
+                new CannonTask(block.getArmorStand().getLocation(), owner.getEntity().getLocation().getDirection(), this);
             }
 
         }
@@ -399,7 +399,7 @@ public class Ship {
         if (isAutopilot) {
 
             if(!canMove(this.autoPilotDirection.normalize())){
-                owner.sendMessage(ChatColor.RED + "Stopping autopilot. Structure in the way.");
+                owner.getEntity().sendMessage(ChatColor.RED + "Stopping autopilot. Structure in the way.");
                 this.isAutopilot = false;
                 return;
             }
@@ -410,7 +410,7 @@ public class Ship {
                     for (Module module : other.modules) {
                         if (module instanceof Jammer && module.active) {
                             this.isAutopilot = false;
-                            owner.sendMessage(ChatColor.RED + "Autopilot has been disabled due to a jammer nearby!");
+                            owner.getEntity().sendMessage(ChatColor.RED + "Autopilot has been disabled due to a jammer nearby!");
                         }
                     }
                 }
@@ -465,7 +465,7 @@ public class Ship {
 
         if (canCompile) {
             owner.setFlying(false);
-            owner.leaveVehicle();
+            owner.getEntity().leaveVehicle();
             Location orig = null;
             for (ShipBlock block : this.blocks) {
 
@@ -500,15 +500,14 @@ public class Ship {
                 if (block.visible) block.getArmorStand().remove();
             }
 
-
-            SQSmoothcraft.instance.solidShips.add(new SolidShipData(orig, modules, owner.getUniqueId().toString()));
+            if (owner.isPlayer()) {
+                SQSmoothcraft.instance.solidShips.add(new SolidShipData(orig, modules, owner.getEntity().getUniqueId().toString()));
+            }
 
             SQSmoothcraft.instance.allShips.remove(this);
 
         } else {
-            owner.sendMessage(ChatColor.RED + "Can not unpilot ship; blocks are in the way!");
+            owner.getEntity().sendMessage(ChatColor.RED + "Can not unpilot ship; blocks are in the way!");
         }
     }
-
-
 }

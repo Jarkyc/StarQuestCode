@@ -1,7 +1,7 @@
 package com.spacebeaverstudios.sqsmoothcraft.Events;
 
+import com.spacebeaverstudios.sqsmoothcraft.Objects.Pilot;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -11,17 +11,17 @@ public class ShipFireMainGunsEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
 
-    private Player player;
+    private Pilot pilot;
     private Ship ship;
     private boolean isCancelled = false;
 
-    public ShipFireMainGunsEvent(Player player, Ship ship){
-        this.player = player;
+    public ShipFireMainGunsEvent(Pilot pilot, Ship ship){
+        this.pilot = pilot;
         this.ship = ship;
     }
 
-    public Player getPlayer(){
-        return this.player;
+    public Pilot getPilot(){
+        return this.pilot;
     }
 
     public Ship getShip(){

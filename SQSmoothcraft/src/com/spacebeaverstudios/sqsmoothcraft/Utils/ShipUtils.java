@@ -10,7 +10,7 @@ public class ShipUtils {
 
     public static Ship getShipByPlayer(Player player){
         for(Ship ship : SQSmoothcraft.instance.allShips){
-            if(ship.getOwner() == player) return ship;
+            if(ship.getOwner().getEntity().equals(player)) return ship;
         }
         return null;
     }

@@ -1,8 +1,8 @@
 package com.spacebeaverstudios.sqsmoothcraft.Objects.Modules;
 
+import com.spacebeaverstudios.sqsmoothcraft.Objects.Pilot;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 public class Jammer extends Module {
 
@@ -12,13 +12,13 @@ public class Jammer extends Module {
     }
 
     @Override
-    public void activate(Ship ship, Player player) {
+    public void activate(Ship ship, Pilot player) {
         if(this.active){
             this.active = false;
-            player.sendMessage(ChatColor.GREEN + "Jammer Activated");
+            player.getEntity().sendMessage(ChatColor.GREEN + "Jammer Activated");
         } else {
             this.active = false;
-            player.sendMessage(ChatColor.RED + "Jammer Deactivated");
+            player.getEntity().sendMessage(ChatColor.RED + "Jammer Deactivated");
         }
     }
 

@@ -1,8 +1,8 @@
 package com.spacebeaverstudios.sqsmoothcraft.Objects.Modules;
 
+import com.spacebeaverstudios.sqsmoothcraft.Objects.Pilot;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 public class Shield extends Module {
 
@@ -13,14 +13,14 @@ public class Shield extends Module {
     }
 
     @Override
-    public void activate(Ship ship, Player player) {
+    public void activate(Ship ship, Pilot pilot) {
         if(this.active){
             this.active = false;
-            player.sendMessage(ChatColor.RED + "Shield Generator Deactivated");
+            pilot.getEntity().sendMessage(ChatColor.RED + "Shield Generator Deactivated");
             regen();
         } else {
          this.active = true;
-         player.sendMessage(ChatColor.GREEN + "Shield Generator Activated" );
+         pilot.getEntity().sendMessage(ChatColor.GREEN + "Shield Generator Activated" );
         }
     }
 

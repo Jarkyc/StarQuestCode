@@ -1,10 +1,7 @@
 package com.spacebeaverstudios.sqsmoothcraft.Tasks;
 
+import com.spacebeaverstudios.sqsmoothcraft.Objects.*;
 import com.spacebeaverstudios.sqsmoothcraft.Objects.Data.SolidShipData;
-import com.spacebeaverstudios.sqsmoothcraft.Objects.Ship;
-import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipBlock;
-import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipClass;
-import com.spacebeaverstudios.sqsmoothcraft.Objects.ShipLocation;
 import com.spacebeaverstudios.sqsmoothcraft.SQSmoothcraft;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -25,12 +22,13 @@ public class DetectionTask {
 
     HashSet<ShipBlock> blocks = new HashSet<>();
     ShipBlock core;
+    Ship ship;
 
-    public DetectionTask(Location location, Player player, ShipClass clazz) {
+    public DetectionTask(Location location, Pilot pilot, ShipClass clazz) {
 
         Vector vector = new Vector(location.getBlockX(), location.getBlockY(), location.getBlockZ());
 
-        Location originalVector = player.getLocation();
+        Location originalVector = pilot.getEntity().getLocation();
         World world = location.getWorld();
 
         Stack<Vector> jumpBlocks = new Stack<>();
@@ -79,14 +77,14 @@ public class DetectionTask {
                         ShipLocation shipLoc = new ShipLocation(checkBlock.clone().getX() - location.clone().getX(), checkBlock.clone().getY() - location.clone().getY(), checkBlock.clone().getZ() - location.clone().getZ());
 
 
-                        if (player.getFacing() == BlockFace.NORTH) {
+                        if (pilot.getEntity().getFacing() == BlockFace.NORTH) {
                             shipLoc.x *= -1;
                             shipLoc.z *= -1;
-                        } else if (player.getFacing() == BlockFace.EAST) {
+                        } else if (pilot.getEntity().getFacing() == BlockFace.EAST) {
                             double temp = shipLoc.x;
                             shipLoc.x = shipLoc.z * -1;
                             shipLoc.z = temp;
-                        } else if (player.getFacing() == BlockFace.WEST) {
+                        } else if (pilot.getEntity().getFacing() == BlockFace.WEST) {
                             double temp = shipLoc.x;
                             shipLoc.x = shipLoc.z;
                             shipLoc.z = temp * -1;
@@ -141,24 +139,24 @@ public class DetectionTask {
             }
 
             if (blocks.size() > clazz.getMaxSize()) {
-                player.sendMessage(ChatColor.RED + "The ship exceeds maximum block size for this class!");
+                pilot.getEntity().sendMessage(ChatColor.RED + "The ship exceeds maximum block size for this class!");
                 return;
             }
 
             if (droppers.size() > clazz.getDropperCount()) {
-                player.sendMessage(ChatColor.RED + "Dropper count exceeds the maximum for this class!");
+                pilot.getEntity().sendMessage(ChatColor.RED + "Dropper count exceeds the maximum for this class!");
                 return;
             }
 
         }
 
         if (blocks.size() < clazz.getMinSize()) {
-            player.sendMessage(ChatColor.RED + "Ship does not meet minimum size requirements for this class!");
+            pilot.getEntity().sendMessage(ChatColor.RED + "Ship does not meet minimum size requirements for this class!");
             return;
         }
 
 
-        Ship ship = new Ship(this.blocks, player, location, this.core, originalVector, pistons, droppers, clazz);
+        ship = new Ship(this.blocks, pilot, location, this.core, originalVector, pistons, droppers, clazz);
 
         SolidShipData data = null;
 
@@ -174,6 +172,10 @@ public class DetectionTask {
             SQSmoothcraft.instance.solidShips.remove(data);
         }
 
+    }
+
+    public Ship getShip() {
+        return ship;
     }
 
     public HashSet<ShipBlock> getBlocks() {

@@ -1,5 +1,6 @@
 package com.spacebeaverstudios.sqsmoothcraft;
 
+import com.spacebeaverstudios.sqsmoothcraft.Commands.DeleteArmorStandsCmd;
 import com.spacebeaverstudios.sqsmoothcraft.Commands.ShipCmd;
 import com.spacebeaverstudios.sqsmoothcraft.Commands.UnpilotCmd;
 import com.spacebeaverstudios.sqsmoothcraft.Listeners.PlayerListeners;
@@ -33,6 +34,7 @@ public class SQSmoothcraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListeners(), this);
         getCommand("ship").setExecutor(new ShipCmd());
         getCommand("release").setExecutor(new UnpilotCmd());
+        getCommand("deletearmorstands").setExecutor(new DeleteArmorStandsCmd());
 
         loadData();
 
