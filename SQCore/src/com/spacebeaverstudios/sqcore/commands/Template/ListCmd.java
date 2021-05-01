@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 
 public class ListCmd extends SQCmd {
     public ListCmd() {
-        super("list", "list templates", false, "sqcore.template.list");
+        super("list", "list templates", false, "sqcore.template");
     }
 
     @Override

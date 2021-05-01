@@ -6,5 +6,18 @@ depend: [FastAsyncWorldEdit]
 commands:
   world:
     usage: /world
+    permission: sqcore.world
   template:
     usage: /template
+    permission: sqcore.template
+permissions:
+  sqcore.world:
+    default: op
+  sqcore.world.tp:
+    default: op
+  sqcore.template:
+    default: op
+  sqcore.template.create:
+    default: op
+  sqcore.template.paste:
+    default: op

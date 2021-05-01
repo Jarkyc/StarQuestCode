@@ -5,7 +5,7 @@ import org.bukkit.command.CommandSender;
 
 public class TemplateCmd extends SQCmd {
     public TemplateCmd(){
-        super("template", "template commands", true);
+        super("template", "template commands", true, "sqcore.template");
         this.addSubcommand(new CreateCmd());
         this.addSubcommand(new PasteCmd());
         this.addSubcommand(new ListCmd());

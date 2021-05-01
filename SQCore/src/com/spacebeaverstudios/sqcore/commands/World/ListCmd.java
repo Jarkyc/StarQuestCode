@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 public class ListCmd extends SQCmd {
     public ListCmd() {
-        super("list", "Lists all loaded worlds", true, "sqcore.world.list");
+        super("list", "Lists all loaded worlds", true, "sqcore.world");
     }
 
     @Override
