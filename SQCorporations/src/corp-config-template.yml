@@ -1,0 +1,5 @@
+name: Corporation Name
+data-file: data-corporation-name.yml
+facilities:
+  outpost:
+    - template-name

@@ -1,0 +1,11 @@
+initial-reputation: 10000
+max-reputation: 40000
+rank-minimums:
+  EXECUTIVE: 38000
+  MANAGER: 30000
+  PARTNER: 20000
+  CONTRACTOR: 15000
+  NEUTRAL: 10000
+  LIABILITY: 8000
+  COMPETITOR: 5000
+  RIVAL: 0

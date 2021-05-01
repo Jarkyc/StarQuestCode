@@ -1,0 +1,7 @@
+# the "nobody"s are there because it causes bugs otherwise
+reputation:
+  nobody: 0
+scrip:
+  nobody: 0
+facilities:
+  - none

@@ -1,0 +1,8 @@
+name: SQCorporations
+main: com.spacebeaverstudios.sqcorporations.SQCorporations
+version: 1.0.0
+api-version: "1.15"
+depend: [SQCore, SQCombatNPCs, FastAsyncWorldEdit, WorldGuard]
+commands:
+  corporation:
+    usage: /<command>
