@@ -1,35 +1,16 @@
 package com.spacebeaverstudios.sqcombatnpcs.listeners;
 
 import com.spacebeaverstudios.sqcombatnpcs.objects.combatnpcs.CombatNPC;
-import com.spacebeaverstudios.sqcombatnpcs.objects.combatnpcs.ship.ShipCombatNPC;
 import com.spacebeaverstudios.sqcombatnpcs.objects.combatnpcs.turret.Turret;
-import com.spacebeaverstudios.sqcombatnpcs.objects.targetselectors.AllPlayersTargetSelector;
-import org.bukkit.Material;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 public class EntityListener implements Listener {
-    // TODO: remember to remove this
-    @SuppressWarnings("unused")
-    @EventHandler
-    public void spawnCombatNPC(BlockPlaceEvent event) {
-//        if (event.getBlock().getType() == Material.DIAMOND_BLOCK) {
-//            event.getBlock().setType(Material.AIR);
-//            new ParticleTurret(event.getBlock().getLocation(), DyeColor.CYAN, new AllHostileMobsTargetSelector(), 20,
-//                    20, 4, 10, 15);
-//        }
-        if (event.getBlock().getType() == Material.NOTE_BLOCK) {
-            new ShipCombatNPC(new AllPlayersTargetSelector(), event.getBlock().getLocation(), BlockFace.NORTH);
-        }
-    }
-
     @SuppressWarnings("unused")
     @EventHandler
     public void onEntityDamaged(EntityDamageByEntityEvent event) {

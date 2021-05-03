@@ -37,6 +37,9 @@ public abstract class CombatNPC {
     public TargetSelector getEnemies() {
         return enemies;
     }
+    public LivingEntity getEntity() {
+        return entity;
+    }
 
     public CombatNPC(LivingEntity entity, TargetSelector enemies) {
         npcs.add(this);
@@ -53,6 +56,9 @@ public abstract class CombatNPC {
     }
 
     public void die() {
+        if (!entity.isDead()) {
+            entity.remove();
+        }
         for (Runnable listener : deathListeners) {
             listener.run();
         }

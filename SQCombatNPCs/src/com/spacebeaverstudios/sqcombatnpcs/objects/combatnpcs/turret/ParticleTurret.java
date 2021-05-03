@@ -2,19 +2,22 @@ package com.spacebeaverstudios.sqcombatnpcs.objects.combatnpcs.turret;
 
 import com.spacebeaverstudios.sqcombatnpcs.objects.targetselectors.TargetSelector;
 import org.bukkit.*;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
+@SuppressWarnings("unused")
 public class ParticleTurret extends Turret {
     private int firingCooldown = 0;
     private final int FIRING_COOLDOWN;
     private final int DAMAGE;
-    private final int FIRING_RANGE;
-    private final int WARNING_SHOT_RANGE;
+    private final Integer FIRING_RANGE;
+    private final BoundingBox firingBox;
+    private final Integer WARNING_SHOT_RANGE;
+    private final BoundingBox warningBox;
 
     public ParticleTurret(Location location, DyeColor color, TargetSelector enemies, int health, int firingCooldown,
                   int damage, int firingRange, int warningShotRange) {
@@ -22,22 +25,42 @@ public class ParticleTurret extends Turret {
         this.FIRING_COOLDOWN = firingCooldown;
         this.DAMAGE = damage;
         this.FIRING_RANGE = firingRange;
+        this.firingBox = null;
         this.WARNING_SHOT_RANGE = Math.max(firingRange, warningShotRange);
+        this.warningBox = null;
+    }
+
+    public ParticleTurret(Location location, DyeColor color, TargetSelector enemies, int health, int firingCooldown,
+                          int damage, BoundingBox firingBox, BoundingBox warningBox) {
+        super(location, color, enemies, health);
+        this.FIRING_COOLDOWN = firingCooldown;
+        this.DAMAGE = damage;
+        this.FIRING_RANGE = null;
+        this.firingBox = firingBox;
+        this.WARNING_SHOT_RANGE = null;
+        this.warningBox = warningBox;
     }
 
     public void tick() {
         firingCooldown++;
         if (firingCooldown >= FIRING_COOLDOWN) {
             firingCooldown = 0;
-            ArrayList<LivingEntity> targets = enemies.getSortedEntitiesWithinRange(fireFrom, WARNING_SHOT_RANGE);
+            ArrayList<LivingEntity> targets;
+            if (warningBox == null) {
+                targets = enemies.getSortedEntitiesWithinRange(fireFrom, WARNING_SHOT_RANGE);
+            } else {
+                targets = enemies.getSortedEntitiesWithinBox(fireFrom, warningBox);
+            }
+
             if (targets.size() == 0) {
                 close();
+                return;
             } else {
                 open();
             }
 
-            entityloop: for (Entity entity : targets) {
-                Location eLoc = ((LivingEntity) entity).getEyeLocation();
+            entityloop: for (LivingEntity entity : targets) {
+                Location eLoc = entity.getEyeLocation();
                 Vector direction = (new Vector(eLoc.getX() - fireFrom.getX(),
                         eLoc.getY() - fireFrom.getY(),
                         eLoc.getZ() - fireFrom.getZ())).normalize();
@@ -54,14 +77,17 @@ public class ParticleTurret extends Turret {
 
                 // calculate how much to miss/hit the target by
                 Vector offset;
-                if (distance <= FIRING_RANGE) {
+                if ((FIRING_RANGE != null && distance <= FIRING_RANGE)
+                        || (firingBox != null && firingBox.contains(entity.getEyeLocation().toVector()))) {
                     // try to shoot at the player, with random accuracy based on sqrt(x) function
                     offset = new Vector(0, ThreadLocalRandom.current().nextDouble(0,
-                            Math.sqrt((20.0 // The lower this number is, the higher the chance of hitting. Don't put it above 25.0
-                                    / FIRING_RANGE) * distance) + 1), 0);
+                            // The lower the first number is, the higher the chance of hitting. Don't put it above 25.0
+                            // Hopefully firingBox isn't super skewed in size
+                            Math.sqrt((20.0 / (FIRING_RANGE != null ? FIRING_RANGE : firingBox.getWidthX() / 2)) * distance) + 1),
+                            0);
                     if (offset.getY() <= 1.5) {
                         // the shot hit
-                        ((LivingEntity) entity).damage(DAMAGE);
+                        entity.damage(DAMAGE);
                     }
                 } else {
                     // always miss by 5 blocks
