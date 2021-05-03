@@ -83,7 +83,7 @@ public class Template implements Serializable {
     public void pasteAir(Location loc) {
         for (TemplateBlock block : blocks) {
             Vector vec = block.getVector();
-            Location pasteLoc = new Location(loc.getWorld(), loc.getX() - vec.getX(), loc.getY() - vec.getY(), loc.getZ() - vec.getZ());
+            Location pasteLoc = new Location(loc.getWorld(), loc.getX() + vec.getX(), loc.getY() + vec.getY(), loc.getZ() + vec.getZ());
             pasteLoc.getBlock().setType(Material.AIR);
         }
     }
