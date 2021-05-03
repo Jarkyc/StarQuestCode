@@ -12,8 +12,8 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         for (Facility facility : Facility.getFacilities()) {
-            if (facility.getBoundingBox().contains(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ())
-                    && !facility.getBoundingBox().contains(event.getFrom().getX(), event.getFrom().getY(), event.getFrom().getZ())) {
+            if (facility.getWarningBox().contains(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ())
+                    && !facility.getWarningBox().contains(event.getFrom().getX(), event.getFrom().getY(), event.getFrom().getZ())) {
                 facility.playerEnter(event.getPlayer());
             }
         }
@@ -24,7 +24,7 @@ public class PlayerListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         for (Facility facility : Facility.getFacilities()) {
             Location location = event.getPlayer().getLocation();
-            if (facility.getBoundingBox().contains(location.getX(), location.getY(), location.getZ())) {
+            if (facility.getWarningBox().contains(location.getX(), location.getY(), location.getZ())) {
                 facility.playerEnter(event.getPlayer());
             }
         }

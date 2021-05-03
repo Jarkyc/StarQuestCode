@@ -7,6 +7,8 @@ import com.spacebeaverstudios.sqcorporations.objects.ReputationLevel;
 import com.spacebeaverstudios.sqcorporations.objects.facility.Facility;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+
 public class SQCorporations extends JavaPlugin {
     private static SQCorporations instance;
 
@@ -16,6 +18,10 @@ public class SQCorporations extends JavaPlugin {
 
     public void onEnable() {
         instance = this;
+
+        if (!(new File(getDataFolder().getAbsolutePath() + "/config.yml")).exists()) {
+            this.saveDefaultConfig();
+        }
 
         ReputationLevel.initializeMinimums();
         Corporation.loadCorporations();

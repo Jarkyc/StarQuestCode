@@ -3,8 +3,8 @@ package com.spacebeaverstudios.sqcorporations.objects;
 import com.spacebeaverstudios.sqcore.utils.discord.DiscordUtils;
 import com.spacebeaverstudios.sqcorporations.SQCorporations;
 import com.spacebeaverstudios.sqcorporations.objects.facility.Facility;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 import org.bukkit.entity.Player;
 
 import java.io.File;
@@ -14,42 +14,46 @@ import java.util.ArrayList;
 public class CorporationData {
     private final File file;
     private final YamlConfiguration config;
+    private int mostRecentSaveTick = 0;
 
     public CorporationData(File file) {
         this.file = file;
-        if (!file.exists()) {
-            // initialize default from src/default-corp-data.yml
-            try {
-                FileUtils.copyFile(
-                        new File(SQCorporations.getInstance().getClass().getClassLoader()
-                                .getResource("default-corp-data.yml").getPath()),
-                        file);
-            } catch (IOException e) {
-                SQCorporations.getInstance().getLogger().warning(DiscordUtils.tag("blankman")
-                        + " Couldn't initialize copy of default-corp-data.yml");
-                e.printStackTrace();
-            }
+        if (file.exists()) {
+            config = YamlConfiguration.loadConfiguration(file);
+        } else {
+            config = new YamlConfiguration();
         }
-        config = YamlConfiguration.loadConfiguration(file);
     }
 
     private void save() {
-        try {
-            config.save(file);
-        } catch (IOException e) {
-            SQCorporations.getInstance().getLogger().warning(DiscordUtils.tag("blankman")
-                    + " Couldn't save CorporationData");
-            e.printStackTrace();
+        // only bother saving once per tick
+        if (Bukkit.getCurrentTick() != mostRecentSaveTick) {
+            mostRecentSaveTick = Bukkit.getCurrentTick();
+            SQCorporations.getInstance().getServer().getScheduler().scheduleSyncDelayedTask(SQCorporations.getInstance(), () -> {
+                try {
+                    config.save(file);
+                } catch (IOException e) {
+                    SQCorporations.getInstance().getLogger().warning(DiscordUtils.tag("blankman")
+                            + " Couldn't save CorporationData to " + file.getName());
+                    e.printStackTrace();
+                    SQCorporations.getInstance().getLogger().info("Full YAML data:");
+                    SQCorporations.getInstance().getLogger().info(config.saveToString());
+                }
+            }, 1);
         }
     }
 
     public int getReputation(Player player) {
-        if (config.getConfigurationSection("reputation").contains(player.getUniqueId().toString())) {
+        if (!config.contains("reputation")) {
+            int newRep = SQCorporations.getInstance().getConfig().getInt("initial-reputation");
+            setReputation(player, newRep);
+            return newRep;
+        } else if (config.getConfigurationSection("reputation").contains(player.getUniqueId().toString())) {
             return config.getInt("reputation." + player.getUniqueId());
         } else {
             int newRep = SQCorporations.getInstance().getConfig().getInt("initial-reputation");
             setReputation(player, newRep);
-            return 0;
+            return newRep;
         }
     }
 
@@ -59,7 +63,10 @@ public class CorporationData {
     }
 
     public int getScrip(Player player) {
-        if (config.getConfigurationSection("scrip").contains(player.getUniqueId().toString())) {
+        if (!config.contains("scrip")) {
+            setScrip(player, 0);
+            return 0;
+        } else if (config.getConfigurationSection("scrip").contains(player.getUniqueId().toString())) {
             return config.getInt("scrip." + player.getUniqueId());
         } else {
             setScrip(player, 0);
@@ -73,11 +80,15 @@ public class CorporationData {
     }
 
     public ArrayList<Facility> getFacilities() {
+        if (!config.contains("facilities")) {
+            return new ArrayList<>();
+        }
         // TODO
         return new ArrayList<>();
     }
 
-    public void saveFacility(Facility facility) {
+    public void saveFacilityList(ArrayList<Facility> facilities) {
         // TODO
+        save();
     }
 }

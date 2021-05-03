@@ -2,6 +2,7 @@ package com.spacebeaverstudios.sqcorporations.objects;
 
 import com.spacebeaverstudios.sqcorporations.SQCorporations;
 import com.spacebeaverstudios.sqcorporations.objects.facility.Facility;
+import com.spacebeaverstudios.sqcorporations.objects.targetselectors.CorporationEnemiesTargetSelector;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -30,12 +31,19 @@ public class Corporation {
     private final YamlConfiguration config;
     private final CorporationData data;
     private final ArrayList<Facility> facilities = new ArrayList<>();
+    private final CorporationEnemiesTargetSelector targetSelector = new CorporationEnemiesTargetSelector(this);
 
     public YamlConfiguration getConfig() {
         return config;
     }
     public CorporationData getData() {
         return data;
+    }
+    public ArrayList<Facility> getFacilities() {
+        return facilities;
+    }
+    public CorporationEnemiesTargetSelector getTargetSelector() {
+        return targetSelector;
     }
 
     public Corporation(File configFile) {
