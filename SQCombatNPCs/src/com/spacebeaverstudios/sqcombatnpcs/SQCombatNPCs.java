@@ -19,4 +19,12 @@ public class SQCombatNPCs extends JavaPlugin {
 
         getServer().getScheduler().scheduleSyncRepeatingTask(this, CombatNPC::tickAll, 1, 1);
     }
+
+    @Override
+    public void onDisable() {
+        for (CombatNPC npc : CombatNPC.getNPCs()) {
+            // individual plugins are responsible for reloading them after restart
+            npc.getEntity().remove();
+        }
+    }
 }

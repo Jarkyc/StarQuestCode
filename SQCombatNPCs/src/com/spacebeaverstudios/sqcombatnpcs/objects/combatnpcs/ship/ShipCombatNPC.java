@@ -26,7 +26,7 @@ public class ShipCombatNPC extends CombatNPC {
         pilot.setCollidable(false);
         pilot.getLocation().setPitch(0);
         pilot.setAI(false);
-//        pilot.setInvulnerable(true); TODO reenable when things work better
+        pilot.setInvulnerable(true);
         switch (facing) {
             case NORTH:
                 pilot.getLocation().setYaw(180);
