@@ -51,6 +51,7 @@ public class SQTech extends JavaPlugin {
         BrewerMachine.staticInitialize();
         CoalGeneratorMachine.staticInitialize();
         CrafterMachine.staticInitialize();
+        DyeMixerMachine.staticInitialize();
         HopperMachine.staticInitialize();
         PlanterMachine.staticInitialize();
         ReplicatorMachine.staticInitialize();
