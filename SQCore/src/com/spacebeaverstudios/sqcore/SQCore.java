@@ -7,6 +7,7 @@ import com.spacebeaverstudios.sqcore.objects.Tickable;
 import com.spacebeaverstudios.sqcore.objects.template.Template;
 import com.spacebeaverstudios.sqcore.utils.GUIUtils;
 import com.spacebeaverstudios.sqcore.listeners.*;
+import com.spacebeaverstudios.sqcore.utils.MapUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -47,6 +48,7 @@ public class SQCore extends JavaPlugin {
         }
 
         this.reloadConfig();
+        MapUtils.loadIdsByName();
 
         new TabList();
 
@@ -65,5 +67,7 @@ public class SQCore extends JavaPlugin {
                 }
             }
         }, 1, 1);
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(this, MapUtils::saveIdsByName);
     }
 }
