@@ -14,6 +14,7 @@ import org.bukkit.map.MapView;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -61,11 +62,23 @@ public class MapUtils {
                 scanner.close();
             }
         } catch (IOException e) {
-            SQCore.getInstance().getLogger().warning(DiscordUtils.tag("blankman") + " can't save map ids");
+            SQCore.getInstance().getLogger().warning(DiscordUtils.tag("blankman") + " can't load map ids");
             e.printStackTrace();
         }
     }
     public static void saveIdsByName() {
+        // delete all nonregistered (but saved) ids in order to prevent bugs
+        ArrayList<String> toDelete = new ArrayList<>();
+        for (String name : idsByName.keySet()) {
+            if (!renderersByName.containsKey(name)) {
+                toDelete.add(name);
+            }
+        }
+        for (String name : toDelete) {
+            idsByName.remove(name);
+        }
+
+        // save
         try {
             FileWriter writer = new FileWriter(SQCore.getInstance().getDataFolder().getAbsolutePath() + "/map-ids.txt");
             for (String name : idsByName.keySet()) {
