@@ -57,6 +57,7 @@ public class SQTech extends JavaPlugin {
         ReplicatorMachine.staticInitialize();
         SmelterMachine.staticInitialize();
         SolarPanelMachine.staticInitialize();
+        SortingMachine.staticInitialize();
 
         // should run it after all plugins initialize their sign texts
         Bukkit.getScheduler().scheduleSyncDelayedTask(this, this::loadMachines, 1);

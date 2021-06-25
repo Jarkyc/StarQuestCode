@@ -7,6 +7,7 @@ import com.spacebeaverstudios.sqtech.guis.guifunctions.OpenHopperMachineInventor
 import com.spacebeaverstudios.sqtech.guis.guifunctions.OpenMachineGUIFunction;
 import com.spacebeaverstudios.sqtech.objects.machines.HopperMachine;
 import com.spacebeaverstudios.sqtech.objects.machines.Machine;
+import com.spacebeaverstudios.sqtech.objects.machines.SortingMachine;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -28,7 +29,7 @@ public class MachineGUI extends GUI {
         inventory.addItem(machineInfoItem.getItemStack());
         this.getGuiItems().add(machineInfoItem);
 
-        if (machine.getInputTypes().contains(Machine.TransferType.ITEMS)) {
+        if (machine.getInputTypes().contains(Machine.TransferType.ITEMS) && !(machine instanceof SortingMachine)) {
             GUIFunction inventoryGUIFunction;
             if (machine instanceof HopperMachine) {
                 inventoryGUIFunction = new OpenHopperMachineInventoryGUIFunction((HopperMachine) machine);

@@ -108,3 +108,5 @@ SmelterMachine:
 SolarPanelMachine:
   sign-texts: ["[solarpanel]", "[solar panel]"]
   power-generated: 2
+SortingMachine:
+  sign-texts: ["[sorter]", "[sortingmachine]", "[sorting machine]"]
