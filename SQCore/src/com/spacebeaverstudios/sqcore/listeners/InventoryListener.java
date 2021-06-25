@@ -19,17 +19,21 @@ public class InventoryListener implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        if (GUI.getGuis().containsKey((Player) event.getWhoClicked())) {
+        Player player = (Player) event.getWhoClicked();
+        if (GUI.getGuis().containsKey(player)) {
             event.setCancelled(true);
+            GUI gui = GUI.getGuis().get(player);
             if (event.getCurrentItem() != null && GUIUtils.isButton(event.getCurrentItem())
-                    && GUI.getGuis().get((Player) event.getWhoClicked()).getInventory().equals(event.getClickedInventory())) {
+                    && gui.getInventory().equals(event.getClickedInventory())) {
                 GUIItem item = GUIUtils.getGUIItem(event.getCurrentItem());
-                item.runFunction((Player) event.getWhoClicked());
+                item.runFunction(player);
+            } else if (player.getInventory().equals(event.getClickedInventory())) {
+                gui.onPlayerInventoryClick(event);
             }
         } else if (event.getClickedInventory() instanceof CartographyInventory && event.getRawSlot() == 0) {
             if (event.getCursor().getType() == Material.FILLED_MAP
                     && MapUtils.idsByName.containsValue(((MapMeta) event.getCursor().getItemMeta()).getMapId())) {
-                event.getWhoClicked().sendMessage(ChatColor.RED + "You aren't allowed to modify that map!");
+                player.sendMessage(ChatColor.RED + "You aren't allowed to modify that map!");
                 event.setCancelled(true);
             }
         }

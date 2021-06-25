@@ -5,6 +5,7 @@ import com.spacebeaverstudios.sqcore.gui.GUIItem;
 import com.spacebeaverstudios.sqtech.objects.machines.BrewerMachine;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -38,8 +39,12 @@ public class ChooseBrewingRecipeGUI extends GUI {
 
         return inventory;
     }
-
-    public void selectItem(ItemStack itemStack) {
+    @Override
+    public void onPlayerInventoryClick(InventoryClickEvent event) {
+        if (event.getCurrentItem() == null) {
+            return;
+        }
+        ItemStack itemStack = event.getCurrentItem();
         if (ingredientChosen == null) {
             ingredientChosen = itemStack.getType();
             refreshInventory();

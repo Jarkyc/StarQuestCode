@@ -4,6 +4,7 @@ import com.spacebeaverstudios.sqcore.SQCore;
 import com.spacebeaverstudios.sqcore.utils.GUIUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
@@ -32,6 +33,10 @@ public abstract class GUI {
     }
 
     public abstract Inventory createInventory();
+    @SuppressWarnings("unused")
+    public void onPlayerInventoryClick(InventoryClickEvent event) {
+        // override this function to capture when a player clicks their own inventory
+    }
 
     public void open(Player player) {
         this.player = player;

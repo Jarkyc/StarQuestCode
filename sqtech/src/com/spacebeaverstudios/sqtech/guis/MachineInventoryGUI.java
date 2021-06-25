@@ -9,7 +9,9 @@ import com.spacebeaverstudios.sqtech.objects.machines.Machine;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,6 +67,20 @@ public class MachineInventoryGUI extends GUI {
         inventory.setItem(26, closeItem.getItemStack());
 
         return inventory;
+    }
+
+    @Override
+    public void onPlayerInventoryClick(InventoryClickEvent event) {
+        if (event.getCurrentItem() == null) {
+            return;
+        }
+        ItemStack tried = machine.tryAddItemStack(event.getCurrentItem());
+        if (tried.getAmount() > 0) {
+            event.getClickedInventory().setItem(event.getSlot(), tried);
+        } else {
+            event.getClickedInventory().setItem(event.getSlot(), null);
+        }
+        refresh();
     }
 
     public void refresh() {
