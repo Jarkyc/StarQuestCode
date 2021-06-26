@@ -1,17 +1,24 @@
 package com.spacebeaverstudios.sqcore.utils;
 
+import com.spacebeaverstudios.sqcore.SQCore;
 import com.spacebeaverstudios.sqcore.gui.GUIItem;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GUIUtils {
     private static final ArrayList<GUIItem> buttons = new ArrayList<>();
+    private static int randomPersistentDataCounter = 0;
+    private static NamespacedKey guiItemNamespacedKey;
 
     public static boolean isButton(ItemStack itemClicked){
         if (itemClicked == null || itemClicked.getType() == Material.AIR) {
@@ -28,14 +35,22 @@ public class GUIUtils {
         return false;
     }
 
-
     public static ArrayList<GUIItem> getButtons(){
         return buttons;
     }
 
     public static GUIItem getGUIItem(ItemStack stack) {
+        String stackValue = stack.getItemMeta().getPersistentDataContainer().get(guiItemNamespacedKey,
+                PersistentDataType.PrimitivePersistentDataType.STRING);
+
+        if (stackValue == null) {
+            return null; // stack isn't a GUIItem
+        }
         for (GUIItem item : getButtons()) {
-            if (stack.equals(item.getItemStack())) return item;
+            if (stack.equals(item.getItemStack()) && item.getItemStack().getItemMeta().getPersistentDataContainer()
+                    .get(guiItemNamespacedKey, PersistentDataType.STRING).equals(stackValue)) {
+                return item;
+            }
         }
         return null;
     }
@@ -100,5 +115,18 @@ public class GUIUtils {
             if (!tag.hasKey("isWanted")) return false;
             return tag.getBoolean("isWanted");
         }
+    }
+
+    public static void initializeGUIItemNamespacedKey() {
+        guiItemNamespacedKey = new NamespacedKey(SQCore.getInstance(), "GUIItemRandomPersistentData");
+    }
+    public static void setRandomPersistentData(ItemStack itemStack) {
+        // prevent getGUIItem() from getting wrong item that is similar
+        // not important what the value is, just has to be unique
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.getPersistentDataContainer().set(guiItemNamespacedKey, PersistentDataType.STRING,
+                String.valueOf(Instant.now().toEpochMilli()) + randomPersistentDataCounter);
+        itemStack.setItemMeta(meta);
+        randomPersistentDataCounter++;
     }
 }

@@ -25,6 +25,7 @@ public class GUIItem {
             stackMeta.setLore(loreList);
         }
         stack.setItemMeta(stackMeta);
+        GUIUtils.setRandomPersistentData(stack);
 
         this.item = stack;
         GUIUtils.setWanted(item, true);
@@ -35,6 +36,7 @@ public class GUIItem {
         this.function = function;
         GUIUtils.setWanted(item, true);
         GUIUtils.getButtons().add(this);
+        GUIUtils.setRandomPersistentData(item);
     }
 
     public ItemStack getItemStack() {

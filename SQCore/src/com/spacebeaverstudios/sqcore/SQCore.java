@@ -27,6 +27,7 @@ public class SQCore extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        GUIUtils.initializeGUIItemNamespacedKey();
 
         getServer().getPluginManager().registerEvents(new CommandListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(), this);
