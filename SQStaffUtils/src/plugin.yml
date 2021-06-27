@@ -1,0 +1,5 @@
+name: SQStaffUtils
+main: com.spacebeaverstudios.sqstaffutils.SQStaffUtils
+version: 1.0.0
+api-version: "1.15"
+depend: [SQCore, Essentials]
