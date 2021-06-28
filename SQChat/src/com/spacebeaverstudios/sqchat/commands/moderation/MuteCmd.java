@@ -4,6 +4,8 @@ import com.spacebeaverstudios.sqchat.utils.ChatUtils;
 import com.spacebeaverstudios.sqcore.commands.SQCmd;
 import com.spacebeaverstudios.sqcore.commands.arguments.IntegerArgument;
 import com.spacebeaverstudios.sqcore.commands.arguments.OnlinePlayerArgument;
+import com.spacebeaverstudios.sqstaffutils.objects.InfractionSender;
+import com.spacebeaverstudios.sqstaffutils.objects.infraction.Mute;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,5 +27,8 @@ public class MuteCmd extends SQCmd {
 
         ChatUtils.getMutedPlayers().put(target.getUniqueId(), (int) args[1]);
         sender.sendMessage(ChatColor.GREEN + target.getDisplayName() + " has been muted for " + args[1] + " minutes!");
+
+        new Mute(new InfractionSender(sender instanceof Player ? ((Player) sender).getUniqueId() : null), target.getUniqueId(),
+                (long) (int) args[1] * 60);
     }
 }

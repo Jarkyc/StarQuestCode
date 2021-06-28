@@ -3,7 +3,7 @@ main: com.spacebeaverstudios.sqchat.SQChat
 version: 1.0.0
 api-version: "1.15"
 loadbefore: [Essentials]
-depend: [SQCore, Vault]
+depend: [SQCore, SQStaffUtils, Vault]
 commands:
   g:
     description: Puts you into global chat.

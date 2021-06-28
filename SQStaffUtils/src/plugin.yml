@@ -3,3 +3,27 @@ main: com.spacebeaverstudios.sqstaffutils.SQStaffUtils
 version: 1.0.0
 api-version: "1.15"
 depend: [SQCore, Essentials]
+commands:
+  myinfractions:
+    description: See your own infractions.
+  infractions:
+    description: See a player's infractions.
+    permission: sqstaffutils.infractions
+  infractionsfrom:
+    description: See infractions made by a player.
+    permission: sqstaffutils.infractionsfrom
+  note:
+    description: Attach a note to a player.
+    permission: sqstaffutils.note
+  warn:
+    description: Warn a player.
+    permission: sqstaffutils.warn
+permissions:
+  sqstaffutils.infractions:
+    default: op
+  sqstaffutils.infractionsfrom:
+    default: op
+  sqstaffutils.note:
+    default: op
+  sqstaffutils.warn:
+    default: op

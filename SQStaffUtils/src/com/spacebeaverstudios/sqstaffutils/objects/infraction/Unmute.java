@@ -11,24 +11,25 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
-public class Unban extends Infraction {
-    public Unban(InfractionSender sender, UUID target) {
+public class Unmute extends Infraction {
+    @SuppressWarnings("unused")
+    public Unmute(InfractionSender sender, UUID target) {
         super(sender, target, Instant.now().getEpochSecond());
     }
-    public Unban(String[] saveString) {
+    public Unmute(String[] saveString) {
         super(new InfractionSender(saveString[0].equals("null") ? null : (UUID.fromString(saveString[0]))), UUID.fromString(saveString[1]),
                 Long.parseLong(saveString[2]), Integer.parseInt(saveString[3]));
     }
 
     public InfractionLogEvent getInfractionLogEvent() {
-        return new InfractionLogEvent(sender.getName() + " unbanned " + Bukkit.getOfflinePlayer(target).getName(), "", sender);
+        return new InfractionLogEvent(sender.getName() + " unmuted " + Bukkit.getOfflinePlayer(target).getName(), "", sender);
     }
 
     public GUIItem getGUIItem() {
-        return new GUIItem("Unban", ChatColor.GOLD
+        return new GUIItem("Unmute", ChatColor.GOLD
                 + "Target: " + ChatColor.AQUA + Bukkit.getOfflinePlayer(target).getName() + ChatColor.GOLD
                 + "\n Sender: " + ChatColor.AQUA + sender.getName() + ChatColor.GOLD
-                + "\n Date: " + ChatColor.AQUA + new Date(date * 1000), Material.GREEN_CONCRETE, null);
+                + "\n Date: " + ChatColor.AQUA + new Date(date * 1000), Material.GREEN_CONCRETE, null); // TODO: material
     }
 
     public String getSaveString() {

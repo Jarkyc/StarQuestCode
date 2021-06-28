@@ -3,7 +3,6 @@ package com.spacebeaverstudios.sqstaffutils.objects.infraction;
 import com.spacebeaverstudios.sqcore.gui.GUIItem;
 import com.spacebeaverstudios.sqstaffutils.events.InfractionLogEvent;
 import com.spacebeaverstudios.sqstaffutils.objects.InfractionSender;
-import org.bukkit.BanEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -14,60 +13,43 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 
-public class Ban extends Infraction {
+public class Mute extends Infraction {
     private final long duration;
-    private final String reason;
 
-    public Ban(BanEntry banEntry) {
-        super(new InfractionSender(banEntry.getSource().equals("Console") ? null
-                        : Bukkit.getPlayerUniqueId(ChatColor.stripColor(banEntry.getSource()))),
-                Bukkit.getPlayerUniqueId(banEntry.getTarget()), Instant.now().getEpochSecond());
-
-        if (banEntry.getExpiration() == null) {
-            this.duration = -1;
-        } else {
-            this.duration = banEntry.getExpiration().toInstant().getEpochSecond() - date;
-        }
-
-        this.reason = (banEntry.getReason() == null ? "No reason given." : banEntry.getReason());
+    @SuppressWarnings("unused")
+    public Mute(InfractionSender sender, UUID target, long duration) {
+        super(sender, target, Instant.now().getEpochSecond());
+        this.duration = duration;
     }
-    public Ban(String[] saveString) {
-        super (new InfractionSender(saveString[0].equals("null") ? null : (UUID.fromString(saveString[0]))), UUID.fromString(saveString[1]),
+    public Mute(String[] saveString) {
+        super(new InfractionSender(saveString[0].equals("null") ? null : (UUID.fromString(saveString[0]))), UUID.fromString(saveString[1]),
                 Long.parseLong(saveString[2]), Integer.parseInt(saveString[3]));
         this.duration = Long.parseLong(saveString[4]);
-        StringBuilder reason = new StringBuilder();
-        for (int i = 5; i < saveString.length; i++) {
-            reason.append(saveString[i].replace("\\n", "\n"));
-        }
-        this.reason = reason.toString();
     }
 
     public InfractionLogEvent getInfractionLogEvent() {
-        String name = sender.getName() + " banned " + Bukkit.getOfflinePlayer(target).getName();
-        if (duration != -1) {
-            name += " for " + durationString(duration);
-        }
-        return new InfractionLogEvent(name, reason, sender);
+        return new InfractionLogEvent(sender.getName() + " muted " + Bukkit.getOfflinePlayer(target).getName() + " for "
+                + durationString(duration), "", sender);
     }
 
     public GUIItem getGUIItem() {
-        String name = (duration == -1 ? "" : "Temp ") + "Ban (";
+        String name = "Mute (";
         long expiry = (duration == -1 ? Long.MAX_VALUE : date + duration);
 
-        // find if ban is active, expired, or cancelled
-        Infraction unbanned = null;
+        // find if mute is active, expired, or cancelled
+        Infraction unmuted = null;
         ArrayList<Infraction> infractions = Infraction.infractionsToPlayer(target);
         Collections.reverse(infractions);
         for (int i = infractions.indexOf(this) + 1; i < infractions.size(); i++) {
-            if (infractions.get(i) instanceof Unban) {
+            if (infractions.get(i) instanceof Unmute) {
                 if (infractions.get(i).date < expiry) {
                     name += ChatColor.GREEN + "Cancelled";
-                    unbanned = infractions.get(i);
+                    unmuted = infractions.get(i);
                 }
                 break;
             }
         }
-        if (unbanned == null) {
+        if (unmuted == null) {
             if (expiry < Instant.now().getEpochSecond()) {
                 name += ChatColor.GREEN + "Expired";
             } else {
@@ -77,13 +59,13 @@ public class Ban extends Infraction {
         name += ChatColor.WHITE + ")";
 
         // lore
-        String lore = ChatColor.WHITE + reason + ChatColor.GOLD
+        String lore = ChatColor.GOLD
                 + "\n Target: " + ChatColor.AQUA + Bukkit.getOfflinePlayer(target).getName() + ChatColor.GOLD
                 + "\n Sender: " + ChatColor.AQUA + sender.getName() + ChatColor.GOLD
                 + "\n Date: " + ChatColor.AQUA + new Date(date * 1000) + ChatColor.GOLD
                 + "\n Duration: " + ChatColor.AQUA + durationString(duration) + ChatColor.GOLD + "\n ";
-        if (unbanned != null) {
-            lore += "Unbanned: " + new Date(unbanned.date * 1000) + " by " + unbanned.sender.getName();
+        if (unmuted != null) {
+            lore += "Unmuted: " + new Date(unmuted.date * 1000) + " by " + unmuted.sender.getName();
         } else if (duration != -1) {
             if (expiry > Instant.now().getEpochSecond()) {
                 lore += "Expired: " + new Date(expiry * 1000);
@@ -92,10 +74,10 @@ public class Ban extends Infraction {
             }
         }
 
-        return new GUIItem(name, lore, (duration == -1 ? Material.RED_CONCRETE : Material.YELLOW_CONCRETE), null);
+        return new GUIItem(name, lore, Material.BEDROCK, null); // TODO: material
     }
 
     public String getSaveString() {
-        return sender.uuid + "," + target + "," + date + "," + id + "," + duration + "," + reason.replace("\n", "\\n");
+        return sender.uuid + "," + target + "," + date + "," + id + "," + duration;
     }
 }

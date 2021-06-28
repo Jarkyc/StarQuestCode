@@ -1,9 +1,9 @@
 package com.spacebeaverstudios.sqstaffutils.objects;
 
-import com.earth2me.essentials.IEssentials;
 import com.spacebeaverstudios.sqcore.utils.discord.DiscordUtils;
 import com.spacebeaverstudios.sqstaffutils.SQStaffUtils;
 import com.spacebeaverstudios.sqstaffutils.objects.infraction.Ban;
+import com.spacebeaverstudios.sqstaffutils.objects.infraction.Unban;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.Logger;
@@ -16,15 +16,11 @@ import org.bukkit.ChatColor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.regex.Pattern;
 
 public class LogListener extends AbstractAppender {
-    private static final IEssentials iEssentials;
     private static final PatternLayout PATTERN_LAYOUT;
 
     static {
-        iEssentials = (IEssentials) Bukkit.getPluginManager().getPlugin("Essentials");
-
         // tbh I copy-pasted this from DiscordSRV so I don't really know why it works
         Method createLayoutMethod = null;
         for (Method method : PatternLayout.class.getMethods()) {
@@ -64,14 +60,20 @@ public class LogListener extends AbstractAppender {
     }
 
     public void append(LogEvent event) {
-        String message = ChatColor.stripColor(event.getMessage().getFormattedMessage());
-        if (message.matches("Player (.*?) banned (.*?) for:")) {
-            logBan(Pattern.compile("kicked (.*?) for").matcher(message).group(1));
+        String[] message = ChatColor.stripColor(event.getMessage().getFormattedMessage()).split(" ");
+        if (!message[0].equals("Player")) {
+            return; // prevent false positives from chat
+        }
+        if (message[2].equals("banned")) {
+            logBan(message[3]);
+        } else if (message[2].equals("temporarily") && message[3].equals("banned")) {
+            logBan(message[4]);
+        } else if (message[2].equals("unbanned")) {
+            logUnban(message[1], message[3]);
         }
     }
 
     private void logBan(String bannedName) {
-        SQStaffUtils.getInstance().getLogger().info("bannedNamed == " + bannedName);
         BanEntry banEntry = null;
 
         for (final BanEntry banEnt : SQStaffUtils.getInstance().getServer().getBanList(BanList.Type.NAME).getBanEntries()) {
@@ -86,5 +88,10 @@ public class LogListener extends AbstractAppender {
         } else {
             new Ban(banEntry);
         }
+    }
+
+    private void logUnban(String unbannerName, String unbannedName) {
+        new Unban(new InfractionSender(unbannerName.equals("Console") ? null : Bukkit.getPlayerUniqueId(unbannerName)),
+                Bukkit.getPlayerUniqueId(unbannedName));
     }
 }
