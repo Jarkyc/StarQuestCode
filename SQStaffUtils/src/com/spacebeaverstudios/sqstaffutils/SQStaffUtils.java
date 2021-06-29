@@ -32,15 +32,15 @@ public class SQStaffUtils extends JavaPlugin {
 
         loadInfractions();
 
-//        InfractionsCmd infractionsCmd = new InfractionsCmd();
-//        getCommand("infractions").setExecutor(infractionsCmd);
-//        getCommand("infractions").setTabCompleter(infractionsCmd);
-//        InfractionsFromCmd infractionsFromCmd = new InfractionsFromCmd();
-//        getCommand("infractionsfrom").setExecutor(infractionsFromCmd);
-//        getCommand("infractionsfrom").setTabCompleter(infractionsFromCmd);
-//        MyInfractionsCmd myInfractionsCmd = new MyInfractionsCmd();
-//        getCommand("myinfractions").setExecutor(myInfractionsCmd);
-//        getCommand("myinfractions").setTabCompleter(myInfractionsCmd);
+        InfractionsCmd infractionsCmd = new InfractionsCmd();
+        getCommand("infractions").setExecutor(infractionsCmd);
+        getCommand("infractions").setTabCompleter(infractionsCmd);
+        InfractionsFromCmd infractionsFromCmd = new InfractionsFromCmd();
+        getCommand("infractionsfrom").setExecutor(infractionsFromCmd);
+        getCommand("infractionsfrom").setTabCompleter(infractionsFromCmd);
+        MyInfractionsCmd myInfractionsCmd = new MyInfractionsCmd();
+        getCommand("myinfractions").setExecutor(myInfractionsCmd);
+        getCommand("myinfractions").setTabCompleter(myInfractionsCmd);
         NoteCmd noteCmd = new NoteCmd();
         getCommand("note").setExecutor(noteCmd);
         getCommand("note").setTabCompleter(noteCmd);

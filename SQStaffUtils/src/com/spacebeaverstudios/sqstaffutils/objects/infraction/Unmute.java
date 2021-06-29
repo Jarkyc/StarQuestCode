@@ -29,7 +29,7 @@ public class Unmute extends Infraction {
         return new GUIItem("Unmute", ChatColor.GOLD
                 + "Target: " + ChatColor.AQUA + Bukkit.getOfflinePlayer(target).getName() + ChatColor.GOLD
                 + "\n Sender: " + ChatColor.AQUA + sender.getName() + ChatColor.GOLD
-                + "\n Date: " + ChatColor.AQUA + new Date(date * 1000), Material.GREEN_CONCRETE, null); // TODO: material
+                + "\n Date: " + ChatColor.AQUA + new Date(date * 1000), Material.NOTE_BLOCK, null);
     }
 
     public String getSaveString() {

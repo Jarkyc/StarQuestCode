@@ -10,7 +10,6 @@ import org.bukkit.Material;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 
@@ -19,9 +18,7 @@ public class Ban extends Infraction {
     private final String reason;
 
     public Ban(BanEntry banEntry) {
-        super(new InfractionSender(banEntry.getSource().equals("Console") ? null
-                        : Bukkit.getPlayerUniqueId(ChatColor.stripColor(banEntry.getSource()))),
-                Bukkit.getPlayerUniqueId(banEntry.getTarget()), Instant.now().getEpochSecond());
+        super(senderFromString(banEntry.getSource()), Bukkit.getPlayerUniqueId(banEntry.getTarget()), Instant.now().getEpochSecond());
 
         if (banEntry.getExpiration() == null) {
             this.duration = -1;
@@ -57,7 +54,6 @@ public class Ban extends Infraction {
         // find if ban is active, expired, or cancelled
         Infraction unbanned = null;
         ArrayList<Infraction> infractions = Infraction.infractionsToPlayer(target);
-        Collections.reverse(infractions);
         for (int i = infractions.indexOf(this) + 1; i < infractions.size(); i++) {
             if (infractions.get(i) instanceof Unban) {
                 if (infractions.get(i).date < expiry) {
@@ -81,14 +77,14 @@ public class Ban extends Infraction {
                 + "\n Target: " + ChatColor.AQUA + Bukkit.getOfflinePlayer(target).getName() + ChatColor.GOLD
                 + "\n Sender: " + ChatColor.AQUA + sender.getName() + ChatColor.GOLD
                 + "\n Date: " + ChatColor.AQUA + new Date(date * 1000) + ChatColor.GOLD
-                + "\n Duration: " + ChatColor.AQUA + durationString(duration) + ChatColor.GOLD + "\n ";
+                + (duration == -1 ? "" : "\n Duration: " + ChatColor.AQUA + durationString(duration) + ChatColor.GOLD) + "\n ";
         if (unbanned != null) {
-            lore += "Unbanned: " + new Date(unbanned.date * 1000) + " by " + unbanned.sender.getName();
+            lore += "Unbanned: " + ChatColor.AQUA + new Date(unbanned.date * 1000) + " by " + unbanned.sender.getName();
         } else if (duration != -1) {
             if (expiry > Instant.now().getEpochSecond()) {
-                lore += "Expired: " + new Date(expiry * 1000);
+                lore += "Expires: " + ChatColor.AQUA + new Date(expiry * 1000);
             } else {
-                lore += "Expires: " + new Date(expiry * 1000);
+                lore += "Expired: " + ChatColor.AQUA + new Date(expiry * 1000);
             }
         }
 

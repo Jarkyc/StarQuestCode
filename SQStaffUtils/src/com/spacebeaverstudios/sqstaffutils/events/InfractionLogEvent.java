@@ -25,9 +25,6 @@ public class InfractionLogEvent extends Event {
     public String getImageUrl() {
         return imageUrl;
     }
-    public String getColor() {
-        return "#ffffff"; // TODO
-    }
 
     public InfractionLogEvent(String name, String message, InfractionSender sender) {
         this.name = name;

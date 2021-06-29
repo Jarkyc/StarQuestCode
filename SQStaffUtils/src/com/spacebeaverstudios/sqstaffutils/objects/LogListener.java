@@ -3,6 +3,7 @@ package com.spacebeaverstudios.sqstaffutils.objects;
 import com.spacebeaverstudios.sqcore.utils.discord.DiscordUtils;
 import com.spacebeaverstudios.sqstaffutils.SQStaffUtils;
 import com.spacebeaverstudios.sqstaffutils.objects.infraction.Ban;
+import com.spacebeaverstudios.sqstaffutils.objects.infraction.Infraction;
 import com.spacebeaverstudios.sqstaffutils.objects.infraction.Unban;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LogEvent;
@@ -91,7 +92,6 @@ public class LogListener extends AbstractAppender {
     }
 
     private void logUnban(String unbannerName, String unbannedName) {
-        new Unban(new InfractionSender(unbannerName.equals("Console") ? null : Bukkit.getPlayerUniqueId(unbannerName)),
-                Bukkit.getPlayerUniqueId(unbannedName));
+        new Unban(Infraction.senderFromString(unbannerName), Bukkit.getPlayerUniqueId(unbannedName));
     }
 }

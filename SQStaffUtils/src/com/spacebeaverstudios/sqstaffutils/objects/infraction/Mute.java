@@ -9,7 +9,6 @@ import org.bukkit.Material;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 
@@ -39,7 +38,6 @@ public class Mute extends Infraction {
         // find if mute is active, expired, or cancelled
         Infraction unmuted = null;
         ArrayList<Infraction> infractions = Infraction.infractionsToPlayer(target);
-        Collections.reverse(infractions);
         for (int i = infractions.indexOf(this) + 1; i < infractions.size(); i++) {
             if (infractions.get(i) instanceof Unmute) {
                 if (infractions.get(i).date < expiry) {
@@ -60,21 +58,21 @@ public class Mute extends Infraction {
 
         // lore
         String lore = ChatColor.GOLD
-                + "\n Target: " + ChatColor.AQUA + Bukkit.getOfflinePlayer(target).getName() + ChatColor.GOLD
+                + "Target: " + ChatColor.AQUA + Bukkit.getOfflinePlayer(target).getName() + ChatColor.GOLD
                 + "\n Sender: " + ChatColor.AQUA + sender.getName() + ChatColor.GOLD
                 + "\n Date: " + ChatColor.AQUA + new Date(date * 1000) + ChatColor.GOLD
                 + "\n Duration: " + ChatColor.AQUA + durationString(duration) + ChatColor.GOLD + "\n ";
         if (unmuted != null) {
-            lore += "Unmuted: " + new Date(unmuted.date * 1000) + " by " + unmuted.sender.getName();
+            lore += "Unmuted: " + ChatColor.AQUA + new Date(unmuted.date * 1000) + " by " + unmuted.sender.getName();
         } else if (duration != -1) {
             if (expiry > Instant.now().getEpochSecond()) {
-                lore += "Expired: " + new Date(expiry * 1000);
+                lore += "Expires: " + ChatColor.AQUA + new Date(expiry * 1000);
             } else {
-                lore += "Expires: " + new Date(expiry * 1000);
+                lore += "Expired: " + ChatColor.AQUA + new Date(expiry * 1000);
             }
         }
 
-        return new GUIItem(name, lore, Material.BEDROCK, null); // TODO: material
+        return new GUIItem(name, lore, Material.BARRIER, null);
     }
 
     public String getSaveString() {

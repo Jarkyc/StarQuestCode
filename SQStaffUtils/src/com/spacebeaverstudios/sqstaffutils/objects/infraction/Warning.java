@@ -49,7 +49,7 @@ public class Warning extends Infraction {
                 + "\n Target: " + ChatColor.AQUA + Bukkit.getOfflinePlayer(target).getName() + ChatColor.GOLD
                 + "\n Sender: " + ChatColor.AQUA + sender.getName() + ChatColor.GOLD
                 + "\n Date: " + ChatColor.AQUA + new Date(date * 1000)
-                + (delivered ? "" : ChatColor.RED + "\n Not yet delivered! (Player hasn't logged in)"), Material.OAK_SIGN, null);
+                + (delivered ? "" : ChatColor.RED + "\n Not yet delivered! (Player hasn't logged in)"), Material.BELL, null);
     }
 
     public String getSaveString() {

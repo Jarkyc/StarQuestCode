@@ -1,9 +1,13 @@
 package com.spacebeaverstudios.sqstaffutils.objects.infraction;
 
+import com.earth2me.essentials.Essentials;
 import com.spacebeaverstudios.sqcore.gui.GUIItem;
+import com.spacebeaverstudios.sqcore.utils.discord.DiscordUtils;
 import com.spacebeaverstudios.sqstaffutils.SQStaffUtils;
 import com.spacebeaverstudios.sqstaffutils.events.InfractionLogEvent;
 import com.spacebeaverstudios.sqstaffutils.objects.InfractionSender;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -25,12 +29,37 @@ public abstract class Infraction {
     public static ArrayList<Infraction> infractionsFromPlayer(UUID player) {
         ArrayList<Infraction> toReturn = new ArrayList<>();
         for (Infraction infraction : infractions) {
-            if (infraction.sender.uuid.equals(player)) {
+            // prevent null issues with annoying set of if statements
+            if (infraction.sender.uuid == null) {
+                if (player == null) {
+                    toReturn.add(infraction);
+                }
+            } else if (infraction.sender.uuid.equals(player)) {
                 toReturn.add(infraction);
             }
         }
         toReturn.sort((o1, o2) -> (int) (o1.date - o2.date));
         return toReturn;
+    }
+
+    public static InfractionSender senderFromString(String str) {
+        str = ChatColor.stripColor(str);
+        if (str.equalsIgnoreCase("console")) {
+            return new InfractionSender(null);
+        } else if (Bukkit.getPlayerUniqueId(str) != null) {
+            return new InfractionSender(Bukkit.getPlayerUniqueId(str));
+        } else {
+            // if player has a nickname, do this shit
+            // fuck essentials user storage, just let me get by nickname ffs
+            Essentials ess = (Essentials) SQStaffUtils.getInstance().getServer().getPluginManager().getPlugin("Essentials");
+            for (UUID uuid : ess.getUserMap().getAllUniqueUsers()) {
+                if (str.equals(ChatColor.stripColor(ess.getUser(uuid).getNick()))) {
+                    return new InfractionSender(uuid);
+                }
+            }
+            SQStaffUtils.getInstance().getLogger().warning(DiscordUtils.tag("blankman") + " senderFromString(" + str + ") == null");
+            return null;
+        }
     }
 
     protected static String durationString(long duration) {
@@ -65,10 +94,10 @@ public abstract class Infraction {
     }
 
     // instance
-    public final InfractionSender sender; // if null, it's from console
+    public final InfractionSender sender;
     public final UUID target;
     public final long date;
-    protected final int id; // this doesn't have a specific use, but it's been useful in previous versions and I don't want to re-add it to all
+    protected final int id; // this doesn't have a specific use rn, but it's been useful in previous versions and I don't want to add it later
 
     protected Infraction(InfractionSender sender, UUID target, long date) {
         this.sender = sender;
