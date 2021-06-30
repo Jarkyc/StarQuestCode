@@ -6,6 +6,7 @@ import com.spacebeaverstudios.sqtech.SQTech;
 import com.spacebeaverstudios.sqtech.guis.FiltersListGUI;
 import com.spacebeaverstudios.sqtech.guis.guifunctions.OpenMachineGUIFunction;
 import com.spacebeaverstudios.sqtech.objects.SortingFilter;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -41,6 +42,8 @@ public class SortingMachine extends Machine {
     // instance
     public final SortingFilter[] filters = {new SortingFilter(), new SortingFilter(), new SortingFilter(), new SortingFilter(),
             new SortingFilter(), new SortingFilter(), new SortingFilter(), new SortingFilter(), new SortingFilter()};
+    private final ArrayList<Block> hoppers = new ArrayList<>();
+    private int hoppersCalculatedWhen = 0;
 
     public SortingMachine(Block sign) {
         super(sign);
@@ -64,15 +67,17 @@ public class SortingMachine extends Machine {
     }
 
     public ArrayList<Block> getHoppers() {
-        ArrayList<Block> hoppers = new ArrayList<>();
-        BlockFace signDirection = ((Directional) getSign().getBlock().getBlockData()).getFacing();
-        Block checking = getSign().getBlock().getRelative(signDirection.getOppositeFace()).getRelative(BlockFace.DOWN);
+        // only calculate hoppers once per second
+        if (hoppersCalculatedWhen < Bukkit.getCurrentTick()) {
+            hoppers.clear();
+            BlockFace signDirection = ((Directional) getSign().getBlock().getBlockData()).getFacing();
+            Block checking = getSign().getBlock().getRelative(signDirection.getOppositeFace()).getRelative(BlockFace.DOWN);
 
-        while (checking.getType() == Material.HOPPER && hoppers.size() < 9) {
-            hoppers.add(checking.getLocation().getBlock()); // roundabout cloning
-            checking = checking.getRelative(RotationUtils.rotateLeft(signDirection));
+            while (checking.getType() == Material.HOPPER && hoppers.size() < 9) {
+                hoppers.add(checking.getLocation().getBlock()); // roundabout cloning
+                checking = checking.getRelative(RotationUtils.rotateLeft(signDirection));
+            }
         }
-
         return hoppers;
     }
 
