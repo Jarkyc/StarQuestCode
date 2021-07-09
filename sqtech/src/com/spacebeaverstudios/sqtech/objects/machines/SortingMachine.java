@@ -69,6 +69,7 @@ public class SortingMachine extends Machine {
     public ArrayList<Block> getHoppers() {
         // only calculate hoppers once per second
         if (hoppersCalculatedWhen < Bukkit.getCurrentTick()) {
+            hoppersCalculatedWhen = Bukkit.getCurrentTick();
             hoppers.clear();
             BlockFace signDirection = ((Directional) getSign().getBlock().getBlockData()).getFacing();
             Block checking = getSign().getBlock().getRelative(signDirection.getOppositeFace()).getRelative(BlockFace.DOWN);
