@@ -1,3 +1,3 @@
 # StarQuestCode
 
-Old unused code for StarQuest, a Space Sim Minecraft server. 
+Old code for StarQuest, a Space Sim Minecraft server. 
